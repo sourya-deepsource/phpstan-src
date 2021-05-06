@@ -78,6 +78,9 @@ class FileAnalyser
 					$uniquedAnalysedCodeExceptionMessages = [];
 					$nodeType = get_class($node);
 					foreach ($registry->getRules($nodeType) as $rule) {
+						// We need to identify unique rules to assign an issue code
+						$ruleName = get_class($rule);
+
 						try {
 							$ruleErrors = $rule->processNode($node, $scope);
 						} catch (\PHPStan\AnalysedCodeException $e) {
@@ -147,6 +150,9 @@ class FileAnalyser
 									$canBeIgnored = false;
 								}
 							}
+
+							$message = "{$ruleName}:::{$message}";
+
 							$temporaryFileErrors[] = new Error(
 								$message,
 								$fileName,
