@@ -1,9 +1,5 @@
 version = 1
 
-test_patterns = ["tests/**/*.php"]
-
-exclude_patterns = ["vendor/**"]
-
 [[analyzers]]
 name = "php"
 enabled = true
