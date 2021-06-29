@@ -15,6 +15,7 @@ jobs:
   lint:
     name: "Lint"
     runs-on: "ubuntu-latest"
+    if: ${{ false }}
 
     strategy:
       matrix:
@@ -52,6 +53,7 @@ jobs:
     name: "Coding Standard"
 
     runs-on: "ubuntu-latest"
+    if: ${{ false }}
 
     strategy:
       matrix:
@@ -84,6 +86,7 @@ jobs:
     name: "Dependency Analysis"
 
     runs-on: "ubuntu-latest"
+    if: ${{ false }}
 
     strategy:
       matrix:
@@ -109,6 +112,7 @@ jobs:
   tests:
     name: "Tests"
     runs-on: ${{ matrix.operating-system }}
+    if: ${{ false }}
 
     strategy:
       fail-fast: false
@@ -149,6 +153,7 @@ jobs:
   tests-old-phpunit:
     name: "Tests with old PHPUnit"
     runs-on: ${{ matrix.operating-system }}
+    if: ${{ false }}
 
     strategy:
       fail-fast: false
@@ -208,19 +213,28 @@ jobs:
         run: "composer install --no-interaction --no-progress --no-suggest"
 
       - name: "Tests"
+        continue-on-error: true
         run: |
           php -dpcov.enabled=1 -dpcov.directory=. -dpcov.exclude="~vendor~" vendor/bin/phpunit
 
       - name: "Coveralls"
+        if: ${{ false }}
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
            composer require twinh/php-coveralls --dev && \
            vendor/bin/php-coveralls --verbose --coverage_clover=tests/tmp/clover.xml --json_path=tests/tmp/coveralls-upload.json
+      - name: "DeepSource"
+        env:
+          DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
+        run: |
+          curl https://deepsource.io/cli | sh && \
+          ./bin/deepsource report --analyzer test-coverage --key php --value-file tests/tmp/clover.xml
 
   static-analysis:
     name: "PHPStan"
     runs-on: ${{ matrix.operating-system }}
+    if: ${{ false }}
 
     strategy:
       fail-fast: false
@@ -264,6 +278,7 @@ jobs:
 
   static-analysis-with-result-cache:
     name: "PHPStan with result cache"
+    if: ${{ false }}
 
     runs-on: ubuntu-latest
 
@@ -311,6 +326,7 @@ jobs:
     name: "Result cache E2E tests"
 
     runs-on: ${{ matrix.operating-system }}
+    if: ${{ false }}
 
     strategy:
       matrix:
@@ -339,6 +355,7 @@ jobs:
 
   compiler-tests:
     name: "Compiler Tests"
+    if: ${{ false }}
 
     runs-on: "ubuntu-latest"
 
@@ -369,6 +386,7 @@ jobs:
 
   generate-baseline:
     name: "Generate baseline"
+    if: ${{ false }}
 
     runs-on: "ubuntu-latest"
 
@@ -399,6 +417,7 @@ jobs:
   e2e-tests:
     name: "E2E tests"
     runs-on: "ubuntu-latest"
+    if: ${{ false }}
 
     strategy:
       matrix:
