@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Dependency;
 
@@ -7,39 +9,36 @@ use PHPStan\Parser\Parser;
 
 class ExportedNodeFetcher
 {
+    private Parser $parser;
 
-	private Parser $parser;
+    private ExportedNodeVisitor $visitor;
 
-	private ExportedNodeVisitor $visitor;
+    public function __construct(
+        Parser $parser,
+        ExportedNodeVisitor $visitor
+    ) {
+        $this->parser = $parser;
+        $this->visitor = $visitor;
+    }
 
-	public function __construct(
-		Parser $parser,
-		ExportedNodeVisitor $visitor
-	)
-	{
-		$this->parser = $parser;
-		$this->visitor = $visitor;
-	}
+    /**
+     * @param string $fileName
+     * @return ExportedNode[]
+     */
+    public function fetchNodes(string $fileName): array
+    {
+        $nodeTraverser = new NodeTraverser();
+        $nodeTraverser->addVisitor($this->visitor);
 
-	/**
-	 * @param string $fileName
-	 * @return ExportedNode[]
-	 */
-	public function fetchNodes(string $fileName): array
-	{
-		$nodeTraverser = new NodeTraverser();
-		$nodeTraverser->addVisitor($this->visitor);
+        try {
+            /** @var \PhpParser\Node[] $ast */
+            $ast = $this->parser->parseFile($fileName);
+        } catch (\PHPStan\Parser\ParserErrorsException $e) {
+            return [];
+        }
+        $this->visitor->reset($fileName);
+        $nodeTraverser->traverse($ast);
 
-		try {
-			/** @var \PhpParser\Node[] $ast */
-			$ast = $this->parser->parseFile($fileName);
-		} catch (\PHPStan\Parser\ParserErrorsException $e) {
-			return [];
-		}
-		$this->visitor->reset($fileName);
-		$nodeTraverser->traverse($ast);
-
-		return $this->visitor->getExportedNodes();
-	}
-
+        return $this->visitor->getExportedNodes();
+    }
 }

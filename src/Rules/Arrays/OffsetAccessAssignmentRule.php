@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Arrays;
 
@@ -15,83 +17,81 @@ use PHPStan\Type\VerbosityLevel;
  */
 class OffsetAccessAssignmentRule implements \PHPStan\Rules\Rule
 {
+    private RuleLevelHelper $ruleLevelHelper;
 
-	private RuleLevelHelper $ruleLevelHelper;
+    public function __construct(RuleLevelHelper $ruleLevelHelper)
+    {
+        $this->ruleLevelHelper = $ruleLevelHelper;
+    }
 
-	public function __construct(RuleLevelHelper $ruleLevelHelper)
-	{
-		$this->ruleLevelHelper = $ruleLevelHelper;
-	}
+    public function getNodeType(): string
+    {
+        return \PhpParser\Node\Expr\ArrayDimFetch::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return \PhpParser\Node\Expr\ArrayDimFetch::class;
-	}
+    public function processNode(\PhpParser\Node $node, Scope $scope): array
+    {
+        if (!$scope->isInExpressionAssign($node)) {
+            return [];
+        }
 
-	public function processNode(\PhpParser\Node $node, Scope $scope): array
-	{
-		if (!$scope->isInExpressionAssign($node)) {
-			return [];
-		}
+        $potentialDimType = null;
+        if ($node->dim !== null) {
+            $potentialDimType = $scope->getType($node->dim);
+        }
 
-		$potentialDimType = null;
-		if ($node->dim !== null) {
-			$potentialDimType = $scope->getType($node->dim);
-		}
+        $varTypeResult = $this->ruleLevelHelper->findTypeToCheck(
+            $scope,
+            $node->var,
+            '',
+            static function (Type $varType) use ($potentialDimType): bool {
+                $arrayDimType = $varType->setOffsetValueType($potentialDimType, new MixedType());
+                return !($arrayDimType instanceof ErrorType);
+            }
+        );
+        $varType = $varTypeResult->getType();
+        if ($varType instanceof ErrorType) {
+            return [];
+        }
+        if (!$varType->isOffsetAccessible()->yes()) {
+            return [];
+        }
 
-		$varTypeResult = $this->ruleLevelHelper->findTypeToCheck(
-			$scope,
-			$node->var,
-			'',
-			static function (Type $varType) use ($potentialDimType): bool {
-				$arrayDimType = $varType->setOffsetValueType($potentialDimType, new MixedType());
-				return !($arrayDimType instanceof ErrorType);
-			}
-		);
-		$varType = $varTypeResult->getType();
-		if ($varType instanceof ErrorType) {
-			return [];
-		}
-		if (!$varType->isOffsetAccessible()->yes()) {
-			return [];
-		}
+        if ($node->dim !== null) {
+            $dimTypeResult = $this->ruleLevelHelper->findTypeToCheck(
+                $scope,
+                $node->dim,
+                '',
+                static function (Type $dimType) use ($varType): bool {
+                    $arrayDimType = $varType->setOffsetValueType($dimType, new MixedType());
+                    return !($arrayDimType instanceof ErrorType);
+                }
+            );
+            $dimType = $dimTypeResult->getType();
+        } else {
+            $dimType = $potentialDimType;
+        }
 
-		if ($node->dim !== null) {
-			$dimTypeResult = $this->ruleLevelHelper->findTypeToCheck(
-				$scope,
-				$node->dim,
-				'',
-				static function (Type $dimType) use ($varType): bool {
-					$arrayDimType = $varType->setOffsetValueType($dimType, new MixedType());
-					return !($arrayDimType instanceof ErrorType);
-				}
-			);
-			$dimType = $dimTypeResult->getType();
-		} else {
-			$dimType = $potentialDimType;
-		}
+        $resultType = $varType->setOffsetValueType($dimType, new MixedType());
+        if (!($resultType instanceof ErrorType)) {
+            return [];
+        }
 
-		$resultType = $varType->setOffsetValueType($dimType, new MixedType());
-		if (!($resultType instanceof ErrorType)) {
-			return [];
-		}
+        if ($dimType === null) {
+            return [
+                RuleErrorBuilder::message(sprintf(
+                    'Cannot assign new offset to %s.',
+                    $varType->describe(VerbosityLevel::typeOnly())
+                ))->build(),
+            ];
+        }
 
-		if ($dimType === null) {
-			return [
-				RuleErrorBuilder::message(sprintf(
-					'Cannot assign new offset to %s.',
-					$varType->describe(VerbosityLevel::typeOnly())
-				))->build(),
-			];
-		}
-
-		return [
-			RuleErrorBuilder::message(sprintf(
-				'Cannot assign offset %s to %s.',
-				$dimType->describe(VerbosityLevel::value()),
-				$varType->describe(VerbosityLevel::typeOnly())
-			))->build(),
-		];
-	}
-
+        return [
+            RuleErrorBuilder::message(sprintf(
+                'Cannot assign offset %s to %s.',
+                $dimType->describe(VerbosityLevel::value()),
+                $varType->describe(VerbosityLevel::typeOnly())
+            ))->build(),
+        ];
+    }
 }

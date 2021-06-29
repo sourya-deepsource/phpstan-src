@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Generic;
 
@@ -12,34 +14,32 @@ use PHPStan\Type\Type;
  */
 class TemplateTypeArgumentStrategy implements TemplateTypeStrategy
 {
+    public function accepts(TemplateType $left, Type $right, bool $strictTypes): TrinaryLogic
+    {
+        if ($right instanceof IntersectionType) {
+            foreach ($right->getTypes() as $type) {
+                if ($this->accepts($left, $type, $strictTypes)->yes()) {
+                    return TrinaryLogic::createYes();
+                }
+            }
 
-	public function accepts(TemplateType $left, Type $right, bool $strictTypes): TrinaryLogic
-	{
-		if ($right instanceof IntersectionType) {
-			foreach ($right->getTypes() as $type) {
-				if ($this->accepts($left, $type, $strictTypes)->yes()) {
-					return TrinaryLogic::createYes();
-				}
-			}
+            return TrinaryLogic::createNo();
+        }
 
-			return TrinaryLogic::createNo();
-		}
+        return TrinaryLogic::createFromBoolean($left->equals($right))
+            ->or(TrinaryLogic::createFromBoolean($right->equals(new MixedType())));
+    }
 
-		return TrinaryLogic::createFromBoolean($left->equals($right))
-			->or(TrinaryLogic::createFromBoolean($right->equals(new MixedType())));
-	}
+    public function isArgument(): bool
+    {
+        return true;
+    }
 
-	public function isArgument(): bool
-	{
-		return true;
-	}
-
-	/**
-	 * @param mixed[] $properties
-	 */
-	public static function __set_state(array $properties): self
-	{
-		return new self();
-	}
-
+    /**
+     * @param mixed[] $properties
+     */
+    public static function __set_state(array $properties): self
+    {
+        return new self();
+    }
 }

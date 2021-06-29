@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Process\Runnable;
 
@@ -6,11 +8,9 @@ use React\Promise\CancellablePromiseInterface;
 
 interface Runnable
 {
+    public function getName(): string;
 
-	public function getName(): string;
+    public function run(): CancellablePromiseInterface;
 
-	public function run(): CancellablePromiseInterface;
-
-	public function cancel(): void;
-
+    public function cancel(): void;
 }

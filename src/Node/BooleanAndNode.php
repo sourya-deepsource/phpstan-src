@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Node;
 
@@ -9,47 +11,45 @@ use PHPStan\Analyser\Scope;
 
 class BooleanAndNode extends NodeAbstract implements VirtualNode
 {
+    /** @var BooleanAnd|LogicalAnd */
+    private $originalNode;
 
-	/** @var BooleanAnd|LogicalAnd */
-	private $originalNode;
+    private Scope $rightScope;
 
-	private Scope $rightScope;
+    /**
+     * @param BooleanAnd|LogicalAnd $originalNode
+     * @param Scope $rightScope
+     */
+    public function __construct($originalNode, Scope $rightScope)
+    {
+        parent::__construct($originalNode->getAttributes());
+        $this->originalNode = $originalNode;
+        $this->rightScope = $rightScope;
+    }
 
-	/**
-	 * @param BooleanAnd|LogicalAnd $originalNode
-	 * @param Scope $rightScope
-	 */
-	public function __construct($originalNode, Scope $rightScope)
-	{
-		parent::__construct($originalNode->getAttributes());
-		$this->originalNode = $originalNode;
-		$this->rightScope = $rightScope;
-	}
+    /**
+     * @return BooleanAnd|LogicalAnd
+     */
+    public function getOriginalNode()
+    {
+        return $this->originalNode;
+    }
 
-	/**
-	 * @return BooleanAnd|LogicalAnd
-	 */
-	public function getOriginalNode()
-	{
-		return $this->originalNode;
-	}
+    public function getRightScope(): Scope
+    {
+        return $this->rightScope;
+    }
 
-	public function getRightScope(): Scope
-	{
-		return $this->rightScope;
-	}
+    public function getType(): string
+    {
+        return 'PHPStan_Node_BooleanAndNode';
+    }
 
-	public function getType(): string
-	{
-		return 'PHPStan_Node_BooleanAndNode';
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getSubNodeNames(): array
-	{
-		return [];
-	}
-
+    /**
+     * @return string[]
+     */
+    public function getSubNodeNames(): array
+    {
+        return [];
+    }
 }

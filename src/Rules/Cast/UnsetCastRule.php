@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Cast;
 
@@ -13,28 +15,26 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class UnsetCastRule implements Rule
 {
+    private PhpVersion $phpVersion;
 
-	private PhpVersion $phpVersion;
+    public function __construct(PhpVersion $phpVersion)
+    {
+        $this->phpVersion = $phpVersion;
+    }
 
-	public function __construct(PhpVersion $phpVersion)
-	{
-		$this->phpVersion = $phpVersion;
-	}
+    public function getNodeType(): string
+    {
+        return Node\Expr\Cast\Unset_::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Node\Expr\Cast\Unset_::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if ($this->phpVersion->supportsUnsetCast()) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if ($this->phpVersion->supportsUnsetCast()) {
-			return [];
-		}
-
-		return [
-			RuleErrorBuilder::message('The (unset) cast is no longer supported in PHP 8.0 and later.')->nonIgnorable()->build(),
-		];
-	}
-
+        return [
+            RuleErrorBuilder::message('The (unset) cast is no longer supported in PHP 8.0 and later.')->nonIgnorable()->build(),
+        ];
+    }
 }

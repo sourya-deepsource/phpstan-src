@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Exceptions;
 
@@ -15,58 +17,55 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class CaughtExceptionExistenceRule implements \PHPStan\Rules\Rule
 {
+    private \PHPStan\Reflection\ReflectionProvider $reflectionProvider;
 
-	private \PHPStan\Reflection\ReflectionProvider $reflectionProvider;
+    private \PHPStan\Rules\ClassCaseSensitivityCheck $classCaseSensitivityCheck;
 
-	private \PHPStan\Rules\ClassCaseSensitivityCheck $classCaseSensitivityCheck;
+    private bool $checkClassCaseSensitivity;
 
-	private bool $checkClassCaseSensitivity;
+    public function __construct(
+        ReflectionProvider $reflectionProvider,
+        ClassCaseSensitivityCheck $classCaseSensitivityCheck,
+        bool $checkClassCaseSensitivity
+    ) {
+        $this->reflectionProvider = $reflectionProvider;
+        $this->classCaseSensitivityCheck = $classCaseSensitivityCheck;
+        $this->checkClassCaseSensitivity = $checkClassCaseSensitivity;
+    }
 
-	public function __construct(
-		ReflectionProvider $reflectionProvider,
-		ClassCaseSensitivityCheck $classCaseSensitivityCheck,
-		bool $checkClassCaseSensitivity
-	)
-	{
-		$this->reflectionProvider = $reflectionProvider;
-		$this->classCaseSensitivityCheck = $classCaseSensitivityCheck;
-		$this->checkClassCaseSensitivity = $checkClassCaseSensitivity;
-	}
+    public function getNodeType(): string
+    {
+        return Catch_::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Catch_::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $errors = [];
+        foreach ($node->types as $class) {
+            $className = (string) $class;
+            if (!$this->reflectionProvider->hasClass($className)) {
+                if ($scope->isInClassExists($className)) {
+                    continue;
+                }
+                $errors[] = RuleErrorBuilder::message(sprintf('Caught class %s not found.', $className))->line($class->getLine())->discoveringSymbolsTip()->build();
+                continue;
+            }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		$errors = [];
-		foreach ($node->types as $class) {
-			$className = (string) $class;
-			if (!$this->reflectionProvider->hasClass($className)) {
-				if ($scope->isInClassExists($className)) {
-					continue;
-				}
-				$errors[] = RuleErrorBuilder::message(sprintf('Caught class %s not found.', $className))->line($class->getLine())->discoveringSymbolsTip()->build();
-				continue;
-			}
+            $classReflection = $this->reflectionProvider->getClass($className);
+            if (!$classReflection->isInterface() && !$classReflection->implementsInterface(\Throwable::class)) {
+                $errors[] = RuleErrorBuilder::message(sprintf('Caught class %s is not an exception.', $classReflection->getDisplayName()))->line($class->getLine())->build();
+            }
 
-			$classReflection = $this->reflectionProvider->getClass($className);
-			if (!$classReflection->isInterface() && !$classReflection->implementsInterface(\Throwable::class)) {
-				$errors[] = RuleErrorBuilder::message(sprintf('Caught class %s is not an exception.', $classReflection->getDisplayName()))->line($class->getLine())->build();
-			}
+            if (!$this->checkClassCaseSensitivity) {
+                continue;
+            }
 
-			if (!$this->checkClassCaseSensitivity) {
-				continue;
-			}
+            $errors = array_merge(
+                $errors,
+                $this->classCaseSensitivityCheck->checkClassNames([new ClassNameNodePair($className, $class)])
+            );
+        }
 
-			$errors = array_merge(
-				$errors,
-				$this->classCaseSensitivityCheck->checkClassNames([new ClassNameNodePair($className, $class)])
-			);
-		}
-
-		return $errors;
-	}
-
+        return $errors;
+    }
 }

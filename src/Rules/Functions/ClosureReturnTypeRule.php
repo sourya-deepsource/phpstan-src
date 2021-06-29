@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Functions;
 
@@ -13,55 +15,53 @@ use PHPStan\Type\TypeCombinator;
  */
 class ClosureReturnTypeRule implements \PHPStan\Rules\Rule
 {
+    private \PHPStan\Rules\FunctionReturnTypeCheck $returnTypeCheck;
 
-	private \PHPStan\Rules\FunctionReturnTypeCheck $returnTypeCheck;
+    public function __construct(FunctionReturnTypeCheck $returnTypeCheck)
+    {
+        $this->returnTypeCheck = $returnTypeCheck;
+    }
 
-	public function __construct(FunctionReturnTypeCheck $returnTypeCheck)
-	{
-		$this->returnTypeCheck = $returnTypeCheck;
-	}
+    public function getNodeType(): string
+    {
+        return ClosureReturnStatementsNode::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return ClosureReturnStatementsNode::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if (!$scope->isInAnonymousFunction()) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if (!$scope->isInAnonymousFunction()) {
-			return [];
-		}
+        /** @var \PHPStan\Type\Type $returnType */
+        $returnType = $scope->getAnonymousFunctionReturnType();
+        $containsNull = TypeCombinator::containsNull($returnType);
+        $hasNativeTypehint = $node->getClosureExpr()->returnType !== null;
 
-		/** @var \PHPStan\Type\Type $returnType */
-		$returnType = $scope->getAnonymousFunctionReturnType();
-		$containsNull = TypeCombinator::containsNull($returnType);
-		$hasNativeTypehint = $node->getClosureExpr()->returnType !== null;
+        $messages = [];
+        foreach ($node->getReturnStatements() as $returnStatement) {
+            $returnNode = $returnStatement->getReturnNode();
+            $returnExpr = $returnNode->expr;
+            if ($returnExpr === null && $containsNull && !$hasNativeTypehint) {
+                $returnExpr = new Node\Expr\ConstFetch(new Node\Name\FullyQualified('null'));
+            }
+            $returnMessages = $this->returnTypeCheck->checkReturnType(
+                $returnStatement->getScope(),
+                $returnType,
+                $returnExpr,
+                $returnNode,
+                'Anonymous function should return %s but empty return statement found.',
+                'Anonymous function with return type void returns %s but should not return anything.',
+                'Anonymous function should return %s but returns %s.',
+                'Anonymous function should never return but return statement found.',
+                count($node->getYieldStatements()) > 0
+            );
 
-		$messages = [];
-		foreach ($node->getReturnStatements() as $returnStatement) {
-			$returnNode = $returnStatement->getReturnNode();
-			$returnExpr = $returnNode->expr;
-			if ($returnExpr === null && $containsNull && !$hasNativeTypehint) {
-				$returnExpr = new Node\Expr\ConstFetch(new Node\Name\FullyQualified('null'));
-			}
-			$returnMessages = $this->returnTypeCheck->checkReturnType(
-				$returnStatement->getScope(),
-				$returnType,
-				$returnExpr,
-				$returnNode,
-				'Anonymous function should return %s but empty return statement found.',
-				'Anonymous function with return type void returns %s but should not return anything.',
-				'Anonymous function should return %s but returns %s.',
-				'Anonymous function should never return but return statement found.',
-				count($node->getYieldStatements()) > 0
-			);
+            foreach ($returnMessages as $returnMessage) {
+                $messages[] = $returnMessage;
+            }
+        }
 
-			foreach ($returnMessages as $returnMessage) {
-				$messages[] = $returnMessage;
-			}
-		}
-
-		return $messages;
-	}
-
+        return $messages;
+    }
 }

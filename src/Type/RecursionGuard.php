@@ -1,32 +1,32 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type;
 
 class RecursionGuard
 {
+    /** @var true[] */
+    private static array $context = [];
 
-	/** @var true[] */
-	private static array $context = [];
+    /**
+     * @param Type $type
+     * @param callable(): Type $callback
+     *
+     * @return Type
+     */
+    public static function run(Type $type, callable $callback): Type
+    {
+        $key = $type->describe(VerbosityLevel::value());
+        if (isset(self::$context[$key])) {
+            return new ErrorType();
+        }
 
-	/**
-	 * @param Type $type
-	 * @param callable(): Type $callback
-	 *
-	 * @return Type
-	 */
-	public static function run(Type $type, callable $callback): Type
-	{
-		$key = $type->describe(VerbosityLevel::value());
-		if (isset(self::$context[$key])) {
-			return new ErrorType();
-		}
-
-		try {
-			self::$context[$key] = true;
-			return $callback();
-		} finally {
-			unset(self::$context[$key]);
-		}
-	}
-
+        try {
+            self::$context[$key] = true;
+            return $callback();
+        } finally {
+            unset(self::$context[$key]);
+        }
+    }
 }

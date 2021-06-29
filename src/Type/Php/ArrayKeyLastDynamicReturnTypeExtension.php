@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -13,46 +15,44 @@ use PHPStan\Type\TypeUtils;
 
 class ArrayKeyLastDynamicReturnTypeExtension implements \PHPStan\Type\DynamicFunctionReturnTypeExtension
 {
+    public function isFunctionSupported(FunctionReflection $functionReflection): bool
+    {
+        return $functionReflection->getName() === 'array_key_last';
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection): bool
-	{
-		return $functionReflection->getName() === 'array_key_last';
-	}
+    public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
+    {
+        if (!isset($functionCall->args[0])) {
+            return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
+        }
 
-	public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
-	{
-		if (!isset($functionCall->args[0])) {
-			return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
-		}
+        $argType = $scope->getType($functionCall->args[0]->value);
+        $iterableAtLeastOnce = $argType->isIterableAtLeastOnce();
+        if ($iterableAtLeastOnce->no()) {
+            return new NullType();
+        }
 
-		$argType = $scope->getType($functionCall->args[0]->value);
-		$iterableAtLeastOnce = $argType->isIterableAtLeastOnce();
-		if ($iterableAtLeastOnce->no()) {
-			return new NullType();
-		}
+        $constantArrays = TypeUtils::getConstantArrays($argType);
+        if (count($constantArrays) > 0) {
+            $keyTypes = [];
+            foreach ($constantArrays as $constantArray) {
+                $arrayKeyTypes = $constantArray->getKeyTypes();
+                if (count($arrayKeyTypes) === 0) {
+                    $keyTypes[] = new NullType();
+                    continue;
+                }
 
-		$constantArrays = TypeUtils::getConstantArrays($argType);
-		if (count($constantArrays) > 0) {
-			$keyTypes = [];
-			foreach ($constantArrays as $constantArray) {
-				$arrayKeyTypes = $constantArray->getKeyTypes();
-				if (count($arrayKeyTypes) === 0) {
-					$keyTypes[] = new NullType();
-					continue;
-				}
+                $keyTypes[] = $arrayKeyTypes[count($arrayKeyTypes) - 1];
+            }
 
-				$keyTypes[] = $arrayKeyTypes[count($arrayKeyTypes) - 1];
-			}
+            return TypeCombinator::union(...$keyTypes);
+        }
 
-			return TypeCombinator::union(...$keyTypes);
-		}
+        $keyType = $argType->getIterableKeyType();
+        if ($iterableAtLeastOnce->yes()) {
+            return $keyType;
+        }
 
-		$keyType = $argType->getIterableKeyType();
-		if ($iterableAtLeastOnce->yes()) {
-			return $keyType;
-		}
-
-		return TypeCombinator::union($keyType, new NullType());
-	}
-
+        return TypeCombinator::union($keyType, new NullType());
+    }
 }

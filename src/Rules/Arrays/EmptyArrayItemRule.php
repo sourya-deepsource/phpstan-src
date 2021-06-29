@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Arrays;
 
@@ -13,28 +15,26 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class EmptyArrayItemRule implements Rule
 {
+    public function getNodeType(): string
+    {
+        return LiteralArrayNode::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return LiteralArrayNode::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        foreach ($node->getItemNodes() as $itemNode) {
+            $item = $itemNode->getArrayItem();
+            if ($item !== null) {
+                continue;
+            }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		foreach ($node->getItemNodes() as $itemNode) {
-			$item = $itemNode->getArrayItem();
-			if ($item !== null) {
-				continue;
-			}
+            return [
+                RuleErrorBuilder::message('Literal array contains empty item.')
+                    ->nonIgnorable()
+                    ->build(),
+            ];
+        }
 
-			return [
-				RuleErrorBuilder::message('Literal array contains empty item.')
-					->nonIgnorable()
-					->build(),
-			];
-		}
-
-		return [];
-	}
-
+        return [];
+    }
 }

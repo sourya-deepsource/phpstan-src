@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Generics;
 
@@ -14,33 +16,31 @@ use PHPStan\Rules\Rule;
  */
 class MethodSignatureVarianceRule implements Rule
 {
+    private \PHPStan\Rules\Generics\VarianceCheck $varianceCheck;
 
-	private \PHPStan\Rules\Generics\VarianceCheck $varianceCheck;
+    public function __construct(VarianceCheck $varianceCheck)
+    {
+        $this->varianceCheck = $varianceCheck;
+    }
 
-	public function __construct(VarianceCheck $varianceCheck)
-	{
-		$this->varianceCheck = $varianceCheck;
-	}
+    public function getNodeType(): string
+    {
+        return InClassMethodNode::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return InClassMethodNode::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $method = $scope->getFunction();
+        if (!$method instanceof MethodReflection) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		$method = $scope->getFunction();
-		if (!$method instanceof MethodReflection) {
-			return [];
-		}
-
-		return $this->varianceCheck->checkParametersAcceptor(
-			ParametersAcceptorSelector::selectSingle($method->getVariants()),
-			sprintf('in parameter %%s of method %s::%s()', $method->getDeclaringClass()->getDisplayName(), $method->getName()),
-			sprintf('in return type of method %s::%s()', $method->getDeclaringClass()->getDisplayName(), $method->getName()),
-			sprintf('in method %s::%s()', $method->getDeclaringClass()->getDisplayName(), $method->getName()),
-			$method->getName() === '__construct' || $method->isStatic()
-		);
-	}
-
+        return $this->varianceCheck->checkParametersAcceptor(
+            ParametersAcceptorSelector::selectSingle($method->getVariants()),
+            sprintf('in parameter %%s of method %s::%s()', $method->getDeclaringClass()->getDisplayName(), $method->getName()),
+            sprintf('in return type of method %s::%s()', $method->getDeclaringClass()->getDisplayName(), $method->getName()),
+            sprintf('in method %s::%s()', $method->getDeclaringClass()->getDisplayName(), $method->getName()),
+            $method->getName() === '__construct' || $method->isStatic()
+        );
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection\Generic;
 
@@ -14,76 +16,73 @@ use PHPStan\Type\Type;
  */
 class ResolvedFunctionVariant implements ParametersAcceptor
 {
+    private ParametersAcceptor $parametersAcceptor;
 
-	private ParametersAcceptor $parametersAcceptor;
+    private TemplateTypeMap $resolvedTemplateTypeMap;
 
-	private TemplateTypeMap $resolvedTemplateTypeMap;
+    /** @var ParameterReflection[]|null */
+    private ?array $parameters = null;
 
-	/** @var ParameterReflection[]|null */
-	private ?array $parameters = null;
+    private ?Type $returnType = null;
 
-	private ?Type $returnType = null;
+    public function __construct(
+        ParametersAcceptor $parametersAcceptor,
+        TemplateTypeMap $resolvedTemplateTypeMap
+    ) {
+        $this->parametersAcceptor = $parametersAcceptor;
+        $this->resolvedTemplateTypeMap = $resolvedTemplateTypeMap;
+    }
 
-	public function __construct(
-		ParametersAcceptor $parametersAcceptor,
-		TemplateTypeMap $resolvedTemplateTypeMap
-	)
-	{
-		$this->parametersAcceptor = $parametersAcceptor;
-		$this->resolvedTemplateTypeMap = $resolvedTemplateTypeMap;
-	}
+    public function getTemplateTypeMap(): TemplateTypeMap
+    {
+        return $this->parametersAcceptor->getTemplateTypeMap();
+    }
 
-	public function getTemplateTypeMap(): TemplateTypeMap
-	{
-		return $this->parametersAcceptor->getTemplateTypeMap();
-	}
+    public function getResolvedTemplateTypeMap(): TemplateTypeMap
+    {
+        return $this->resolvedTemplateTypeMap;
+    }
 
-	public function getResolvedTemplateTypeMap(): TemplateTypeMap
-	{
-		return $this->resolvedTemplateTypeMap;
-	}
+    public function getParameters(): array
+    {
+        $parameters = $this->parameters;
 
-	public function getParameters(): array
-	{
-		$parameters = $this->parameters;
+        if ($parameters === null) {
+            $parameters = array_map(function (ParameterReflection $param): ParameterReflection {
+                return new DummyParameter(
+                    $param->getName(),
+                    TemplateTypeHelper::resolveTemplateTypes($param->getType(), $this->resolvedTemplateTypeMap),
+                    $param->isOptional(),
+                    $param->passedByReference(),
+                    $param->isVariadic(),
+                    $param->getDefaultValue()
+                );
+            }, $this->parametersAcceptor->getParameters());
 
-		if ($parameters === null) {
-			$parameters = array_map(function (ParameterReflection $param): ParameterReflection {
-				return new DummyParameter(
-					$param->getName(),
-					TemplateTypeHelper::resolveTemplateTypes($param->getType(), $this->resolvedTemplateTypeMap),
-					$param->isOptional(),
-					$param->passedByReference(),
-					$param->isVariadic(),
-					$param->getDefaultValue()
-				);
-			}, $this->parametersAcceptor->getParameters());
+            $this->parameters = $parameters;
+        }
 
-			$this->parameters = $parameters;
-		}
+        return $parameters;
+    }
 
-		return $parameters;
-	}
+    public function isVariadic(): bool
+    {
+        return $this->parametersAcceptor->isVariadic();
+    }
 
-	public function isVariadic(): bool
-	{
-		return $this->parametersAcceptor->isVariadic();
-	}
+    public function getReturnType(): Type
+    {
+        $type = $this->returnType;
 
-	public function getReturnType(): Type
-	{
-		$type = $this->returnType;
+        if ($type === null) {
+            $type = TemplateTypeHelper::resolveTemplateTypes(
+                $this->parametersAcceptor->getReturnType(),
+                $this->resolvedTemplateTypeMap
+            );
 
-		if ($type === null) {
-			$type = TemplateTypeHelper::resolveTemplateTypes(
-				$this->parametersAcceptor->getReturnType(),
-				$this->resolvedTemplateTypeMap
-			);
+            $this->returnType = $type;
+        }
 
-			$this->returnType = $type;
-		}
-
-		return $type;
-	}
-
+        return $type;
+    }
 }

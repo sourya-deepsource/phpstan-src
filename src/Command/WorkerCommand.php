@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Command;
 
@@ -21,250 +23,245 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class WorkerCommand extends Command
 {
+    private const NAME = 'worker';
 
-	private const NAME = 'worker';
+    /** @var string[] */
+    private array $composerAutoloaderProjectPaths;
 
-	/** @var string[] */
-	private array $composerAutoloaderProjectPaths;
+    private int $errorCount = 0;
 
-	private int $errorCount = 0;
+    /**
+     * @param string[] $composerAutoloaderProjectPaths
+     */
+    public function __construct(
+        array $composerAutoloaderProjectPaths
+    ) {
+        parent::__construct();
+        $this->composerAutoloaderProjectPaths = $composerAutoloaderProjectPaths;
+    }
 
-	/**
-	 * @param string[] $composerAutoloaderProjectPaths
-	 */
-	public function __construct(
-		array $composerAutoloaderProjectPaths
-	)
-	{
-		parent::__construct();
-		$this->composerAutoloaderProjectPaths = $composerAutoloaderProjectPaths;
-	}
+    protected function configure(): void
+    {
+        $this->setName(self::NAME)
+            ->setDescription('(Internal) Support for parallel analysis.')
+            ->setDefinition([
+                new InputArgument('paths', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'Paths with source code to run analysis on'),
+                new InputOption('paths-file', null, InputOption::VALUE_REQUIRED, 'Path to a file with a list of paths to run analysis on'),
+                new InputOption('configuration', 'c', InputOption::VALUE_REQUIRED, 'Path to project configuration file'),
+                new InputOption(AnalyseCommand::OPTION_LEVEL, 'l', InputOption::VALUE_REQUIRED, 'Level of rule options - the higher the stricter'),
+                new InputOption('autoload-file', 'a', InputOption::VALUE_REQUIRED, 'Project\'s additional autoload file path'),
+                new InputOption('memory-limit', null, InputOption::VALUE_REQUIRED, 'Memory limit for analysis'),
+                new InputOption('xdebug', null, InputOption::VALUE_NONE, 'Allow running with XDebug for debugging purposes'),
+                new InputOption('port', null, InputOption::VALUE_REQUIRED),
+                new InputOption('identifier', null, InputOption::VALUE_REQUIRED),
+                new InputOption('tmp-file', null, InputOption::VALUE_REQUIRED),
+                new InputOption('instead-of', null, InputOption::VALUE_REQUIRED),
+            ]);
+    }
 
-	protected function configure(): void
-	{
-		$this->setName(self::NAME)
-			->setDescription('(Internal) Support for parallel analysis.')
-			->setDefinition([
-				new InputArgument('paths', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'Paths with source code to run analysis on'),
-				new InputOption('paths-file', null, InputOption::VALUE_REQUIRED, 'Path to a file with a list of paths to run analysis on'),
-				new InputOption('configuration', 'c', InputOption::VALUE_REQUIRED, 'Path to project configuration file'),
-				new InputOption(AnalyseCommand::OPTION_LEVEL, 'l', InputOption::VALUE_REQUIRED, 'Level of rule options - the higher the stricter'),
-				new InputOption('autoload-file', 'a', InputOption::VALUE_REQUIRED, 'Project\'s additional autoload file path'),
-				new InputOption('memory-limit', null, InputOption::VALUE_REQUIRED, 'Memory limit for analysis'),
-				new InputOption('xdebug', null, InputOption::VALUE_NONE, 'Allow running with XDebug for debugging purposes'),
-				new InputOption('port', null, InputOption::VALUE_REQUIRED),
-				new InputOption('identifier', null, InputOption::VALUE_REQUIRED),
-				new InputOption('tmp-file', null, InputOption::VALUE_REQUIRED),
-				new InputOption('instead-of', null, InputOption::VALUE_REQUIRED),
-			]);
-	}
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $paths = $input->getArgument('paths');
+        $memoryLimit = $input->getOption('memory-limit');
+        $autoloadFile = $input->getOption('autoload-file');
+        $configuration = $input->getOption('configuration');
+        $level = $input->getOption(AnalyseCommand::OPTION_LEVEL);
+        $pathsFile = $input->getOption('paths-file');
+        $allowXdebug = $input->getOption('xdebug');
+        $port = $input->getOption('port');
+        $identifier = $input->getOption('identifier');
 
-	protected function execute(InputInterface $input, OutputInterface $output): int
-	{
-		$paths = $input->getArgument('paths');
-		$memoryLimit = $input->getOption('memory-limit');
-		$autoloadFile = $input->getOption('autoload-file');
-		$configuration = $input->getOption('configuration');
-		$level = $input->getOption(AnalyseCommand::OPTION_LEVEL);
-		$pathsFile = $input->getOption('paths-file');
-		$allowXdebug = $input->getOption('xdebug');
-		$port = $input->getOption('port');
-		$identifier = $input->getOption('identifier');
+        if (
+            !is_array($paths)
+            || (!is_string($memoryLimit) && $memoryLimit !== null)
+            || (!is_string($autoloadFile) && $autoloadFile !== null)
+            || (!is_string($configuration) && $configuration !== null)
+            || (!is_string($level) && $level !== null)
+            || (!is_string($pathsFile) && $pathsFile !== null)
+            || (!is_bool($allowXdebug))
+            || !is_string($port)
+            || !is_string($identifier)
+        ) {
+            throw new \PHPStan\ShouldNotHappenException();
+        }
 
-		if (
-			!is_array($paths)
-			|| (!is_string($memoryLimit) && $memoryLimit !== null)
-			|| (!is_string($autoloadFile) && $autoloadFile !== null)
-			|| (!is_string($configuration) && $configuration !== null)
-			|| (!is_string($level) && $level !== null)
-			|| (!is_string($pathsFile) && $pathsFile !== null)
-			|| (!is_bool($allowXdebug))
-			|| !is_string($port)
-			|| !is_string($identifier)
-		) {
-			throw new \PHPStan\ShouldNotHappenException();
-		}
+        /** @var string|null $tmpFile */
+        $tmpFile = $input->getOption('tmp-file');
 
-		/** @var string|null $tmpFile */
-		$tmpFile = $input->getOption('tmp-file');
+        /** @var string|null $insteadOfFile */
+        $insteadOfFile = $input->getOption('instead-of');
 
-		/** @var string|null $insteadOfFile */
-		$insteadOfFile = $input->getOption('instead-of');
+        $singleReflectionFile = null;
+        if ($tmpFile !== null) {
+            $singleReflectionFile = $tmpFile;
+        }
 
-		$singleReflectionFile = null;
-		if ($tmpFile !== null) {
-			$singleReflectionFile = $tmpFile;
-		}
+        try {
+            $inceptionResult = CommandHelper::begin(
+                $input,
+                $output,
+                $paths,
+                $pathsFile,
+                $memoryLimit,
+                $autoloadFile,
+                $this->composerAutoloaderProjectPaths,
+                $configuration,
+                null,
+                $level,
+                $allowXdebug,
+                false,
+                false,
+                $singleReflectionFile
+            );
+        } catch (\PHPStan\Command\InceptionNotSuccessfulException $e) {
+            return 1;
+        }
+        $loop = new StreamSelectLoop();
 
-		try {
-			$inceptionResult = CommandHelper::begin(
-				$input,
-				$output,
-				$paths,
-				$pathsFile,
-				$memoryLimit,
-				$autoloadFile,
-				$this->composerAutoloaderProjectPaths,
-				$configuration,
-				null,
-				$level,
-				$allowXdebug,
-				false,
-				false,
-				$singleReflectionFile
-			);
-		} catch (\PHPStan\Command\InceptionNotSuccessfulException $e) {
-			return 1;
-		}
-		$loop = new StreamSelectLoop();
+        $container = $inceptionResult->getContainer();
 
-		$container = $inceptionResult->getContainer();
+        try {
+            [$analysedFiles] = $inceptionResult->getFiles();
+            $analysedFiles = $this->switchTmpFile($analysedFiles, $insteadOfFile, $tmpFile);
+        } catch (\PHPStan\File\PathNotFoundException $e) {
+            $inceptionResult->getErrorOutput()->writeLineFormatted(sprintf('<error>%s</error>', $e->getMessage()));
+            return 1;
+        }
 
-		try {
-			[$analysedFiles] = $inceptionResult->getFiles();
-			$analysedFiles = $this->switchTmpFile($analysedFiles, $insteadOfFile, $tmpFile);
-		} catch (\PHPStan\File\PathNotFoundException $e) {
-			$inceptionResult->getErrorOutput()->writeLineFormatted(sprintf('<error>%s</error>', $e->getMessage()));
-			return 1;
-		}
+        /** @var NodeScopeResolver $nodeScopeResolver */
+        $nodeScopeResolver = $container->getByType(NodeScopeResolver::class);
+        $nodeScopeResolver->setAnalysedFiles($analysedFiles);
 
-		/** @var NodeScopeResolver $nodeScopeResolver */
-		$nodeScopeResolver = $container->getByType(NodeScopeResolver::class);
-		$nodeScopeResolver->setAnalysedFiles($analysedFiles);
+        $analysedFiles = array_fill_keys($analysedFiles, true);
 
-		$analysedFiles = array_fill_keys($analysedFiles, true);
+        $tcpConector = new TcpConnector($loop);
+        $tcpConector->connect(sprintf('127.0.0.1:%d', $port))->done(function (ConnectionInterface $connection) use ($container, $identifier, $output, $analysedFiles, $tmpFile, $insteadOfFile): void {
+            $out = new Encoder($connection, defined('JSON_INVALID_UTF8_IGNORE') ? JSON_INVALID_UTF8_IGNORE : 0);
+            $in = new Decoder($connection, true, 512, defined('JSON_INVALID_UTF8_IGNORE') ? JSON_INVALID_UTF8_IGNORE : 0, $container->getParameter('parallel')['buffer']);
+            $out->write(['action' => 'hello', 'identifier' => $identifier]);
+            $this->runWorker($container, $out, $in, $output, $analysedFiles, $tmpFile, $insteadOfFile);
+        });
 
-		$tcpConector = new TcpConnector($loop);
-		$tcpConector->connect(sprintf('127.0.0.1:%d', $port))->done(function (ConnectionInterface $connection) use ($container, $identifier, $output, $analysedFiles, $tmpFile, $insteadOfFile): void {
-			$out = new Encoder($connection, defined('JSON_INVALID_UTF8_IGNORE') ? JSON_INVALID_UTF8_IGNORE : 0);
-			$in = new Decoder($connection, true, 512, defined('JSON_INVALID_UTF8_IGNORE') ? JSON_INVALID_UTF8_IGNORE : 0, $container->getParameter('parallel')['buffer']);
-			$out->write(['action' => 'hello', 'identifier' => $identifier]);
-			$this->runWorker($container, $out, $in, $output, $analysedFiles, $tmpFile, $insteadOfFile);
-		});
+        $loop->run();
 
-		$loop->run();
+        if ($this->errorCount > 0) {
+            return 1;
+        }
 
-		if ($this->errorCount > 0) {
-			return 1;
-		}
+        return 0;
+    }
 
-		return 0;
-	}
+    /**
+     * @param Container $container
+     * @param WritableStreamInterface $out
+     * @param ReadableStreamInterface $in
+     * @param OutputInterface $output
+     * @param array<string, true> $analysedFiles
+     * @param string|null $tmpFile
+     * @param string|null $insteadOfFile
+     */
+    private function runWorker(
+        Container $container,
+        WritableStreamInterface $out,
+        ReadableStreamInterface $in,
+        OutputInterface $output,
+        array $analysedFiles,
+        ?string $tmpFile,
+        ?string $insteadOfFile
+    ): void {
+        $handleError = function (\Throwable $error) use ($out, $output): void {
+            $this->errorCount++;
+            $output->writeln(sprintf('Error: %s', $error->getMessage()));
+            $out->write([
+                'action' => 'result',
+                'result' => [
+                    'errors' => [$error->getMessage()],
+                    'dependencies' => [],
+                    'filesCount' => 0,
+                    'internalErrorsCount' => 1,
+                ],
+            ]);
+            $out->end();
+        };
+        $out->on('error', $handleError);
 
-	/**
-	 * @param Container $container
-	 * @param WritableStreamInterface $out
-	 * @param ReadableStreamInterface $in
-	 * @param OutputInterface $output
-	 * @param array<string, true> $analysedFiles
-	 * @param string|null $tmpFile
-	 * @param string|null $insteadOfFile
-	 */
-	private function runWorker(
-		Container $container,
-		WritableStreamInterface $out,
-		ReadableStreamInterface $in,
-		OutputInterface $output,
-		array $analysedFiles,
-		?string $tmpFile,
-		?string $insteadOfFile
-	): void
-	{
-		$handleError = function (\Throwable $error) use ($out, $output): void {
-			$this->errorCount++;
-			$output->writeln(sprintf('Error: %s', $error->getMessage()));
-			$out->write([
-				'action' => 'result',
-				'result' => [
-					'errors' => [$error->getMessage()],
-					'dependencies' => [],
-					'filesCount' => 0,
-					'internalErrorsCount' => 1,
-				],
-			]);
-			$out->end();
-		};
-		$out->on('error', $handleError);
+        /** @var FileAnalyser $fileAnalyser */
+        $fileAnalyser = $container->getByType(FileAnalyser::class);
 
-		/** @var FileAnalyser $fileAnalyser */
-		$fileAnalyser = $container->getByType(FileAnalyser::class);
+        /** @var Registry $registry */
+        $registry = $container->getByType(Registry::class);
 
-		/** @var Registry $registry */
-		$registry = $container->getByType(Registry::class);
+        $in->on('data', function (array $json) use ($fileAnalyser, $registry, $out, $analysedFiles, $tmpFile, $insteadOfFile): void {
+            $action = $json['action'];
+            if ($action !== 'analyse') {
+                return;
+            }
 
-		$in->on('data', function (array $json) use ($fileAnalyser, $registry, $out, $analysedFiles, $tmpFile, $insteadOfFile): void {
-			$action = $json['action'];
-			if ($action !== 'analyse') {
-				return;
-			}
+            $internalErrorsCount = 0;
+            $files = $json['files'];
+            $errors = [];
+            $dependencies = [];
+            $exportedNodes = [];
+            foreach ($files as $file) {
+                try {
+                    if ($file === $insteadOfFile) {
+                        $file = $tmpFile;
+                    }
+                    $fileAnalyserResult = $fileAnalyser->analyseFile($file, $analysedFiles, $registry, null);
+                    $fileErrors = $fileAnalyserResult->getErrors();
+                    $dependencies[$file] = $fileAnalyserResult->getDependencies();
+                    $exportedNodes[$file] = $fileAnalyserResult->getExportedNodes();
+                    foreach ($fileErrors as $fileError) {
+                        $errors[] = $fileError;
+                    }
+                } catch (\Throwable $t) {
+                    $this->errorCount++;
+                    $internalErrorsCount++;
+                    $internalErrorMessage = sprintf('Internal error: %s in file %s', $t->getMessage(), $file);
+                    $internalErrorMessage .= sprintf(
+                        '%sRun PHPStan with --debug option and post the stack trace to:%s%s',
+                        "\n",
+                        "\n",
+                        'https://github.com/phpstan/phpstan/issues/new?template=Bug_report.md'
+                    );
+                    $errors[] = $internalErrorMessage;
+                }
+            }
 
-			$internalErrorsCount = 0;
-			$files = $json['files'];
-			$errors = [];
-			$dependencies = [];
-			$exportedNodes = [];
-			foreach ($files as $file) {
-				try {
-					if ($file === $insteadOfFile) {
-						$file = $tmpFile;
-					}
-					$fileAnalyserResult = $fileAnalyser->analyseFile($file, $analysedFiles, $registry, null);
-					$fileErrors = $fileAnalyserResult->getErrors();
-					$dependencies[$file] = $fileAnalyserResult->getDependencies();
-					$exportedNodes[$file] = $fileAnalyserResult->getExportedNodes();
-					foreach ($fileErrors as $fileError) {
-						$errors[] = $fileError;
-					}
-				} catch (\Throwable $t) {
-					$this->errorCount++;
-					$internalErrorsCount++;
-					$internalErrorMessage = sprintf('Internal error: %s in file %s', $t->getMessage(), $file);
-					$internalErrorMessage .= sprintf(
-						'%sRun PHPStan with --debug option and post the stack trace to:%s%s',
-						"\n",
-						"\n",
-						'https://github.com/phpstan/phpstan/issues/new?template=Bug_report.md'
-					);
-					$errors[] = $internalErrorMessage;
-				}
-			}
+            $out->write([
+                'action' => 'result',
+                'result' => [
+                    'errors' => $errors,
+                    'dependencies' => $dependencies,
+                    'exportedNodes' => $exportedNodes,
+                    'filesCount' => count($files),
+                    'internalErrorsCount' => $internalErrorsCount,
+                ]]);
+        });
+        $in->on('error', $handleError);
+    }
 
-			$out->write([
-				'action' => 'result',
-				'result' => [
-					'errors' => $errors,
-					'dependencies' => $dependencies,
-					'exportedNodes' => $exportedNodes,
-					'filesCount' => count($files),
-					'internalErrorsCount' => $internalErrorsCount,
-				]]);
-		});
-		$in->on('error', $handleError);
-	}
+    /**
+     * @param string[] $analysedFiles
+     * @param string|null $insteadOfFile
+     * @param string|null $tmpFile
+     * @return string[]
+     */
+    private function switchTmpFile(
+        array $analysedFiles,
+        ?string $insteadOfFile,
+        ?string $tmpFile
+    ): array {
+        $analysedFiles = array_values(array_filter($analysedFiles, static function (string $file) use ($insteadOfFile): bool {
+            if ($insteadOfFile === null) {
+                return true;
+            }
+            return $file !== $insteadOfFile;
+        }));
+        if ($tmpFile !== null) {
+            $analysedFiles[] = $tmpFile;
+        }
 
-	/**
-	 * @param string[] $analysedFiles
-	 * @param string|null $insteadOfFile
-	 * @param string|null $tmpFile
-	 * @return string[]
-	 */
-	private function switchTmpFile(
-		array $analysedFiles,
-		?string $insteadOfFile,
-		?string $tmpFile
-	): array
-	{
-		$analysedFiles = array_values(array_filter($analysedFiles, static function (string $file) use ($insteadOfFile): bool {
-			if ($insteadOfFile === null) {
-				return true;
-			}
-			return $file !== $insteadOfFile;
-		}));
-		if ($tmpFile !== null) {
-			$analysedFiles[] = $tmpFile;
-		}
-
-		return $analysedFiles;
-	}
-
+        return $analysedFiles;
+    }
 }

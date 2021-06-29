@@ -1,10 +1,10 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules;
 
 interface RuleError
 {
-
-	public function getMessage(): string;
-
+    public function getMessage(): string;
 }

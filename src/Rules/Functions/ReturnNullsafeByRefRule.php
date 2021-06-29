@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Functions;
 
@@ -14,40 +16,38 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class ReturnNullsafeByRefRule implements Rule
 {
+    private NullsafeCheck $nullsafeCheck;
 
-	private NullsafeCheck $nullsafeCheck;
+    public function __construct(NullsafeCheck $nullsafeCheck)
+    {
+        $this->nullsafeCheck = $nullsafeCheck;
+    }
 
-	public function __construct(NullsafeCheck $nullsafeCheck)
-	{
-		$this->nullsafeCheck = $nullsafeCheck;
-	}
+    public function getNodeType(): string
+    {
+        return ReturnStatementsNode::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return ReturnStatementsNode::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if (!$node->returnsByRef()) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if (!$node->returnsByRef()) {
-			return [];
-		}
+        $errors = [];
+        foreach ($node->getReturnStatements() as $returnStatement) {
+            $returnNode = $returnStatement->getReturnNode();
+            if ($returnNode->expr === null) {
+                continue;
+            }
 
-		$errors = [];
-		foreach ($node->getReturnStatements() as $returnStatement) {
-			$returnNode = $returnStatement->getReturnNode();
-			if ($returnNode->expr === null) {
-				continue;
-			}
+            if (!$this->nullsafeCheck->containsNullSafe($returnNode->expr)) {
+                continue;
+            }
 
-			if (!$this->nullsafeCheck->containsNullSafe($returnNode->expr)) {
-				continue;
-			}
+            $errors[] = RuleErrorBuilder::message('Nullsafe cannot be returned by reference.')->line($returnNode->getLine())->nonIgnorable()->build();
+        }
 
-			$errors[] = RuleErrorBuilder::message('Nullsafe cannot be returned by reference.')->line($returnNode->getLine())->nonIgnorable()->build();
-		}
-
-		return $errors;
-	}
-
+        return $errors;
+    }
 }

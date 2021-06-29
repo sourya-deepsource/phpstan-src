@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type;
 
@@ -6,60 +8,58 @@ use PHPStan\TrinaryLogic;
 
 trait JustNullableTypeTrait
 {
+    /**
+     * @return string[]
+     */
+    public function getReferencedClasses(): array
+    {
+        return [];
+    }
 
-	/**
-	 * @return string[]
-	 */
-	public function getReferencedClasses(): array
-	{
-		return [];
-	}
+    public function accepts(Type $type, bool $strictTypes): TrinaryLogic
+    {
+        if ($type instanceof static) {
+            return TrinaryLogic::createYes();
+        }
 
-	public function accepts(Type $type, bool $strictTypes): TrinaryLogic
-	{
-		if ($type instanceof static) {
-			return TrinaryLogic::createYes();
-		}
+        if ($type instanceof CompoundType) {
+            return CompoundTypeHelper::accepts($type, $this, $strictTypes);
+        }
 
-		if ($type instanceof CompoundType) {
-			return CompoundTypeHelper::accepts($type, $this, $strictTypes);
-		}
-
-		return TrinaryLogic::createNo();
-	}
+        return TrinaryLogic::createNo();
+    }
 
 
-	public function isSuperTypeOf(Type $type): TrinaryLogic
-	{
-		if ($type instanceof self) {
-			return TrinaryLogic::createYes();
-		}
+    public function isSuperTypeOf(Type $type): TrinaryLogic
+    {
+        if ($type instanceof self) {
+            return TrinaryLogic::createYes();
+        }
 
-		if ($type instanceof CompoundType) {
-			return $type->isSubTypeOf($this);
-		}
+        if ($type instanceof CompoundType) {
+            return $type->isSubTypeOf($this);
+        }
 
-		return TrinaryLogic::createNo();
-	}
+        return TrinaryLogic::createNo();
+    }
 
-	public function equals(Type $type): bool
-	{
-		return get_class($type) === static::class;
-	}
+    public function equals(Type $type): bool
+    {
+        return get_class($type) === static::class;
+    }
 
-	public function traverse(callable $cb): Type
-	{
-		return $this;
-	}
+    public function traverse(callable $cb): Type
+    {
+        return $this;
+    }
 
-	public function isArray(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function isArray(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function isNumericString(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
-
+    public function isNumericString(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 }

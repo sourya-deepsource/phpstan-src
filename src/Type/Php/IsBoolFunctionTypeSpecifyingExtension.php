@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -14,30 +16,28 @@ use PHPStan\Type\FunctionTypeSpecifyingExtension;
 
 class IsBoolFunctionTypeSpecifyingExtension implements FunctionTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
+    private \PHPStan\Analyser\TypeSpecifier $typeSpecifier;
 
-	private \PHPStan\Analyser\TypeSpecifier $typeSpecifier;
+    public function isFunctionSupported(FunctionReflection $functionReflection, FuncCall $node, TypeSpecifierContext $context): bool
+    {
+        return strtolower($functionReflection->getName()) === 'is_bool'
+            && !$context->null();
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection, FuncCall $node, TypeSpecifierContext $context): bool
-	{
-		return strtolower($functionReflection->getName()) === 'is_bool'
-			&& !$context->null();
-	}
+    public function specifyTypes(FunctionReflection $functionReflection, FuncCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
+    {
+        if (!isset($node->args[0])) {
+            return new SpecifiedTypes();
+        }
+        if ($context->null()) {
+            throw new \PHPStan\ShouldNotHappenException();
+        }
 
-	public function specifyTypes(FunctionReflection $functionReflection, FuncCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
-	{
-		if (!isset($node->args[0])) {
-			return new SpecifiedTypes();
-		}
-		if ($context->null()) {
-			throw new \PHPStan\ShouldNotHappenException();
-		}
+        return $this->typeSpecifier->create($node->args[0]->value, new BooleanType(), $context, false, $scope);
+    }
 
-		return $this->typeSpecifier->create($node->args[0]->value, new BooleanType(), $context, false, $scope);
-	}
-
-	public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
-	{
-		$this->typeSpecifier = $typeSpecifier;
-	}
-
+    public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
+    {
+        $this->typeSpecifier = $typeSpecifier;
+    }
 }

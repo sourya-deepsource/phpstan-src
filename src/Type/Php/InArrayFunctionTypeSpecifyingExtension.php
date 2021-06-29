@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -15,46 +17,44 @@ use PHPStan\Type\TypeUtils;
 
 class InArrayFunctionTypeSpecifyingExtension implements FunctionTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
+    private \PHPStan\Analyser\TypeSpecifier $typeSpecifier;
 
-	private \PHPStan\Analyser\TypeSpecifier $typeSpecifier;
+    public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
+    {
+        $this->typeSpecifier = $typeSpecifier;
+    }
 
-	public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
-	{
-		$this->typeSpecifier = $typeSpecifier;
-	}
+    public function isFunctionSupported(FunctionReflection $functionReflection, FuncCall $node, TypeSpecifierContext $context): bool
+    {
+        return strtolower($functionReflection->getName()) === 'in_array'
+            && !$context->null();
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection, FuncCall $node, TypeSpecifierContext $context): bool
-	{
-		return strtolower($functionReflection->getName()) === 'in_array'
-			&& !$context->null();
-	}
+    public function specifyTypes(FunctionReflection $functionReflection, FuncCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
+    {
+        if (count($node->args) < 3) {
+            return new SpecifiedTypes();
+        }
+        $strictNodeType = $scope->getType($node->args[2]->value);
+        if (!(new ConstantBooleanType(true))->isSuperTypeOf($strictNodeType)->yes()) {
+            return new SpecifiedTypes([], []);
+        }
 
-	public function specifyTypes(FunctionReflection $functionReflection, FuncCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
-	{
-		if (count($node->args) < 3) {
-			return new SpecifiedTypes();
-		}
-		$strictNodeType = $scope->getType($node->args[2]->value);
-		if (!(new ConstantBooleanType(true))->isSuperTypeOf($strictNodeType)->yes()) {
-			return new SpecifiedTypes([], []);
-		}
+        $arrayValueType = $scope->getType($node->args[1]->value)->getIterableValueType();
 
-		$arrayValueType = $scope->getType($node->args[1]->value)->getIterableValueType();
+        if (
+            $context->truthy()
+            || count(TypeUtils::getConstantScalars($arrayValueType)) > 0
+        ) {
+            return $this->typeSpecifier->create(
+                $node->args[0]->value,
+                $arrayValueType,
+                $context,
+                false,
+                $scope
+            );
+        }
 
-		if (
-			$context->truthy()
-			|| count(TypeUtils::getConstantScalars($arrayValueType)) > 0
-		) {
-			return $this->typeSpecifier->create(
-				$node->args[0]->value,
-				$arrayValueType,
-				$context,
-				false,
-				$scope
-			);
-		}
-
-		return new SpecifiedTypes([], []);
-	}
-
+        return new SpecifiedTypes([], []);
+    }
 }

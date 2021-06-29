@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Cast;
 
@@ -16,46 +18,44 @@ use PHPStan\Type\VerbosityLevel;
  */
 class EchoRule implements Rule
 {
+    private RuleLevelHelper $ruleLevelHelper;
 
-	private RuleLevelHelper $ruleLevelHelper;
+    public function __construct(RuleLevelHelper $ruleLevelHelper)
+    {
+        $this->ruleLevelHelper = $ruleLevelHelper;
+    }
 
-	public function __construct(RuleLevelHelper $ruleLevelHelper)
-	{
-		$this->ruleLevelHelper = $ruleLevelHelper;
-	}
+    public function getNodeType(): string
+    {
+        return Node\Stmt\Echo_::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Node\Stmt\Echo_::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $messages = [];
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		$messages = [];
+        foreach ($node->exprs as $key => $expr) {
+            $typeResult = $this->ruleLevelHelper->findTypeToCheck(
+                $scope,
+                $expr,
+                '',
+                static function (Type $type): bool {
+                    return !$type->toString() instanceof ErrorType;
+                }
+            );
 
-		foreach ($node->exprs as $key => $expr) {
-			$typeResult = $this->ruleLevelHelper->findTypeToCheck(
-				$scope,
-				$expr,
-				'',
-				static function (Type $type): bool {
-					return !$type->toString() instanceof ErrorType;
-				}
-			);
+            if ($typeResult->getType() instanceof ErrorType
+                || !$typeResult->getType()->toString() instanceof ErrorType
+            ) {
+                continue;
+            }
 
-			if ($typeResult->getType() instanceof ErrorType
-				|| !$typeResult->getType()->toString() instanceof ErrorType
-			) {
-				continue;
-			}
-
-			$messages[] = RuleErrorBuilder::message(sprintf(
-				'Parameter #%d (%s) of echo cannot be converted to string.',
-				$key + 1,
-				$typeResult->getType()->describe(VerbosityLevel::value())
-			))->line($expr->getLine())->build();
-		}
-		return $messages;
-	}
-
+            $messages[] = RuleErrorBuilder::message(sprintf(
+                'Parameter #%d (%s) of echo cannot be converted to string.',
+                $key + 1,
+                $typeResult->getType()->describe(VerbosityLevel::value())
+            ))->line($expr->getLine())->build();
+        }
+        return $messages;
+    }
 }

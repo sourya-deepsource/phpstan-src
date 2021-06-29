@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\RuleErrors;
 
@@ -7,23 +9,21 @@ namespace PHPStan\Rules\RuleErrors;
  */
 class RuleError33 implements \PHPStan\Rules\RuleError, \PHPStan\Rules\MetadataRuleError
 {
+    public string $message;
 
-	public string $message;
+    /** @var mixed[] */
+    public array $metadata;
 
-	/** @var mixed[] */
-	public array $metadata;
+    public function getMessage(): string
+    {
+        return $this->message;
+    }
 
-	public function getMessage(): string
-	{
-		return $this->message;
-	}
-
-	/**
-	 * @return mixed[]
-	 */
-	public function getMetadata(): array
-	{
-		return $this->metadata;
-	}
-
+    /**
+     * @return mixed[]
+     */
+    public function getMetadata(): array
+    {
+        return $this->metadata;
+    }
 }

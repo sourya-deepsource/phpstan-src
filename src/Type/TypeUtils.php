@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type;
 
@@ -9,332 +11,329 @@ use PHPStan\Type\Constant\ConstantStringType;
 
 class TypeUtils
 {
+    /**
+     * @param \PHPStan\Type\Type $type
+     * @return \PHPStan\Type\ArrayType[]
+     */
+    public static function getArrays(Type $type): array
+    {
+        if ($type instanceof ConstantArrayType) {
+            return $type->getAllArrays();
+        }
 
-	/**
-	 * @param \PHPStan\Type\Type $type
-	 * @return \PHPStan\Type\ArrayType[]
-	 */
-	public static function getArrays(Type $type): array
-	{
-		if ($type instanceof ConstantArrayType) {
-			return $type->getAllArrays();
-		}
+        if ($type instanceof ArrayType) {
+            return [$type];
+        }
 
-		if ($type instanceof ArrayType) {
-			return [$type];
-		}
+        if ($type instanceof UnionType) {
+            $matchingTypes = [];
+            foreach ($type->getTypes() as $innerType) {
+                if (!$innerType instanceof ArrayType) {
+                    return [];
+                }
+                foreach (self::getArrays($innerType) as $innerInnerType) {
+                    $matchingTypes[] = $innerInnerType;
+                }
+            }
 
-		if ($type instanceof UnionType) {
-			$matchingTypes = [];
-			foreach ($type->getTypes() as $innerType) {
-				if (!$innerType instanceof ArrayType) {
-					return [];
-				}
-				foreach (self::getArrays($innerType) as $innerInnerType) {
-					$matchingTypes[] = $innerInnerType;
-				}
-			}
+            return $matchingTypes;
+        }
 
-			return $matchingTypes;
-		}
+        if ($type instanceof IntersectionType) {
+            $matchingTypes = [];
+            foreach ($type->getTypes() as $innerType) {
+                if (!$innerType instanceof ArrayType) {
+                    continue;
+                }
+                foreach (self::getArrays($innerType) as $innerInnerType) {
+                    $matchingTypes[] = $innerInnerType;
+                }
+            }
 
-		if ($type instanceof IntersectionType) {
-			$matchingTypes = [];
-			foreach ($type->getTypes() as $innerType) {
-				if (!$innerType instanceof ArrayType) {
-					continue;
-				}
-				foreach (self::getArrays($innerType) as $innerInnerType) {
-					$matchingTypes[] = $innerInnerType;
-				}
-			}
+            return $matchingTypes;
+        }
 
-			return $matchingTypes;
-		}
+        return [];
+    }
 
-		return [];
-	}
+    /**
+     * @param \PHPStan\Type\Type $type
+     * @return \PHPStan\Type\Constant\ConstantArrayType[]
+     */
+    public static function getConstantArrays(Type $type): array
+    {
+        if ($type instanceof ConstantArrayType) {
+            return $type->getAllArrays();
+        }
 
-	/**
-	 * @param \PHPStan\Type\Type $type
-	 * @return \PHPStan\Type\Constant\ConstantArrayType[]
-	 */
-	public static function getConstantArrays(Type $type): array
-	{
-		if ($type instanceof ConstantArrayType) {
-			return $type->getAllArrays();
-		}
+        if ($type instanceof UnionType) {
+            $matchingTypes = [];
+            foreach ($type->getTypes() as $innerType) {
+                if (!$innerType instanceof ConstantArrayType) {
+                    return [];
+                }
+                foreach (self::getConstantArrays($innerType) as $innerInnerType) {
+                    $matchingTypes[] = $innerInnerType;
+                }
+            }
 
-		if ($type instanceof UnionType) {
-			$matchingTypes = [];
-			foreach ($type->getTypes() as $innerType) {
-				if (!$innerType instanceof ConstantArrayType) {
-					return [];
-				}
-				foreach (self::getConstantArrays($innerType) as $innerInnerType) {
-					$matchingTypes[] = $innerInnerType;
-				}
-			}
+            return $matchingTypes;
+        }
 
-			return $matchingTypes;
-		}
+        return [];
+    }
 
-		return [];
-	}
+    /**
+     * @param \PHPStan\Type\Type $type
+     * @return \PHPStan\Type\Constant\ConstantStringType[]
+     */
+    public static function getConstantStrings(Type $type): array
+    {
+        return self::map(ConstantStringType::class, $type, false);
+    }
 
-	/**
-	 * @param \PHPStan\Type\Type $type
-	 * @return \PHPStan\Type\Constant\ConstantStringType[]
-	 */
-	public static function getConstantStrings(Type $type): array
-	{
-		return self::map(ConstantStringType::class, $type, false);
-	}
+    /**
+     * @param \PHPStan\Type\Type $type
+     * @return \PHPStan\Type\ConstantType[]
+     */
+    public static function getConstantTypes(Type $type): array
+    {
+        return self::map(ConstantType::class, $type, false);
+    }
 
-	/**
-	 * @param \PHPStan\Type\Type $type
-	 * @return \PHPStan\Type\ConstantType[]
-	 */
-	public static function getConstantTypes(Type $type): array
-	{
-		return self::map(ConstantType::class, $type, false);
-	}
+    /**
+     * @param \PHPStan\Type\Type $type
+     * @return \PHPStan\Type\ConstantType[]
+     */
+    public static function getAnyConstantTypes(Type $type): array
+    {
+        return self::map(ConstantType::class, $type, false, false);
+    }
 
-	/**
-	 * @param \PHPStan\Type\Type $type
-	 * @return \PHPStan\Type\ConstantType[]
-	 */
-	public static function getAnyConstantTypes(Type $type): array
-	{
-		return self::map(ConstantType::class, $type, false, false);
-	}
+    /**
+     * @param \PHPStan\Type\Type $type
+     * @return \PHPStan\Type\ArrayType[]
+     */
+    public static function getAnyArrays(Type $type): array
+    {
+        return self::map(ArrayType::class, $type, true, false);
+    }
 
-	/**
-	 * @param \PHPStan\Type\Type $type
-	 * @return \PHPStan\Type\ArrayType[]
-	 */
-	public static function getAnyArrays(Type $type): array
-	{
-		return self::map(ArrayType::class, $type, true, false);
-	}
+    public static function generalizeType(Type $type): Type
+    {
+        return TypeTraverser::map($type, static function (Type $type, callable $traverse): Type {
+            if ($type instanceof ConstantType) {
+                return $type->generalize();
+            }
 
-	public static function generalizeType(Type $type): Type
-	{
-		return TypeTraverser::map($type, static function (Type $type, callable $traverse): Type {
-			if ($type instanceof ConstantType) {
-				return $type->generalize();
-			}
+            return $traverse($type);
+        });
+    }
 
-			return $traverse($type);
-		});
-	}
+    /**
+     * @param Type $type
+     * @return string[]
+     */
+    public static function getDirectClassNames(Type $type): array
+    {
+        if ($type instanceof TypeWithClassName) {
+            return [$type->getClassName()];
+        }
 
-	/**
-	 * @param Type $type
-	 * @return string[]
-	 */
-	public static function getDirectClassNames(Type $type): array
-	{
-		if ($type instanceof TypeWithClassName) {
-			return [$type->getClassName()];
-		}
+        if ($type instanceof UnionType || $type instanceof IntersectionType) {
+            $classNames = [];
+            foreach ($type->getTypes() as $innerType) {
+                if (!$innerType instanceof TypeWithClassName) {
+                    continue;
+                }
 
-		if ($type instanceof UnionType || $type instanceof IntersectionType) {
-			$classNames = [];
-			foreach ($type->getTypes() as $innerType) {
-				if (!$innerType instanceof TypeWithClassName) {
-					continue;
-				}
+                $classNames[] = $innerType->getClassName();
+            }
 
-				$classNames[] = $innerType->getClassName();
-			}
+            return $classNames;
+        }
 
-			return $classNames;
-		}
+        return [];
+    }
 
-		return [];
-	}
+    /**
+     * @param Type $type
+     * @return \PHPStan\Type\ConstantScalarType[]
+     */
+    public static function getConstantScalars(Type $type): array
+    {
+        return self::map(ConstantScalarType::class, $type, false);
+    }
 
-	/**
-	 * @param Type $type
-	 * @return \PHPStan\Type\ConstantScalarType[]
-	 */
-	public static function getConstantScalars(Type $type): array
-	{
-		return self::map(ConstantScalarType::class, $type, false);
-	}
+    /**
+     * @internal
+     * @param Type $type
+     * @return ConstantArrayType[]
+     */
+    public static function getOldConstantArrays(Type $type): array
+    {
+        return self::map(ConstantArrayType::class, $type, false);
+    }
 
-	/**
-	 * @internal
-	 * @param Type $type
-	 * @return ConstantArrayType[]
-	 */
-	public static function getOldConstantArrays(Type $type): array
-	{
-		return self::map(ConstantArrayType::class, $type, false);
-	}
+    /**
+     * @param string $typeClass
+     * @param Type $type
+     * @param bool $inspectIntersections
+     * @param bool $stopOnUnmatched
+     * @return mixed[]
+     */
+    private static function map(
+        string $typeClass,
+        Type $type,
+        bool $inspectIntersections,
+        bool $stopOnUnmatched = true
+    ): array {
+        if ($type instanceof $typeClass) {
+            return [$type];
+        }
 
-	/**
-	 * @param string $typeClass
-	 * @param Type $type
-	 * @param bool $inspectIntersections
-	 * @param bool $stopOnUnmatched
-	 * @return mixed[]
-	 */
-	private static function map(
-		string $typeClass,
-		Type $type,
-		bool $inspectIntersections,
-		bool $stopOnUnmatched = true
-	): array
-	{
-		if ($type instanceof $typeClass) {
-			return [$type];
-		}
+        if ($type instanceof UnionType) {
+            $matchingTypes = [];
+            foreach ($type->getTypes() as $innerType) {
+                if (!$innerType instanceof $typeClass) {
+                    if ($stopOnUnmatched) {
+                        return [];
+                    }
 
-		if ($type instanceof UnionType) {
-			$matchingTypes = [];
-			foreach ($type->getTypes() as $innerType) {
-				if (!$innerType instanceof $typeClass) {
-					if ($stopOnUnmatched) {
-						return [];
-					}
+                    continue;
+                }
 
-					continue;
-				}
+                $matchingTypes[] = $innerType;
+            }
 
-				$matchingTypes[] = $innerType;
-			}
+            return $matchingTypes;
+        }
 
-			return $matchingTypes;
-		}
+        if ($inspectIntersections && $type instanceof IntersectionType) {
+            $matchingTypes = [];
+            foreach ($type->getTypes() as $innerType) {
+                if (!$innerType instanceof $typeClass) {
+                    if ($stopOnUnmatched) {
+                        return [];
+                    }
 
-		if ($inspectIntersections && $type instanceof IntersectionType) {
-			$matchingTypes = [];
-			foreach ($type->getTypes() as $innerType) {
-				if (!$innerType instanceof $typeClass) {
-					if ($stopOnUnmatched) {
-						return [];
-					}
+                    continue;
+                }
 
-					continue;
-				}
+                $matchingTypes[] = $innerType;
+            }
 
-				$matchingTypes[] = $innerType;
-			}
+            return $matchingTypes;
+        }
 
-			return $matchingTypes;
-		}
+        return [];
+    }
 
-		return [];
-	}
+    public static function toBenevolentUnion(Type $type): Type
+    {
+        if ($type instanceof BenevolentUnionType) {
+            return $type;
+        }
 
-	public static function toBenevolentUnion(Type $type): Type
-	{
-		if ($type instanceof BenevolentUnionType) {
-			return $type;
-		}
+        if ($type instanceof UnionType) {
+            return new BenevolentUnionType($type->getTypes());
+        }
 
-		if ($type instanceof UnionType) {
-			return new BenevolentUnionType($type->getTypes());
-		}
+        return $type;
+    }
 
-		return $type;
-	}
+    /**
+     * @param Type $type
+     * @return Type[]
+     */
+    public static function flattenTypes(Type $type): array
+    {
+        if ($type instanceof ConstantArrayType) {
+            return $type->getAllArrays();
+        }
 
-	/**
-	 * @param Type $type
-	 * @return Type[]
-	 */
-	public static function flattenTypes(Type $type): array
-	{
-		if ($type instanceof ConstantArrayType) {
-			return $type->getAllArrays();
-		}
+        if ($type instanceof UnionType) {
+            $types = [];
+            foreach ($type->getTypes() as $innerType) {
+                if ($innerType instanceof ConstantArrayType) {
+                    foreach ($innerType->getAllArrays() as $array) {
+                        $types[] = $array;
+                    }
+                    continue;
+                }
 
-		if ($type instanceof UnionType) {
-			$types = [];
-			foreach ($type->getTypes() as $innerType) {
-				if ($innerType instanceof ConstantArrayType) {
-					foreach ($innerType->getAllArrays() as $array) {
-						$types[] = $array;
-					}
-					continue;
-				}
+                $types[] = $innerType;
+            }
 
-				$types[] = $innerType;
-			}
+            return $types;
+        }
 
-			return $types;
-		}
+        return [$type];
+    }
 
-		return [$type];
-	}
+    public static function findThisType(Type $type): ?ThisType
+    {
+        if ($type instanceof ThisType) {
+            return $type;
+        }
 
-	public static function findThisType(Type $type): ?ThisType
-	{
-		if ($type instanceof ThisType) {
-			return $type;
-		}
+        if ($type instanceof UnionType || $type instanceof IntersectionType) {
+            foreach ($type->getTypes() as $innerType) {
+                $thisType = self::findThisType($innerType);
+                if ($thisType !== null) {
+                    return $thisType;
+                }
+            }
+        }
 
-		if ($type instanceof UnionType || $type instanceof IntersectionType) {
-			foreach ($type->getTypes() as $innerType) {
-				$thisType = self::findThisType($innerType);
-				if ($thisType !== null) {
-					return $thisType;
-				}
-			}
-		}
+        return null;
+    }
 
-		return null;
-	}
+    /**
+     * @param Type $type
+     * @return HasPropertyType[]
+     */
+    public static function getHasPropertyTypes(Type $type): array
+    {
+        if ($type instanceof HasPropertyType) {
+            return [$type];
+        }
 
-	/**
-	 * @param Type $type
-	 * @return HasPropertyType[]
-	 */
-	public static function getHasPropertyTypes(Type $type): array
-	{
-		if ($type instanceof HasPropertyType) {
-			return [$type];
-		}
+        if ($type instanceof UnionType || $type instanceof IntersectionType) {
+            $hasPropertyTypes = [[]];
+            foreach ($type->getTypes() as $innerType) {
+                $hasPropertyTypes[] = self::getHasPropertyTypes($innerType);
+            }
 
-		if ($type instanceof UnionType || $type instanceof IntersectionType) {
-			$hasPropertyTypes = [[]];
-			foreach ($type->getTypes() as $innerType) {
-				$hasPropertyTypes[] = self::getHasPropertyTypes($innerType);
-			}
+            return array_merge(...$hasPropertyTypes);
+        }
 
-			return array_merge(...$hasPropertyTypes);
-		}
+        return [];
+    }
 
-		return [];
-	}
+    /**
+     * @param \PHPStan\Type\Type $type
+     * @return \PHPStan\Type\Accessory\AccessoryType[]
+     */
+    public static function getAccessoryTypes(Type $type): array
+    {
+        return self::map(AccessoryType::class, $type, true, false);
+    }
 
-	/**
-	 * @param \PHPStan\Type\Type $type
-	 * @return \PHPStan\Type\Accessory\AccessoryType[]
-	 */
-	public static function getAccessoryTypes(Type $type): array
-	{
-		return self::map(AccessoryType::class, $type, true, false);
-	}
+    public static function containsCallable(Type $type): bool
+    {
+        if ($type->isCallable()->yes()) {
+            return true;
+        }
 
-	public static function containsCallable(Type $type): bool
-	{
-		if ($type->isCallable()->yes()) {
-			return true;
-		}
+        if ($type instanceof UnionType) {
+            foreach ($type->getTypes() as $innerType) {
+                if ($innerType->isCallable()->yes()) {
+                    return true;
+                }
+            }
+        }
 
-		if ($type instanceof UnionType) {
-			foreach ($type->getTypes() as $innerType) {
-				if ($innerType->isCallable()->yes()) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
+        return false;
+    }
 }

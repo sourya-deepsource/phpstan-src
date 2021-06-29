@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type;
 
@@ -10,35 +12,33 @@ use PHPStan\Type\Constant\ConstantStringType;
 
 class StaticTypeFactory
 {
+    public static function falsey(): Type
+    {
+        static $falsey;
 
-	public static function falsey(): Type
-	{
-		static $falsey;
+        if ($falsey === null) {
+            $falsey = new UnionType([
+                new NullType(),
+                new ConstantBooleanType(false),
+                new ConstantIntegerType(0),
+                new ConstantFloatType(0.0),
+                new ConstantStringType(''),
+                new ConstantStringType('0'),
+                new ConstantArrayType([], []),
+            ]);
+        }
 
-		if ($falsey === null) {
-			$falsey = new UnionType([
-				new NullType(),
-				new ConstantBooleanType(false),
-				new ConstantIntegerType(0),
-				new ConstantFloatType(0.0),
-				new ConstantStringType(''),
-				new ConstantStringType('0'),
-				new ConstantArrayType([], []),
-			]);
-		}
+        return $falsey;
+    }
 
-		return $falsey;
-	}
+    public static function truthy(): Type
+    {
+        static $truthy;
 
-	public static function truthy(): Type
-	{
-		static $truthy;
+        if ($truthy === null) {
+            $truthy = new MixedType(false, self::falsey());
+        }
 
-		if ($truthy === null) {
-			$truthy = new MixedType(false, self::falsey());
-		}
-
-		return $truthy;
-	}
-
+        return $truthy;
+    }
 }

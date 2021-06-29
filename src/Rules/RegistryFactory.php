@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules;
 
@@ -6,21 +8,19 @@ use PHPStan\DependencyInjection\Container;
 
 class RegistryFactory
 {
+    public const RULE_TAG = 'phpstan.rules.rule';
 
-	public const RULE_TAG = 'phpstan.rules.rule';
+    private Container $container;
 
-	private Container $container;
+    public function __construct(Container $container)
+    {
+        $this->container = $container;
+    }
 
-	public function __construct(Container $container)
-	{
-		$this->container = $container;
-	}
-
-	public function create(): Registry
-	{
-		return new Registry(
-			$this->container->getServicesByTag(self::RULE_TAG)
-		);
-	}
-
+    public function create(): Registry
+    {
+        return new Registry(
+            $this->container->getServicesByTag(self::RULE_TAG)
+        );
+    }
 }

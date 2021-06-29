@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Comparison;
 
@@ -13,91 +15,87 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class ImpossibleCheckTypeMethodCallRule implements \PHPStan\Rules\Rule
 {
+    private \PHPStan\Rules\Comparison\ImpossibleCheckTypeHelper $impossibleCheckTypeHelper;
 
-	private \PHPStan\Rules\Comparison\ImpossibleCheckTypeHelper $impossibleCheckTypeHelper;
+    private bool $checkAlwaysTrueCheckTypeFunctionCall;
 
-	private bool $checkAlwaysTrueCheckTypeFunctionCall;
+    private bool $treatPhpDocTypesAsCertain;
 
-	private bool $treatPhpDocTypesAsCertain;
+    public function __construct(
+        ImpossibleCheckTypeHelper $impossibleCheckTypeHelper,
+        bool $checkAlwaysTrueCheckTypeFunctionCall,
+        bool $treatPhpDocTypesAsCertain
+    ) {
+        $this->impossibleCheckTypeHelper = $impossibleCheckTypeHelper;
+        $this->checkAlwaysTrueCheckTypeFunctionCall = $checkAlwaysTrueCheckTypeFunctionCall;
+        $this->treatPhpDocTypesAsCertain = $treatPhpDocTypesAsCertain;
+    }
 
-	public function __construct(
-		ImpossibleCheckTypeHelper $impossibleCheckTypeHelper,
-		bool $checkAlwaysTrueCheckTypeFunctionCall,
-		bool $treatPhpDocTypesAsCertain
-	)
-	{
-		$this->impossibleCheckTypeHelper = $impossibleCheckTypeHelper;
-		$this->checkAlwaysTrueCheckTypeFunctionCall = $checkAlwaysTrueCheckTypeFunctionCall;
-		$this->treatPhpDocTypesAsCertain = $treatPhpDocTypesAsCertain;
-	}
+    public function getNodeType(): string
+    {
+        return \PhpParser\Node\Expr\MethodCall::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return \PhpParser\Node\Expr\MethodCall::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if (!$node->name instanceof Node\Identifier) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if (!$node->name instanceof Node\Identifier) {
-			return [];
-		}
+        $isAlways = $this->impossibleCheckTypeHelper->findSpecifiedType($scope, $node);
+        if ($isAlways === null) {
+            return [];
+        }
 
-		$isAlways = $this->impossibleCheckTypeHelper->findSpecifiedType($scope, $node);
-		if ($isAlways === null) {
-			return [];
-		}
+        $addTip = function (RuleErrorBuilder $ruleErrorBuilder) use ($scope, $node): RuleErrorBuilder {
+            if (!$this->treatPhpDocTypesAsCertain) {
+                return $ruleErrorBuilder;
+            }
 
-		$addTip = function (RuleErrorBuilder $ruleErrorBuilder) use ($scope, $node): RuleErrorBuilder {
-			if (!$this->treatPhpDocTypesAsCertain) {
-				return $ruleErrorBuilder;
-			}
+            $isAlways = $this->impossibleCheckTypeHelper->doNotTreatPhpDocTypesAsCertain()->findSpecifiedType($scope, $node);
+            if ($isAlways !== null) {
+                return $ruleErrorBuilder;
+            }
 
-			$isAlways = $this->impossibleCheckTypeHelper->doNotTreatPhpDocTypesAsCertain()->findSpecifiedType($scope, $node);
-			if ($isAlways !== null) {
-				return $ruleErrorBuilder;
-			}
+            return $ruleErrorBuilder->tip('Because the type is coming from a PHPDoc, you can turn off this check by setting <fg=cyan>treatPhpDocTypesAsCertain: false</> in your <fg=cyan>%configurationFile%</>.');
+        };
 
-			return $ruleErrorBuilder->tip('Because the type is coming from a PHPDoc, you can turn off this check by setting <fg=cyan>treatPhpDocTypesAsCertain: false</> in your <fg=cyan>%configurationFile%</>.');
-		};
+        if (!$isAlways) {
+            $method = $this->getMethod($node->var, $node->name->name, $scope);
+            return [
+                $addTip(RuleErrorBuilder::message(sprintf(
+                    'Call to method %s::%s()%s will always evaluate to false.',
+                    $method->getDeclaringClass()->getDisplayName(),
+                    $method->getName(),
+                    $this->impossibleCheckTypeHelper->getArgumentsDescription($scope, $node->args)
+                )))->build(),
+            ];
+        } elseif ($this->checkAlwaysTrueCheckTypeFunctionCall) {
+            $method = $this->getMethod($node->var, $node->name->name, $scope);
+            return [
+                $addTip(RuleErrorBuilder::message(sprintf(
+                    'Call to method %s::%s()%s will always evaluate to true.',
+                    $method->getDeclaringClass()->getDisplayName(),
+                    $method->getName(),
+                    $this->impossibleCheckTypeHelper->getArgumentsDescription($scope, $node->args)
+                )))->build(),
+            ];
+        }
 
-		if (!$isAlways) {
-			$method = $this->getMethod($node->var, $node->name->name, $scope);
-			return [
-				$addTip(RuleErrorBuilder::message(sprintf(
-					'Call to method %s::%s()%s will always evaluate to false.',
-					$method->getDeclaringClass()->getDisplayName(),
-					$method->getName(),
-					$this->impossibleCheckTypeHelper->getArgumentsDescription($scope, $node->args)
-				)))->build(),
-			];
-		} elseif ($this->checkAlwaysTrueCheckTypeFunctionCall) {
-			$method = $this->getMethod($node->var, $node->name->name, $scope);
-			return [
-				$addTip(RuleErrorBuilder::message(sprintf(
-					'Call to method %s::%s()%s will always evaluate to true.',
-					$method->getDeclaringClass()->getDisplayName(),
-					$method->getName(),
-					$this->impossibleCheckTypeHelper->getArgumentsDescription($scope, $node->args)
-				)))->build(),
-			];
-		}
+        return [];
+    }
 
-		return [];
-	}
+    private function getMethod(
+        Expr $var,
+        string $methodName,
+        Scope $scope
+    ): MethodReflection {
+        $calledOnType = $scope->getType($var);
+        $method = $scope->getMethodReflection($calledOnType, $methodName);
+        if ($method === null) {
+            throw new \PHPStan\ShouldNotHappenException();
+        }
 
-	private function getMethod(
-		Expr $var,
-		string $methodName,
-		Scope $scope
-	): MethodReflection
-	{
-		$calledOnType = $scope->getType($var);
-		$method = $scope->getMethodReflection($calledOnType, $methodName);
-		if ($method === null) {
-			throw new \PHPStan\ShouldNotHappenException();
-		}
-
-		return $method;
-	}
-
+        return $method;
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -16,30 +18,28 @@ use PHPStan\Type\UnionType;
 
 class ArrayKeysFunctionDynamicReturnTypeExtension implements \PHPStan\Type\DynamicFunctionReturnTypeExtension
 {
+    public function isFunctionSupported(FunctionReflection $functionReflection): bool
+    {
+        return $functionReflection->getName() === 'array_keys';
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection): bool
-	{
-		return $functionReflection->getName() === 'array_keys';
-	}
+    public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
+    {
+        $arrayArg = $functionCall->args[0]->value ?? null;
+        if ($arrayArg !== null) {
+            $valueType = $scope->getType($arrayArg);
+            if ($valueType->isArray()->yes()) {
+                if ($valueType instanceof ConstantArrayType) {
+                    return $valueType->getKeysArray();
+                }
+                $keyType = $valueType->getIterableKeyType();
+                return TypeCombinator::intersect(new ArrayType(new IntegerType(), $keyType), ...TypeUtils::getAccessoryTypes($valueType));
+            }
+        }
 
-	public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
-	{
-		$arrayArg = $functionCall->args[0]->value ?? null;
-		if ($arrayArg !== null) {
-			$valueType = $scope->getType($arrayArg);
-			if ($valueType->isArray()->yes()) {
-				if ($valueType instanceof ConstantArrayType) {
-					return $valueType->getKeysArray();
-				}
-				$keyType = $valueType->getIterableKeyType();
-				return TypeCombinator::intersect(new ArrayType(new IntegerType(), $keyType), ...TypeUtils::getAccessoryTypes($valueType));
-			}
-		}
-
-		return new ArrayType(
-			new IntegerType(),
-			new UnionType([new StringType(), new IntegerType()])
-		);
-	}
-
+        return new ArrayType(
+            new IntegerType(),
+            new UnionType([new StringType(), new IntegerType()])
+        );
+    }
 }

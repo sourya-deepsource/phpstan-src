@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Operators;
 
@@ -11,65 +13,63 @@ use PHPStan\Type\VerbosityLevel;
  */
 class InvalidIncDecOperationRule implements \PHPStan\Rules\Rule
 {
+    private bool $checkThisOnly;
 
-	private bool $checkThisOnly;
+    public function __construct(bool $checkThisOnly)
+    {
+        $this->checkThisOnly = $checkThisOnly;
+    }
 
-	public function __construct(bool $checkThisOnly)
-	{
-		$this->checkThisOnly = $checkThisOnly;
-	}
+    public function getNodeType(): string
+    {
+        return \PhpParser\Node\Expr::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return \PhpParser\Node\Expr::class;
-	}
+    public function processNode(\PhpParser\Node $node, \PHPStan\Analyser\Scope $scope): array
+    {
+        if (
+            !$node instanceof \PhpParser\Node\Expr\PreInc
+            && !$node instanceof \PhpParser\Node\Expr\PostInc
+            && !$node instanceof \PhpParser\Node\Expr\PreDec
+            && !$node instanceof \PhpParser\Node\Expr\PostDec
+        ) {
+            return [];
+        }
 
-	public function processNode(\PhpParser\Node $node, \PHPStan\Analyser\Scope $scope): array
-	{
-		if (
-			!$node instanceof \PhpParser\Node\Expr\PreInc
-			&& !$node instanceof \PhpParser\Node\Expr\PostInc
-			&& !$node instanceof \PhpParser\Node\Expr\PreDec
-			&& !$node instanceof \PhpParser\Node\Expr\PostDec
-		) {
-			return [];
-		}
+        $operatorString = $node instanceof \PhpParser\Node\Expr\PreInc || $node instanceof \PhpParser\Node\Expr\PostInc ? '++' : '--';
 
-		$operatorString = $node instanceof \PhpParser\Node\Expr\PreInc || $node instanceof \PhpParser\Node\Expr\PostInc ? '++' : '--';
+        if (
+            !$node->var instanceof \PhpParser\Node\Expr\Variable
+            && !$node->var instanceof \PhpParser\Node\Expr\ArrayDimFetch
+            && !$node->var instanceof \PhpParser\Node\Expr\PropertyFetch
+            && !$node->var instanceof \PhpParser\Node\Expr\StaticPropertyFetch
+        ) {
+            return [
+                RuleErrorBuilder::message(sprintf(
+                    'Cannot use %s on a non-variable.',
+                    $operatorString
+                ))->line($node->var->getLine())->build(),
+            ];
+        }
 
-		if (
-			!$node->var instanceof \PhpParser\Node\Expr\Variable
-			&& !$node->var instanceof \PhpParser\Node\Expr\ArrayDimFetch
-			&& !$node->var instanceof \PhpParser\Node\Expr\PropertyFetch
-			&& !$node->var instanceof \PhpParser\Node\Expr\StaticPropertyFetch
-		) {
-			return [
-				RuleErrorBuilder::message(sprintf(
-					'Cannot use %s on a non-variable.',
-					$operatorString
-				))->line($node->var->getLine())->build(),
-			];
-		}
+        if (!$this->checkThisOnly) {
+            $varType = $scope->getType($node->var);
+            if (!$varType->toString() instanceof ErrorType) {
+                return [];
+            }
+            if (!$varType->toNumber() instanceof ErrorType) {
+                return [];
+            }
 
-		if (!$this->checkThisOnly) {
-			$varType = $scope->getType($node->var);
-			if (!$varType->toString() instanceof ErrorType) {
-				return [];
-			}
-			if (!$varType->toNumber() instanceof ErrorType) {
-				return [];
-			}
+            return [
+                RuleErrorBuilder::message(sprintf(
+                    'Cannot use %s on %s.',
+                    $operatorString,
+                    $varType->describe(VerbosityLevel::value())
+                ))->line($node->var->getLine())->build(),
+            ];
+        }
 
-			return [
-				RuleErrorBuilder::message(sprintf(
-					'Cannot use %s on %s.',
-					$operatorString,
-					$varType->describe(VerbosityLevel::value())
-				))->line($node->var->getLine())->build(),
-			];
-		}
-
-		return [];
-	}
-
+        return [];
+    }
 }

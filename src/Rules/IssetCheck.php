@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules;
 
@@ -14,132 +16,125 @@ use PHPStan\Type\VerbosityLevel;
 
 class IssetCheck
 {
+    private \PHPStan\Rules\Properties\PropertyDescriptor $propertyDescriptor;
 
-	private \PHPStan\Rules\Properties\PropertyDescriptor $propertyDescriptor;
+    private \PHPStan\Rules\Properties\PropertyReflectionFinder $propertyReflectionFinder;
 
-	private \PHPStan\Rules\Properties\PropertyReflectionFinder $propertyReflectionFinder;
+    public function __construct(
+        PropertyDescriptor $propertyDescriptor,
+        PropertyReflectionFinder $propertyReflectionFinder
+    ) {
+        $this->propertyDescriptor = $propertyDescriptor;
+        $this->propertyReflectionFinder = $propertyReflectionFinder;
+    }
 
-	public function __construct(
-		PropertyDescriptor $propertyDescriptor,
-		PropertyReflectionFinder $propertyReflectionFinder
-	)
-	{
-		$this->propertyDescriptor = $propertyDescriptor;
-		$this->propertyReflectionFinder = $propertyReflectionFinder;
-	}
+    public function check(Expr $expr, Scope $scope, string $operatorDescription, ?RuleError $error = null): ?RuleError
+    {
+        if ($expr instanceof Node\Expr\Variable && is_string($expr->name)) {
+            $hasVariable = $scope->hasVariableType($expr->name);
+            if ($hasVariable->maybe()) {
+                return null;
+            }
 
-	public function check(Expr $expr, Scope $scope, string $operatorDescription, ?RuleError $error = null): ?RuleError
-	{
-		if ($expr instanceof Node\Expr\Variable && is_string($expr->name)) {
-			$hasVariable = $scope->hasVariableType($expr->name);
-			if ($hasVariable->maybe()) {
-				return null;
-			}
+            return $error;
+        } elseif ($expr instanceof Node\Expr\ArrayDimFetch && $expr->dim !== null) {
+            $type = $scope->getType($expr->var);
+            $dimType = $scope->getType($expr->dim);
+            $hasOffsetValue = $type->hasOffsetValueType($dimType);
+            if (!$type->isOffsetAccessible()->yes()) {
+                return $error;
+            }
 
-			return $error;
-		} elseif ($expr instanceof Node\Expr\ArrayDimFetch && $expr->dim !== null) {
+            if ($hasOffsetValue->no()) {
+                return $error ?? RuleErrorBuilder::message(
+                    sprintf(
+                        'Offset %s on %s %s does not exist.',
+                        $dimType->describe(VerbosityLevel::value()),
+                        $type->describe(VerbosityLevel::value()),
+                        $operatorDescription
+                    )
+                )->build();
+            }
 
-			$type = $scope->getType($expr->var);
-			$dimType = $scope->getType($expr->dim);
-			$hasOffsetValue = $type->hasOffsetValueType($dimType);
-			if (!$type->isOffsetAccessible()->yes()) {
-				return $error;
-			}
+            if ($hasOffsetValue->maybe()) {
+                return null;
+            }
 
-			if ($hasOffsetValue->no()) {
-				return $error ?? RuleErrorBuilder::message(
-					sprintf(
-						'Offset %s on %s %s does not exist.',
-						$dimType->describe(VerbosityLevel::value()),
-						$type->describe(VerbosityLevel::value()),
-						$operatorDescription
-					)
-				)->build();
-			}
+            // If offset is cannot be null, store this error message and see if one of the earlier offsets is.
+            // E.g. $array['a']['b']['c'] ?? null; is a valid coalesce if a OR b or C might be null.
+            if ($hasOffsetValue->yes()) {
+                $error = $error ?? $this->generateError($type->getOffsetValueType($dimType), sprintf(
+                    'Offset %s on %s %s always exists and',
+                    $dimType->describe(VerbosityLevel::value()),
+                    $type->describe(VerbosityLevel::value()),
+                    $operatorDescription
+                ));
 
-			if ($hasOffsetValue->maybe()) {
-				return null;
-			}
+                if ($error !== null) {
+                    return $this->check($expr->var, $scope, $operatorDescription, $error);
+                }
+            }
 
-			// If offset is cannot be null, store this error message and see if one of the earlier offsets is.
-			// E.g. $array['a']['b']['c'] ?? null; is a valid coalesce if a OR b or C might be null.
-			if ($hasOffsetValue->yes()) {
+            // Has offset, it is nullable
+            return null;
+        } elseif ($expr instanceof Node\Expr\PropertyFetch || $expr instanceof Node\Expr\StaticPropertyFetch) {
+            $propertyReflection = $this->propertyReflectionFinder->findPropertyReflectionFromNode($expr, $scope);
 
-				$error = $error ?? $this->generateError($type->getOffsetValueType($dimType), sprintf(
-					'Offset %s on %s %s always exists and',
-					$dimType->describe(VerbosityLevel::value()),
-					$type->describe(VerbosityLevel::value()),
-					$operatorDescription
-				));
+            if ($propertyReflection === null) {
+                return null;
+            }
 
-				if ($error !== null) {
-					return $this->check($expr->var, $scope, $operatorDescription, $error);
-				}
-			}
+            if (!$propertyReflection->isNative()) {
+                return null;
+            }
 
-			// Has offset, it is nullable
-			return null;
+            $nativeType = $propertyReflection->getNativeType();
+            if (!$nativeType instanceof MixedType) {
+                if (!$scope->isSpecified($expr)) {
+                    return null;
+                }
+            }
 
-		} elseif ($expr instanceof Node\Expr\PropertyFetch || $expr instanceof Node\Expr\StaticPropertyFetch) {
+            $propertyDescription = $this->propertyDescriptor->describeProperty($propertyReflection, $expr);
+            $propertyType = $propertyReflection->getWritableType();
 
-			$propertyReflection = $this->propertyReflectionFinder->findPropertyReflectionFromNode($expr, $scope);
+            $error = $error ?? $this->generateError(
+                $propertyReflection->getWritableType(),
+                sprintf('%s (%s) %s', $propertyDescription, $propertyType->describe(VerbosityLevel::typeOnly()), $operatorDescription)
+            );
 
-			if ($propertyReflection === null) {
-				return null;
-			}
+            if ($error !== null) {
+                if ($expr instanceof Node\Expr\PropertyFetch) {
+                    return $this->check($expr->var, $scope, $operatorDescription, $error);
+                }
 
-			if (!$propertyReflection->isNative()) {
-				return null;
-			}
+                if ($expr->class instanceof Expr) {
+                    return $this->check($expr->class, $scope, $operatorDescription, $error);
+                }
+            }
 
-			$nativeType = $propertyReflection->getNativeType();
-			if (!$nativeType instanceof MixedType) {
-				if (!$scope->isSpecified($expr)) {
-					return null;
-				}
-			}
+            return $error;
+        }
 
-			$propertyDescription = $this->propertyDescriptor->describeProperty($propertyReflection, $expr);
-			$propertyType = $propertyReflection->getWritableType();
+        return $error ?? $this->generateError($scope->getType($expr), sprintf('Expression %s', $operatorDescription));
+    }
 
-			$error = $error ?? $this->generateError(
-				$propertyReflection->getWritableType(),
-				sprintf('%s (%s) %s', $propertyDescription, $propertyType->describe(VerbosityLevel::typeOnly()), $operatorDescription)
-			);
+    private function generateError(Type $type, string $message): ?RuleError
+    {
+        $nullType = new NullType();
 
-			if ($error !== null) {
-				if ($expr instanceof Node\Expr\PropertyFetch) {
-					return $this->check($expr->var, $scope, $operatorDescription, $error);
-				}
+        if ($type->equals($nullType)) {
+            return RuleErrorBuilder::message(
+                sprintf('%s is always null.', $message)
+            )->build();
+        }
 
-				if ($expr->class instanceof Expr) {
-					return $this->check($expr->class, $scope, $operatorDescription, $error);
-				}
-			}
+        if ($type->isSuperTypeOf($nullType)->no()) {
+            return RuleErrorBuilder::message(
+                sprintf('%s is not nullable.', $message)
+            )->build();
+        }
 
-			return $error;
-		}
-
-		return $error ?? $this->generateError($scope->getType($expr), sprintf('Expression %s', $operatorDescription));
-	}
-
-	private function generateError(Type $type, string $message): ?RuleError
-	{
-		$nullType = new NullType();
-
-		if ($type->equals($nullType)) {
-			return RuleErrorBuilder::message(
-				sprintf('%s is always null.', $message)
-			)->build();
-		}
-
-		if ($type->isSuperTypeOf($nullType)->no()) {
-			return RuleErrorBuilder::message(
-				sprintf('%s is not nullable.', $message)
-			)->build();
-		}
-
-		return null;
-	}
-
+        return null;
+    }
 }

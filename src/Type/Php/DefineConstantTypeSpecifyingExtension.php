@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -14,49 +16,45 @@ use PHPStan\Type\FunctionTypeSpecifyingExtension;
 
 class DefineConstantTypeSpecifyingExtension implements FunctionTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
+    private TypeSpecifier $typeSpecifier;
 
-	private TypeSpecifier $typeSpecifier;
+    public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
+    {
+        $this->typeSpecifier = $typeSpecifier;
+    }
 
-	public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
-	{
-		$this->typeSpecifier = $typeSpecifier;
-	}
+    public function isFunctionSupported(
+        FunctionReflection $functionReflection,
+        FuncCall $node,
+        TypeSpecifierContext $context
+    ): bool {
+        return $functionReflection->getName() === 'define'
+            && $context->null()
+            && count($node->args) >= 2;
+    }
 
-	public function isFunctionSupported(
-		FunctionReflection $functionReflection,
-		FuncCall $node,
-		TypeSpecifierContext $context
-	): bool
-	{
-		return $functionReflection->getName() === 'define'
-			&& $context->null()
-			&& count($node->args) >= 2;
-	}
+    public function specifyTypes(
+        FunctionReflection $functionReflection,
+        FuncCall $node,
+        Scope $scope,
+        TypeSpecifierContext $context
+    ): SpecifiedTypes {
+        $constantName = $scope->getType($node->args[0]->value);
+        if (
+            !$constantName instanceof ConstantStringType
+            || $constantName->getValue() === ''
+        ) {
+            return new SpecifiedTypes([], []);
+        }
 
-	public function specifyTypes(
-		FunctionReflection $functionReflection,
-		FuncCall $node,
-		Scope $scope,
-		TypeSpecifierContext $context
-	): SpecifiedTypes
-	{
-		$constantName = $scope->getType($node->args[0]->value);
-		if (
-			!$constantName instanceof ConstantStringType
-			|| $constantName->getValue() === ''
-		) {
-			return new SpecifiedTypes([], []);
-		}
-
-		return $this->typeSpecifier->create(
-			new \PhpParser\Node\Expr\ConstFetch(
-				new \PhpParser\Node\Name\FullyQualified($constantName->getValue())
-			),
-			$scope->getType($node->args[1]->value),
-			TypeSpecifierContext::createTruthy(),
-			false,
-			$scope
-		);
-	}
-
+        return $this->typeSpecifier->create(
+            new \PhpParser\Node\Expr\ConstFetch(
+                new \PhpParser\Node\Name\FullyQualified($constantName->getValue())
+            ),
+            $scope->getType($node->args[1]->value),
+            TypeSpecifierContext::createTruthy(),
+            false,
+            $scope
+        );
+    }
 }

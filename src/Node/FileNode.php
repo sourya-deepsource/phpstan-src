@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Node;
 
@@ -6,39 +8,37 @@ use PhpParser\NodeAbstract;
 
 class FileNode extends NodeAbstract implements VirtualNode
 {
+    /** @var \PhpParser\Node[] */
+    private array $nodes;
 
-	/** @var \PhpParser\Node[] */
-	private array $nodes;
+    /**
+     * @param \PhpParser\Node[] $nodes
+     */
+    public function __construct(array $nodes)
+    {
+        $firstNode = $nodes[0] ?? null;
+        parent::__construct($firstNode !== null ? $firstNode->getAttributes() : []);
+        $this->nodes = $nodes;
+    }
 
-	/**
-	 * @param \PhpParser\Node[] $nodes
-	 */
-	public function __construct(array $nodes)
-	{
-		$firstNode = $nodes[0] ?? null;
-		parent::__construct($firstNode !== null ? $firstNode->getAttributes() : []);
-		$this->nodes = $nodes;
-	}
+    /**
+     * @return \PhpParser\Node[]
+     */
+    public function getNodes(): array
+    {
+        return $this->nodes;
+    }
 
-	/**
-	 * @return \PhpParser\Node[]
-	 */
-	public function getNodes(): array
-	{
-		return $this->nodes;
-	}
+    public function getType(): string
+    {
+        return 'PHPStan_Node_FileNode';
+    }
 
-	public function getType(): string
-	{
-		return 'PHPStan_Node_FileNode';
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getSubNodeNames(): array
-	{
-		return [];
-	}
-
+    /**
+     * @return string[]
+     */
+    public function getSubNodeNames(): array
+    {
+        return [];
+    }
 }

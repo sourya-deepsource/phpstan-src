@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Generics;
 
@@ -12,117 +14,114 @@ use PHPStan\Type\VerbosityLevel;
 
 class GenericObjectTypeCheck
 {
+    /**
+     * @param \PHPStan\Type\Type $phpDocType
+     * @param string $classNotGenericMessage
+     * @param string $notEnoughTypesMessage
+     * @param string $extraTypesMessage
+     * @param string $typeIsNotSubtypeMessage
+     * @return \PHPStan\Rules\RuleError[]
+     */
+    public function check(
+        Type $phpDocType,
+        string $classNotGenericMessage,
+        string $notEnoughTypesMessage,
+        string $extraTypesMessage,
+        string $typeIsNotSubtypeMessage
+    ): array {
+        $genericTypes = $this->getGenericTypes($phpDocType);
+        $messages = [];
+        foreach ($genericTypes as $genericType) {
+            $classReflection = $genericType->getClassReflection();
+            if ($classReflection === null) {
+                continue;
+            }
+            if (!$classReflection->isGeneric()) {
+                $messages[] = RuleErrorBuilder::message(sprintf($classNotGenericMessage, $genericType->describe(VerbosityLevel::typeOnly()), $classReflection->getDisplayName()))->build();
+                continue;
+            }
 
-	/**
-	 * @param \PHPStan\Type\Type $phpDocType
-	 * @param string $classNotGenericMessage
-	 * @param string $notEnoughTypesMessage
-	 * @param string $extraTypesMessage
-	 * @param string $typeIsNotSubtypeMessage
-	 * @return \PHPStan\Rules\RuleError[]
-	 */
-	public function check(
-		Type $phpDocType,
-		string $classNotGenericMessage,
-		string $notEnoughTypesMessage,
-		string $extraTypesMessage,
-		string $typeIsNotSubtypeMessage
-	): array
-	{
-		$genericTypes = $this->getGenericTypes($phpDocType);
-		$messages = [];
-		foreach ($genericTypes as $genericType) {
-			$classReflection = $genericType->getClassReflection();
-			if ($classReflection === null) {
-				continue;
-			}
-			if (!$classReflection->isGeneric()) {
-				$messages[] = RuleErrorBuilder::message(sprintf($classNotGenericMessage, $genericType->describe(VerbosityLevel::typeOnly()), $classReflection->getDisplayName()))->build();
-				continue;
-			}
+            $templateTypes = array_values($classReflection->getTemplateTypeMap()->getTypes());
 
-			$templateTypes = array_values($classReflection->getTemplateTypeMap()->getTypes());
+            $genericTypeTypes = $genericType->getTypes();
+            $templateTypesCount = count($templateTypes);
+            $genericTypeTypesCount = count($genericTypeTypes);
+            if ($templateTypesCount > $genericTypeTypesCount) {
+                $messages[] = RuleErrorBuilder::message(sprintf(
+                    $notEnoughTypesMessage,
+                    $genericType->describe(VerbosityLevel::typeOnly()),
+                    $classReflection->getDisplayName(false),
+                    implode(', ', array_keys($classReflection->getTemplateTypeMap()->getTypes()))
+                ))->build();
+            } elseif ($templateTypesCount < $genericTypeTypesCount) {
+                $messages[] = RuleErrorBuilder::message(sprintf(
+                    $extraTypesMessage,
+                    $genericType->describe(VerbosityLevel::typeOnly()),
+                    $genericTypeTypesCount,
+                    $classReflection->getDisplayName(false),
+                    $templateTypesCount,
+                    implode(', ', array_keys($classReflection->getTemplateTypeMap()->getTypes()))
+                ))->build();
+            }
 
-			$genericTypeTypes = $genericType->getTypes();
-			$templateTypesCount = count($templateTypes);
-			$genericTypeTypesCount = count($genericTypeTypes);
-			if ($templateTypesCount > $genericTypeTypesCount) {
-				$messages[] = RuleErrorBuilder::message(sprintf(
-					$notEnoughTypesMessage,
-					$genericType->describe(VerbosityLevel::typeOnly()),
-					$classReflection->getDisplayName(false),
-					implode(', ', array_keys($classReflection->getTemplateTypeMap()->getTypes()))
-				))->build();
-			} elseif ($templateTypesCount < $genericTypeTypesCount) {
-				$messages[] = RuleErrorBuilder::message(sprintf(
-					$extraTypesMessage,
-					$genericType->describe(VerbosityLevel::typeOnly()),
-					$genericTypeTypesCount,
-					$classReflection->getDisplayName(false),
-					$templateTypesCount,
-					implode(', ', array_keys($classReflection->getTemplateTypeMap()->getTypes()))
-				))->build();
-			}
+            $templateTypesCount = count($templateTypes);
+            for ($i = 0; $i < $templateTypesCount; $i++) {
+                if (!isset($genericTypeTypes[$i])) {
+                    continue;
+                }
 
-			$templateTypesCount = count($templateTypes);
-			for ($i = 0; $i < $templateTypesCount; $i++) {
-				if (!isset($genericTypeTypes[$i])) {
-					continue;
-				}
+                $templateType = $templateTypes[$i];
+                $boundType = TemplateTypeHelper::resolveToBounds($templateType);
+                $genericTypeType = $genericTypeTypes[$i];
+                if ($boundType->isSuperTypeOf($genericTypeType)->yes()) {
+                    if (!$templateType instanceof TemplateType) {
+                        continue;
+                    }
+                    $map = $templateType->inferTemplateTypes($genericTypeType);
+                    for ($j = 0; $j < $templateTypesCount; $j++) {
+                        if ($i === $j) {
+                            continue;
+                        }
 
-				$templateType = $templateTypes[$i];
-				$boundType = TemplateTypeHelper::resolveToBounds($templateType);
-				$genericTypeType = $genericTypeTypes[$i];
-				if ($boundType->isSuperTypeOf($genericTypeType)->yes()) {
-					if (!$templateType instanceof TemplateType) {
-						continue;
-					}
-					$map = $templateType->inferTemplateTypes($genericTypeType);
-					for ($j = 0; $j < $templateTypesCount; $j++) {
-						if ($i === $j) {
-							continue;
-						}
+                        $templateTypes[$j] = TemplateTypeHelper::resolveTemplateTypes($templateTypes[$j], $map);
+                    }
+                    continue;
+                }
 
-						$templateTypes[$j] = TemplateTypeHelper::resolveTemplateTypes($templateTypes[$j], $map);
-					}
-					continue;
-				}
+                $messages[] = RuleErrorBuilder::message(sprintf(
+                    $typeIsNotSubtypeMessage,
+                    $genericTypeType->describe(VerbosityLevel::typeOnly()),
+                    $genericType->describe(VerbosityLevel::typeOnly()),
+                    $templateType->describe(VerbosityLevel::typeOnly()),
+                    $classReflection->getDisplayName(false)
+                ))->build();
+            }
+        }
 
-				$messages[] = RuleErrorBuilder::message(sprintf(
-					$typeIsNotSubtypeMessage,
-					$genericTypeType->describe(VerbosityLevel::typeOnly()),
-					$genericType->describe(VerbosityLevel::typeOnly()),
-					$templateType->describe(VerbosityLevel::typeOnly()),
-					$classReflection->getDisplayName(false)
-				))->build();
-			}
-		}
+        return $messages;
+    }
 
-		return $messages;
-	}
+    /**
+     * @param \PHPStan\Type\Type $phpDocType
+     * @return \PHPStan\Type\Generic\GenericObjectType[]
+     */
+    private function getGenericTypes(Type $phpDocType): array
+    {
+        $genericObjectTypes = [];
+        TypeTraverser::map($phpDocType, static function (Type $type, callable $traverse) use (&$genericObjectTypes): Type {
+            if ($type instanceof GenericObjectType) {
+                $resolvedType = TemplateTypeHelper::resolveToBounds($type);
+                if (!$resolvedType instanceof GenericObjectType) {
+                    throw new \PHPStan\ShouldNotHappenException();
+                }
+                $genericObjectTypes[] = $resolvedType;
+                $traverse($type);
+                return $type;
+            }
+            $traverse($type);
+            return $type;
+        });
 
-	/**
-	 * @param \PHPStan\Type\Type $phpDocType
-	 * @return \PHPStan\Type\Generic\GenericObjectType[]
-	 */
-	private function getGenericTypes(Type $phpDocType): array
-	{
-		$genericObjectTypes = [];
-		TypeTraverser::map($phpDocType, static function (Type $type, callable $traverse) use (&$genericObjectTypes): Type {
-			if ($type instanceof GenericObjectType) {
-				$resolvedType = TemplateTypeHelper::resolveToBounds($type);
-				if (!$resolvedType instanceof GenericObjectType) {
-					throw new \PHPStan\ShouldNotHappenException();
-				}
-				$genericObjectTypes[] = $resolvedType;
-				$traverse($type);
-				return $type;
-			}
-			$traverse($type);
-			return $type;
-		});
-
-		return $genericObjectTypes;
-	}
-
+        return $genericObjectTypes;
+    }
 }

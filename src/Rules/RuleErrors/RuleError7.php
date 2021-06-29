@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\RuleErrors;
 
@@ -7,26 +9,24 @@ namespace PHPStan\Rules\RuleErrors;
  */
 class RuleError7 implements \PHPStan\Rules\RuleError, \PHPStan\Rules\LineRuleError, \PHPStan\Rules\FileRuleError
 {
+    public string $message;
 
-	public string $message;
+    public int $line;
 
-	public int $line;
+    public string $file;
 
-	public string $file;
+    public function getMessage(): string
+    {
+        return $this->message;
+    }
 
-	public function getMessage(): string
-	{
-		return $this->message;
-	}
+    public function getLine(): int
+    {
+        return $this->line;
+    }
 
-	public function getLine(): int
-	{
-		return $this->line;
-	}
-
-	public function getFile(): string
-	{
-		return $this->file;
-	}
-
+    public function getFile(): string
+    {
+        return $this->file;
+    }
 }

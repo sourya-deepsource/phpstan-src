@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection;
 
@@ -7,17 +9,15 @@ use PHPStan\Type\Type;
 
 interface GlobalConstantReflection
 {
+    public function getName(): string;
 
-	public function getName(): string;
+    public function getValueType(): Type;
 
-	public function getValueType(): Type;
+    public function isDeprecated(): TrinaryLogic;
 
-	public function isDeprecated(): TrinaryLogic;
+    public function getDeprecatedDescription(): ?string;
 
-	public function getDeprecatedDescription(): ?string;
+    public function isInternal(): TrinaryLogic;
 
-	public function isInternal(): TrinaryLogic;
-
-	public function getFileName(): ?string;
-
+    public function getFileName(): ?string;
 }

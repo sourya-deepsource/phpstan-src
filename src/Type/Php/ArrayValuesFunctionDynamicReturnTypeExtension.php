@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -15,29 +17,27 @@ use PHPStan\Type\TypeUtils;
 
 class ArrayValuesFunctionDynamicReturnTypeExtension implements \PHPStan\Type\DynamicFunctionReturnTypeExtension
 {
+    public function isFunctionSupported(FunctionReflection $functionReflection): bool
+    {
+        return $functionReflection->getName() === 'array_values';
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection): bool
-	{
-		return $functionReflection->getName() === 'array_values';
-	}
+    public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
+    {
+        $arrayArg = $functionCall->args[0]->value ?? null;
+        if ($arrayArg !== null) {
+            $valueType = $scope->getType($arrayArg);
+            if ($valueType->isArray()->yes()) {
+                if ($valueType instanceof ConstantArrayType) {
+                    return $valueType->getValuesArray();
+                }
+                return TypeCombinator::intersect(new ArrayType(new IntegerType(), $valueType->getIterableValueType()), ...TypeUtils::getAccessoryTypes($valueType));
+            }
+        }
 
-	public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
-	{
-		$arrayArg = $functionCall->args[0]->value ?? null;
-		if ($arrayArg !== null) {
-			$valueType = $scope->getType($arrayArg);
-			if ($valueType->isArray()->yes()) {
-				if ($valueType instanceof ConstantArrayType) {
-					return $valueType->getValuesArray();
-				}
-				return TypeCombinator::intersect(new ArrayType(new IntegerType(), $valueType->getIterableValueType()), ...TypeUtils::getAccessoryTypes($valueType));
-			}
-		}
-
-		return new ArrayType(
-			new IntegerType(),
-			new MixedType()
-		);
-	}
-
+        return new ArrayType(
+            new IntegerType(),
+            new MixedType()
+        );
+    }
 }

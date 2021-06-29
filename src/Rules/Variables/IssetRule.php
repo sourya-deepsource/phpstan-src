@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Variables;
 
@@ -11,31 +13,29 @@ use PHPStan\Rules\IssetCheck;
  */
 class IssetRule implements \PHPStan\Rules\Rule
 {
+    private IssetCheck $issetCheck;
 
-	private IssetCheck $issetCheck;
+    public function __construct(IssetCheck $issetCheck)
+    {
+        $this->issetCheck = $issetCheck;
+    }
 
-	public function __construct(IssetCheck $issetCheck)
-	{
-		$this->issetCheck = $issetCheck;
-	}
+    public function getNodeType(): string
+    {
+        return Node\Expr\Isset_::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Node\Expr\Isset_::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $messages = [];
+        foreach ($node->vars as $var) {
+            $error = $this->issetCheck->check($var, $scope, 'in isset()');
+            if ($error === null) {
+                continue;
+            }
+            $messages[] = $error;
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		$messages = [];
-		foreach ($node->vars as $var) {
-			$error = $this->issetCheck->check($var, $scope, 'in isset()');
-			if ($error === null) {
-				continue;
-			}
-			$messages[] = $error;
-		}
-
-		return $messages;
-	}
-
+        return $messages;
+    }
 }

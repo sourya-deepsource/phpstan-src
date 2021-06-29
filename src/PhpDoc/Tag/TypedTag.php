@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\PhpDoc\Tag;
 
@@ -6,13 +8,11 @@ use PHPStan\Type\Type;
 
 interface TypedTag
 {
+    public function getType(): Type;
 
-	public function getType(): Type;
-
-	/**
-	 * @param Type $type
-	 * @return static
-	 */
-	public function withType(Type $type): self;
-
+    /**
+     * @param Type $type
+     * @return static
+     */
+    public function withType(Type $type): self;
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection\BetterReflection\SourceLocator;
 
@@ -11,43 +13,40 @@ use PHPStan\BetterReflection\SourceLocator\Type\SourceLocator;
 
 class ClassWhitelistSourceLocator implements SourceLocator
 {
+    private SourceLocator $sourceLocator;
 
-	private SourceLocator $sourceLocator;
+    /** @var string[] */
+    private array $patterns;
 
-	/** @var string[] */
-	private array $patterns;
+    /**
+     * @param SourceLocator $sourceLocator
+     * @param string[] $patterns
+     */
+    public function __construct(
+        SourceLocator $sourceLocator,
+        array $patterns
+    ) {
+        $this->sourceLocator = $sourceLocator;
+        $this->patterns = $patterns;
+    }
 
-	/**
-	 * @param SourceLocator $sourceLocator
-	 * @param string[] $patterns
-	 */
-	public function __construct(
-		SourceLocator $sourceLocator,
-		array $patterns
-	)
-	{
-		$this->sourceLocator = $sourceLocator;
-		$this->patterns = $patterns;
-	}
+    public function locateIdentifier(Reflector $reflector, Identifier $identifier): ?Reflection
+    {
+        if ($identifier->isClass()) {
+            foreach ($this->patterns as $pattern) {
+                if (Strings::match($identifier->getName(), $pattern) !== null) {
+                    return $this->sourceLocator->locateIdentifier($reflector, $identifier);
+                }
+            }
 
-	public function locateIdentifier(Reflector $reflector, Identifier $identifier): ?Reflection
-	{
-		if ($identifier->isClass()) {
-			foreach ($this->patterns as $pattern) {
-				if (Strings::match($identifier->getName(), $pattern) !== null) {
-					return $this->sourceLocator->locateIdentifier($reflector, $identifier);
-				}
-			}
+            return null;
+        }
 
-			return null;
-		}
+        return $this->sourceLocator->locateIdentifier($reflector, $identifier);
+    }
 
-		return $this->sourceLocator->locateIdentifier($reflector, $identifier);
-	}
-
-	public function locateIdentifiersByType(Reflector $reflector, IdentifierType $identifierType): array
-	{
-		return $this->sourceLocator->locateIdentifiersByType($reflector, $identifierType);
-	}
-
+    public function locateIdentifiersByType(Reflector $reflector, IdentifierType $identifierType): array
+    {
+        return $this->sourceLocator->locateIdentifiersByType($reflector, $identifierType);
+    }
 }

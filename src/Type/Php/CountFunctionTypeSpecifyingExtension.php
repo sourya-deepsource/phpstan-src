@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -16,37 +18,33 @@ use PHPStan\Type\MixedType;
 
 class CountFunctionTypeSpecifyingExtension implements FunctionTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
+    private \PHPStan\Analyser\TypeSpecifier $typeSpecifier;
 
-	private \PHPStan\Analyser\TypeSpecifier $typeSpecifier;
+    public function isFunctionSupported(
+        FunctionReflection $functionReflection,
+        FuncCall $node,
+        TypeSpecifierContext $context
+    ): bool {
+        return !$context->null()
+            && count($node->args) >= 1
+            && $functionReflection->getName() === 'count';
+    }
 
-	public function isFunctionSupported(
-		FunctionReflection $functionReflection,
-		FuncCall $node,
-		TypeSpecifierContext $context
-	): bool
-	{
-		return !$context->null()
-			&& count($node->args) >= 1
-			&& $functionReflection->getName() === 'count';
-	}
+    public function specifyTypes(
+        FunctionReflection $functionReflection,
+        FuncCall $node,
+        Scope $scope,
+        TypeSpecifierContext $context
+    ): SpecifiedTypes {
+        if (!(new ArrayType(new MixedType(), new MixedType()))->isSuperTypeOf($scope->getType($node->args[0]->value))->yes()) {
+            return new SpecifiedTypes([], []);
+        }
 
-	public function specifyTypes(
-		FunctionReflection $functionReflection,
-		FuncCall $node,
-		Scope $scope,
-		TypeSpecifierContext $context
-	): SpecifiedTypes
-	{
-		if (!(new ArrayType(new MixedType(), new MixedType()))->isSuperTypeOf($scope->getType($node->args[0]->value))->yes()) {
-			return new SpecifiedTypes([], []);
-		}
+        return $this->typeSpecifier->create($node->args[0]->value, new NonEmptyArrayType(), $context, false, $scope);
+    }
 
-		return $this->typeSpecifier->create($node->args[0]->value, new NonEmptyArrayType(), $context, false, $scope);
-	}
-
-	public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
-	{
-		$this->typeSpecifier = $typeSpecifier;
-	}
-
+    public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
+    {
+        $this->typeSpecifier = $typeSpecifier;
+    }
 }

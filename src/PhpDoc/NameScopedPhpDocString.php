@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\PhpDoc;
 
@@ -6,37 +8,35 @@ use PHPStan\Analyser\NameScope;
 
 class NameScopedPhpDocString
 {
+    private string $phpDocString;
 
-	private string $phpDocString;
+    private \PHPStan\Analyser\NameScope $nameScope;
 
-	private \PHPStan\Analyser\NameScope $nameScope;
+    public function __construct(string $phpDocString, NameScope $nameScope)
+    {
+        $this->phpDocString = $phpDocString;
+        $this->nameScope = $nameScope;
+    }
 
-	public function __construct(string $phpDocString, NameScope $nameScope)
-	{
-		$this->phpDocString = $phpDocString;
-		$this->nameScope = $nameScope;
-	}
+    public function getPhpDocString(): string
+    {
+        return $this->phpDocString;
+    }
 
-	public function getPhpDocString(): string
-	{
-		return $this->phpDocString;
-	}
+    public function getNameScope(): NameScope
+    {
+        return $this->nameScope;
+    }
 
-	public function getNameScope(): NameScope
-	{
-		return $this->nameScope;
-	}
-
-	/**
-	 * @param mixed[] $properties
-	 * @return self
-	 */
-	public static function __set_state(array $properties): self
-	{
-		return new self(
-			$properties['phpDocString'],
-			$properties['nameScope']
-		);
-	}
-
+    /**
+     * @param mixed[] $properties
+     * @return self
+     */
+    public static function __set_state(array $properties): self
+    {
+        return new self(
+            $properties['phpDocString'],
+            $properties['nameScope']
+        );
+    }
 }

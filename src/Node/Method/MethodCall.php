@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Node\Method;
 
@@ -8,33 +10,31 @@ use PHPStan\Analyser\Scope;
 
 class MethodCall
 {
+    /** @var \PhpParser\Node\Expr\MethodCall|StaticCall|Array_ */
+    private $node;
 
-	/** @var \PhpParser\Node\Expr\MethodCall|StaticCall|Array_ */
-	private $node;
+    private Scope $scope;
 
-	private Scope $scope;
+    /**
+     * @param \PhpParser\Node\Expr\MethodCall|StaticCall|Array_ $node
+     * @param Scope $scope
+     */
+    public function __construct($node, Scope $scope)
+    {
+        $this->node = $node;
+        $this->scope = $scope;
+    }
 
-	/**
-	 * @param \PhpParser\Node\Expr\MethodCall|StaticCall|Array_ $node
-	 * @param Scope $scope
-	 */
-	public function __construct($node, Scope $scope)
-	{
-		$this->node = $node;
-		$this->scope = $scope;
-	}
+    /**
+     * @return \PhpParser\Node\Expr\MethodCall|StaticCall|Array_
+     */
+    public function getNode()
+    {
+        return $this->node;
+    }
 
-	/**
-	 * @return \PhpParser\Node\Expr\MethodCall|StaticCall|Array_
-	 */
-	public function getNode()
-	{
-		return $this->node;
-	}
-
-	public function getScope(): Scope
-	{
-		return $this->scope;
-	}
-
+    public function getScope(): Scope
+    {
+        return $this->scope;
+    }
 }

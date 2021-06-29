@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Arrays;
 
@@ -12,42 +14,40 @@ use PHPStan\Type\VerbosityLevel;
  */
 class InvalidKeyInArrayItemRule implements \PHPStan\Rules\Rule
 {
+    private bool $reportMaybes;
 
-	private bool $reportMaybes;
+    public function __construct(bool $reportMaybes)
+    {
+        $this->reportMaybes = $reportMaybes;
+    }
 
-	public function __construct(bool $reportMaybes)
-	{
-		$this->reportMaybes = $reportMaybes;
-	}
+    public function getNodeType(): string
+    {
+        return \PhpParser\Node\Expr\ArrayItem::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return \PhpParser\Node\Expr\ArrayItem::class;
-	}
+    public function processNode(\PhpParser\Node $node, Scope $scope): array
+    {
+        if ($node->key === null) {
+            return [];
+        }
 
-	public function processNode(\PhpParser\Node $node, Scope $scope): array
-	{
-		if ($node->key === null) {
-			return [];
-		}
+        $dimensionType = $scope->getType($node->key);
+        $isSuperType = AllowedArrayKeysTypes::getType()->isSuperTypeOf($dimensionType);
+        if ($isSuperType->no()) {
+            return [
+                RuleErrorBuilder::message(
+                    sprintf('Invalid array key type %s.', $dimensionType->describe(VerbosityLevel::typeOnly()))
+                )->build(),
+            ];
+        } elseif ($this->reportMaybes && $isSuperType->maybe() && !$dimensionType instanceof MixedType) {
+            return [
+                RuleErrorBuilder::message(
+                    sprintf('Possibly invalid array key type %s.', $dimensionType->describe(VerbosityLevel::typeOnly()))
+                )->build(),
+            ];
+        }
 
-		$dimensionType = $scope->getType($node->key);
-		$isSuperType = AllowedArrayKeysTypes::getType()->isSuperTypeOf($dimensionType);
-		if ($isSuperType->no()) {
-			return [
-				RuleErrorBuilder::message(
-					sprintf('Invalid array key type %s.', $dimensionType->describe(VerbosityLevel::typeOnly()))
-				)->build(),
-			];
-		} elseif ($this->reportMaybes && $isSuperType->maybe() && !$dimensionType instanceof MixedType) {
-			return [
-				RuleErrorBuilder::message(
-					sprintf('Possibly invalid array key type %s.', $dimensionType->describe(VerbosityLevel::typeOnly()))
-				)->build(),
-			];
-		}
-
-		return [];
-	}
-
+        return [];
+    }
 }

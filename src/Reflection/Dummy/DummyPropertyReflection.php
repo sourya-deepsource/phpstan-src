@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection\Dummy;
 
@@ -11,72 +13,70 @@ use PHPStan\Type\Type;
 
 class DummyPropertyReflection implements PropertyReflection
 {
+    public function getDeclaringClass(): ClassReflection
+    {
+        $broker = Broker::getInstance();
 
-	public function getDeclaringClass(): ClassReflection
-	{
-		$broker = Broker::getInstance();
+        return $broker->getClass(\stdClass::class);
+    }
 
-		return $broker->getClass(\stdClass::class);
-	}
+    public function isStatic(): bool
+    {
+        return false;
+    }
 
-	public function isStatic(): bool
-	{
-		return false;
-	}
+    public function isPrivate(): bool
+    {
+        return false;
+    }
 
-	public function isPrivate(): bool
-	{
-		return false;
-	}
+    public function isPublic(): bool
+    {
+        return true;
+    }
 
-	public function isPublic(): bool
-	{
-		return true;
-	}
+    public function getReadableType(): Type
+    {
+        return new MixedType();
+    }
 
-	public function getReadableType(): Type
-	{
-		return new MixedType();
-	}
+    public function getWritableType(): Type
+    {
+        return new MixedType();
+    }
 
-	public function getWritableType(): Type
-	{
-		return new MixedType();
-	}
+    public function canChangeTypeAfterAssignment(): bool
+    {
+        return true;
+    }
 
-	public function canChangeTypeAfterAssignment(): bool
-	{
-		return true;
-	}
+    public function isReadable(): bool
+    {
+        return true;
+    }
 
-	public function isReadable(): bool
-	{
-		return true;
-	}
+    public function isWritable(): bool
+    {
+        return true;
+    }
 
-	public function isWritable(): bool
-	{
-		return true;
-	}
+    public function isDeprecated(): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function isDeprecated(): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
+    public function getDeprecatedDescription(): ?string
+    {
+        return null;
+    }
 
-	public function getDeprecatedDescription(): ?string
-	{
-		return null;
-	}
+    public function isInternal(): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function isInternal(): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
-
-	public function getDocComment(): ?string
-	{
-		return null;
-	}
-
+    public function getDocComment(): ?string
+    {
+        return null;
+    }
 }

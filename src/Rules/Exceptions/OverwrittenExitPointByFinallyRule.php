@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Exceptions;
 
@@ -13,49 +15,47 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class OverwrittenExitPointByFinallyRule implements Rule
 {
+    public function getNodeType(): string
+    {
+        return FinallyExitPointsNode::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return FinallyExitPointsNode::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if (count($node->getTryCatchExitPoints()) === 0) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if (count($node->getTryCatchExitPoints()) === 0) {
-			return [];
-		}
+        $errors = [];
+        foreach ($node->getTryCatchExitPoints() as $exitPoint) {
+            $errors[] = RuleErrorBuilder::message(sprintf('This %s is overwritten by a different one in the finally block below.', $this->describeExitPoint($exitPoint->getStatement())))->line($exitPoint->getStatement()->getLine())->build();
+        }
 
-		$errors = [];
-		foreach ($node->getTryCatchExitPoints() as $exitPoint) {
-			$errors[] = RuleErrorBuilder::message(sprintf('This %s is overwritten by a different one in the finally block below.', $this->describeExitPoint($exitPoint->getStatement())))->line($exitPoint->getStatement()->getLine())->build();
-		}
+        foreach ($node->getFinallyExitPoints() as $exitPoint) {
+            $errors[] = RuleErrorBuilder::message(sprintf('The overwriting %s is on this line.', $this->describeExitPoint($exitPoint->getStatement())))->line($exitPoint->getStatement()->getLine())->build();
+        }
 
-		foreach ($node->getFinallyExitPoints() as $exitPoint) {
-			$errors[] = RuleErrorBuilder::message(sprintf('The overwriting %s is on this line.', $this->describeExitPoint($exitPoint->getStatement())))->line($exitPoint->getStatement()->getLine())->build();
-		}
+        return $errors;
+    }
 
-		return $errors;
-	}
+    private function describeExitPoint(Node\Stmt $stmt): string
+    {
+        if ($stmt instanceof Node\Stmt\Return_) {
+            return 'return';
+        }
 
-	private function describeExitPoint(Node\Stmt $stmt): string
-	{
-		if ($stmt instanceof Node\Stmt\Return_) {
-			return 'return';
-		}
+        if ($stmt instanceof Node\Stmt\Throw_) {
+            return 'throw';
+        }
 
-		if ($stmt instanceof Node\Stmt\Throw_) {
-			return 'throw';
-		}
+        if ($stmt instanceof Node\Stmt\Continue_) {
+            return 'continue';
+        }
 
-		if ($stmt instanceof Node\Stmt\Continue_) {
-			return 'continue';
-		}
+        if ($stmt instanceof Node\Stmt\Break_) {
+            return 'break';
+        }
 
-		if ($stmt instanceof Node\Stmt\Break_) {
-			return 'break';
-		}
-
-		return 'exit point';
-	}
-
+        return 'exit point';
+    }
 }

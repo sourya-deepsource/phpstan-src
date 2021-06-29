@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection\Dummy;
 
@@ -11,93 +13,91 @@ use PHPStan\Type\Type;
 
 class ChangedTypeMethodReflection implements MethodReflection
 {
+    private ClassReflection $declaringClass;
 
-	private ClassReflection $declaringClass;
+    private MethodReflection $reflection;
 
-	private MethodReflection $reflection;
+    /** @var ParametersAcceptor[] */
+    private array $variants;
 
-	/** @var ParametersAcceptor[] */
-	private array $variants;
+    /**
+     * @param MethodReflection $reflection
+     * @param ParametersAcceptor[] $variants
+     */
+    public function __construct(ClassReflection $declaringClass, MethodReflection $reflection, array $variants)
+    {
+        $this->declaringClass = $declaringClass;
+        $this->reflection = $reflection;
+        $this->variants = $variants;
+    }
 
-	/**
-	 * @param MethodReflection $reflection
-	 * @param ParametersAcceptor[] $variants
-	 */
-	public function __construct(ClassReflection $declaringClass, MethodReflection $reflection, array $variants)
-	{
-		$this->declaringClass = $declaringClass;
-		$this->reflection = $reflection;
-		$this->variants = $variants;
-	}
+    public function getDeclaringClass(): ClassReflection
+    {
+        return $this->declaringClass;
+    }
 
-	public function getDeclaringClass(): ClassReflection
-	{
-		return $this->declaringClass;
-	}
+    public function isStatic(): bool
+    {
+        return $this->reflection->isStatic();
+    }
 
-	public function isStatic(): bool
-	{
-		return $this->reflection->isStatic();
-	}
+    public function isPrivate(): bool
+    {
+        return $this->reflection->isPrivate();
+    }
 
-	public function isPrivate(): bool
-	{
-		return $this->reflection->isPrivate();
-	}
+    public function isPublic(): bool
+    {
+        return $this->reflection->isPublic();
+    }
 
-	public function isPublic(): bool
-	{
-		return $this->reflection->isPublic();
-	}
+    public function getDocComment(): ?string
+    {
+        return $this->reflection->getDocComment();
+    }
 
-	public function getDocComment(): ?string
-	{
-		return $this->reflection->getDocComment();
-	}
+    public function getName(): string
+    {
+        return $this->reflection->getName();
+    }
 
-	public function getName(): string
-	{
-		return $this->reflection->getName();
-	}
+    public function getPrototype(): ClassMemberReflection
+    {
+        return $this->reflection->getPrototype();
+    }
 
-	public function getPrototype(): ClassMemberReflection
-	{
-		return $this->reflection->getPrototype();
-	}
+    public function getVariants(): array
+    {
+        return $this->variants;
+    }
 
-	public function getVariants(): array
-	{
-		return $this->variants;
-	}
+    public function isDeprecated(): TrinaryLogic
+    {
+        return $this->reflection->isDeprecated();
+    }
 
-	public function isDeprecated(): TrinaryLogic
-	{
-		return $this->reflection->isDeprecated();
-	}
+    public function getDeprecatedDescription(): ?string
+    {
+        return $this->reflection->getDeprecatedDescription();
+    }
 
-	public function getDeprecatedDescription(): ?string
-	{
-		return $this->reflection->getDeprecatedDescription();
-	}
+    public function isFinal(): TrinaryLogic
+    {
+        return $this->reflection->isFinal();
+    }
 
-	public function isFinal(): TrinaryLogic
-	{
-		return $this->reflection->isFinal();
-	}
+    public function isInternal(): TrinaryLogic
+    {
+        return $this->reflection->isInternal();
+    }
 
-	public function isInternal(): TrinaryLogic
-	{
-		return $this->reflection->isInternal();
-	}
+    public function getThrowType(): ?Type
+    {
+        return $this->reflection->getThrowType();
+    }
 
-	public function getThrowType(): ?Type
-	{
-		return $this->reflection->getThrowType();
-	}
-
-	public function hasSideEffects(): TrinaryLogic
-	{
-		return $this->reflection->hasSideEffects();
-	}
-
+    public function hasSideEffects(): TrinaryLogic
+    {
+        return $this->reflection->hasSideEffects();
+    }
 }

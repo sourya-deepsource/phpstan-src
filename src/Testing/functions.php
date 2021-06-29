@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Testing;
 
@@ -14,7 +16,7 @@ use PHPStan\TrinaryLogic;
  */
 function assertType(string $type, $value) // phpcs:ignore
 {
-	return null;
+    return null;
 }
 
 /**
@@ -30,7 +32,7 @@ function assertType(string $type, $value) // phpcs:ignore
  */
 function assertNativeType(string $type, $value) // phpcs:ignore
 {
-	return null;
+    return null;
 }
 
 /**
@@ -41,5 +43,5 @@ function assertNativeType(string $type, $value) // phpcs:ignore
  */
 function assertVariableCertainty(TrinaryLogic $certainty, $variable) // phpcs:ignore
 {
-	return null;
+    return null;
 }

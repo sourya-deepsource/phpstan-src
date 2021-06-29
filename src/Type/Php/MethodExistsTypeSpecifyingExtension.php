@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -21,57 +23,53 @@ use PHPStan\Type\UnionType;
 
 class MethodExistsTypeSpecifyingExtension implements FunctionTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
+    private TypeSpecifier $typeSpecifier;
 
-	private TypeSpecifier $typeSpecifier;
+    public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
+    {
+        $this->typeSpecifier = $typeSpecifier;
+    }
 
-	public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
-	{
-		$this->typeSpecifier = $typeSpecifier;
-	}
+    public function isFunctionSupported(
+        FunctionReflection $functionReflection,
+        FuncCall $node,
+        TypeSpecifierContext $context
+    ): bool {
+        return $functionReflection->getName() === 'method_exists'
+            && $context->truthy()
+            && count($node->args) >= 2;
+    }
 
-	public function isFunctionSupported(
-		FunctionReflection $functionReflection,
-		FuncCall $node,
-		TypeSpecifierContext $context
-	): bool
-	{
-		return $functionReflection->getName() === 'method_exists'
-			&& $context->truthy()
-			&& count($node->args) >= 2;
-	}
+    public function specifyTypes(
+        FunctionReflection $functionReflection,
+        FuncCall $node,
+        Scope $scope,
+        TypeSpecifierContext $context
+    ): SpecifiedTypes {
+        $objectType = $scope->getType($node->args[0]->value);
+        if (!$objectType instanceof ObjectType) {
+            if ((new StringType())->isSuperTypeOf($objectType)->yes()) {
+                return new SpecifiedTypes([], []);
+            }
+        }
 
-	public function specifyTypes(
-		FunctionReflection $functionReflection,
-		FuncCall $node,
-		Scope $scope,
-		TypeSpecifierContext $context
-	): SpecifiedTypes
-	{
-		$objectType = $scope->getType($node->args[0]->value);
-		if (!$objectType instanceof ObjectType) {
-			if ((new StringType())->isSuperTypeOf($objectType)->yes()) {
-				return new SpecifiedTypes([], []);
-			}
-		}
+        $methodNameType = $scope->getType($node->args[1]->value);
+        if (!$methodNameType instanceof ConstantStringType) {
+            return new SpecifiedTypes([], []);
+        }
 
-		$methodNameType = $scope->getType($node->args[1]->value);
-		if (!$methodNameType instanceof ConstantStringType) {
-			return new SpecifiedTypes([], []);
-		}
-
-		return $this->typeSpecifier->create(
-			$node->args[0]->value,
-			new UnionType([
-				new IntersectionType([
-					new ObjectWithoutClassType(),
-					new HasMethodType($methodNameType->getValue()),
-				]),
-				new ClassStringType(),
-			]),
-			$context,
-			false,
-			$scope
-		);
-	}
-
+        return $this->typeSpecifier->create(
+            $node->args[0]->value,
+            new UnionType([
+                new IntersectionType([
+                    new ObjectWithoutClassType(),
+                    new HasMethodType($methodNameType->getValue()),
+                ]),
+                new ClassStringType(),
+            ]),
+            $context,
+            false,
+            $scope
+        );
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\RuleErrors;
 
@@ -7,37 +9,35 @@ namespace PHPStan\Rules\RuleErrors;
  */
 class RuleError103 implements \PHPStan\Rules\RuleError, \PHPStan\Rules\LineRuleError, \PHPStan\Rules\FileRuleError, \PHPStan\Rules\MetadataRuleError, \PHPStan\Rules\NonIgnorableRuleError
 {
+    public string $message;
 
-	public string $message;
+    public int $line;
 
-	public int $line;
+    public string $file;
 
-	public string $file;
+    /** @var mixed[] */
+    public array $metadata;
 
-	/** @var mixed[] */
-	public array $metadata;
+    public function getMessage(): string
+    {
+        return $this->message;
+    }
 
-	public function getMessage(): string
-	{
-		return $this->message;
-	}
+    public function getLine(): int
+    {
+        return $this->line;
+    }
 
-	public function getLine(): int
-	{
-		return $this->line;
-	}
+    public function getFile(): string
+    {
+        return $this->file;
+    }
 
-	public function getFile(): string
-	{
-		return $this->file;
-	}
-
-	/**
-	 * @return mixed[]
-	 */
-	public function getMetadata(): array
-	{
-		return $this->metadata;
-	}
-
+    /**
+     * @return mixed[]
+     */
+    public function getMetadata(): array
+    {
+        return $this->metadata;
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Generic;
 
@@ -8,42 +10,39 @@ use PHPStan\Type\Type;
 
 final class TemplateObjectType extends ObjectType implements TemplateType
 {
+    use UndecidedComparisonCompoundTypeTrait;
+    /** @use TemplateTypeTrait<ObjectType> */
+    use TemplateTypeTrait;
 
-	use UndecidedComparisonCompoundTypeTrait;
-	/** @use TemplateTypeTrait<ObjectType> */
-	use TemplateTypeTrait;
+    public function __construct(
+        TemplateTypeScope $scope,
+        TemplateTypeStrategy $templateTypeStrategy,
+        TemplateTypeVariance $templateTypeVariance,
+        string $name,
+        ObjectType $bound
+    ) {
+        parent::__construct($bound->getClassName());
 
-	public function __construct(
-		TemplateTypeScope $scope,
-		TemplateTypeStrategy $templateTypeStrategy,
-		TemplateTypeVariance $templateTypeVariance,
-		string $name,
-		ObjectType $bound
-	)
-	{
-		parent::__construct($bound->getClassName());
+        $this->scope = $scope;
+        $this->strategy = $templateTypeStrategy;
+        $this->variance = $templateTypeVariance;
+        $this->name = $name;
+        $this->bound = $bound;
+    }
 
-		$this->scope = $scope;
-		$this->strategy = $templateTypeStrategy;
-		$this->variance = $templateTypeVariance;
-		$this->name = $name;
-		$this->bound = $bound;
-	}
+    public function traverse(callable $cb): Type
+    {
+        $newBound = $cb($this->getBound());
+        if ($this->getBound() !== $newBound && $newBound instanceof ObjectType) {
+            return new self(
+                $this->scope,
+                $this->strategy,
+                $this->variance,
+                $this->name,
+                $newBound
+            );
+        }
 
-	public function traverse(callable $cb): Type
-	{
-		$newBound = $cb($this->getBound());
-		if ($this->getBound() !== $newBound && $newBound instanceof ObjectType) {
-			return new self(
-				$this->scope,
-				$this->strategy,
-				$this->variance,
-				$this->name,
-				$newBound
-			);
-		}
-
-		return $this;
-	}
-
+        return $this;
+    }
 }

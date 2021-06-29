@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection\Dummy;
 
@@ -13,90 +15,88 @@ use PHPStan\Type\VoidType;
 
 class DummyConstructorReflection implements MethodReflection
 {
+    private ClassReflection $declaringClass;
 
-	private ClassReflection $declaringClass;
+    public function __construct(ClassReflection $declaringClass)
+    {
+        $this->declaringClass = $declaringClass;
+    }
 
-	public function __construct(ClassReflection $declaringClass)
-	{
-		$this->declaringClass = $declaringClass;
-	}
+    public function getDeclaringClass(): ClassReflection
+    {
+        return $this->declaringClass;
+    }
 
-	public function getDeclaringClass(): ClassReflection
-	{
-		return $this->declaringClass;
-	}
+    public function isStatic(): bool
+    {
+        return false;
+    }
 
-	public function isStatic(): bool
-	{
-		return false;
-	}
+    public function isPrivate(): bool
+    {
+        return false;
+    }
 
-	public function isPrivate(): bool
-	{
-		return false;
-	}
+    public function isPublic(): bool
+    {
+        return true;
+    }
 
-	public function isPublic(): bool
-	{
-		return true;
-	}
+    public function getName(): string
+    {
+        return '__construct';
+    }
 
-	public function getName(): string
-	{
-		return '__construct';
-	}
+    public function getPrototype(): ClassMemberReflection
+    {
+        return $this;
+    }
 
-	public function getPrototype(): ClassMemberReflection
-	{
-		return $this;
-	}
+    public function getVariants(): array
+    {
+        return [
+            new FunctionVariant(
+                TemplateTypeMap::createEmpty(),
+                null,
+                [],
+                false,
+                new VoidType()
+            ),
+        ];
+    }
 
-	public function getVariants(): array
-	{
-		return [
-			new FunctionVariant(
-				TemplateTypeMap::createEmpty(),
-				null,
-				[],
-				false,
-				new VoidType()
-			),
-		];
-	}
+    public function isDeprecated(): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function isDeprecated(): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
+    public function getDeprecatedDescription(): ?string
+    {
+        return null;
+    }
 
-	public function getDeprecatedDescription(): ?string
-	{
-		return null;
-	}
+    public function isFinal(): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function isFinal(): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
+    public function isInternal(): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function isInternal(): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
+    public function getThrowType(): ?Type
+    {
+        return null;
+    }
 
-	public function getThrowType(): ?Type
-	{
-		return null;
-	}
+    public function hasSideEffects(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function hasSideEffects(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
-
-	public function getDocComment(): ?string
-	{
-		return null;
-	}
-
+    public function getDocComment(): ?string
+    {
+        return null;
+    }
 }

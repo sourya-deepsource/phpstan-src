@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Functions;
 
@@ -12,27 +14,25 @@ use PHPStan\Rules\Rule;
  */
 class FunctionAttributesRule implements Rule
 {
+    private AttributesCheck $attributesCheck;
 
-	private AttributesCheck $attributesCheck;
+    public function __construct(AttributesCheck $attributesCheck)
+    {
+        $this->attributesCheck = $attributesCheck;
+    }
 
-	public function __construct(AttributesCheck $attributesCheck)
-	{
-		$this->attributesCheck = $attributesCheck;
-	}
+    public function getNodeType(): string
+    {
+        return Node\Stmt\Function_::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Node\Stmt\Function_::class;
-	}
-
-	public function processNode(Node $node, Scope $scope): array
-	{
-		return $this->attributesCheck->check(
-			$scope,
-			$node->attrGroups,
-			\Attribute::TARGET_FUNCTION,
-			'function'
-		);
-	}
-
+    public function processNode(Node $node, Scope $scope): array
+    {
+        return $this->attributesCheck->check(
+            $scope,
+            $node->attrGroups,
+            \Attribute::TARGET_FUNCTION,
+            'function'
+        );
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Debug;
 
@@ -14,50 +16,48 @@ use PHPStan\Type\VerbosityLevel;
  */
 class DumpTypeRule implements Rule
 {
+    private ReflectionProvider $reflectionProvider;
 
-	private ReflectionProvider $reflectionProvider;
+    public function __construct(ReflectionProvider $reflectionProvider)
+    {
+        $this->reflectionProvider = $reflectionProvider;
+    }
 
-	public function __construct(ReflectionProvider $reflectionProvider)
-	{
-		$this->reflectionProvider = $reflectionProvider;
-	}
+    public function getNodeType(): string
+    {
+        return Node\Expr\FuncCall::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Node\Expr\FuncCall::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if (!$node->name instanceof Node\Name) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if (!$node->name instanceof Node\Name) {
-			return [];
-		}
+        $functionName = $this->reflectionProvider->resolveFunctionName($node->name, $scope);
+        if ($functionName === null) {
+            return [];
+        }
 
-		$functionName = $this->reflectionProvider->resolveFunctionName($node->name, $scope);
-		if ($functionName === null) {
-			return [];
-		}
+        if (strtolower($functionName) !== 'phpstan\dumptype') {
+            return [];
+        }
 
-		if (strtolower($functionName) !== 'phpstan\dumptype') {
-			return [];
-		}
+        if (count($node->args) === 0) {
+            return [
+                RuleErrorBuilder::message(sprintf('Missing argument for %s() function call.', $functionName))
+                    ->nonIgnorable()
+                    ->build(),
+            ];
+        }
 
-		if (count($node->args) === 0) {
-			return [
-				RuleErrorBuilder::message(sprintf('Missing argument for %s() function call.', $functionName))
-					->nonIgnorable()
-					->build(),
-			];
-		}
-
-		return [
-			RuleErrorBuilder::message(
-				sprintf(
-					'Dumped type: %s',
-					$scope->getType($node->args[0]->value)->describe(VerbosityLevel::precise())
-				)
-			)->nonIgnorable()->build(),
-		];
-	}
-
+        return [
+            RuleErrorBuilder::message(
+                sprintf(
+                    'Dumped type: %s',
+                    $scope->getType($node->args[0]->value)->describe(VerbosityLevel::precise())
+                )
+            )->nonIgnorable()->build(),
+        ];
+    }
 }

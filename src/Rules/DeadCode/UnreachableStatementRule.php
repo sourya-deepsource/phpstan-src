@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\DeadCode;
 
@@ -13,27 +15,25 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class UnreachableStatementRule implements Rule
 {
+    public function getNodeType(): string
+    {
+        return UnreachableStatementNode::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return UnreachableStatementNode::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if ($node->getOriginalStatement() instanceof Node\Stmt\Nop) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if ($node->getOriginalStatement() instanceof Node\Stmt\Nop) {
-			return [];
-		}
-
-		return [
-			RuleErrorBuilder::message('Unreachable statement - code above always terminates.')
-				->identifier('deadCode.unreachableStatement')
-				->metadata([
-					'depth' => $node->getAttribute('statementDepth'),
-					'order' => $node->getAttribute('statementOrder'),
-				])
-				->build(),
-		];
-	}
-
+        return [
+            RuleErrorBuilder::message('Unreachable statement - code above always terminates.')
+                ->identifier('deadCode.unreachableStatement')
+                ->metadata([
+                    'depth' => $node->getAttribute('statementDepth'),
+                    'order' => $node->getAttribute('statementOrder'),
+                ])
+                ->build(),
+        ];
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Arrays;
 
@@ -12,26 +14,24 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class DeadForeachRule implements Rule
 {
+    public function getNodeType(): string
+    {
+        return Node\Stmt\Foreach_::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Node\Stmt\Foreach_::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $iterableType = $scope->getType($node->expr);
+        if ($iterableType->isIterable()->no()) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		$iterableType = $scope->getType($node->expr);
-		if ($iterableType->isIterable()->no()) {
-			return [];
-		}
+        if (!$iterableType->isIterableAtLeastOnce()->no()) {
+            return [];
+        }
 
-		if (!$iterableType->isIterableAtLeastOnce()->no()) {
-			return [];
-		}
-
-		return [
-			RuleErrorBuilder::message('Empty array passed to foreach.')->build(),
-		];
-	}
-
+        return [
+            RuleErrorBuilder::message('Empty array passed to foreach.')->build(),
+        ];
+    }
 }

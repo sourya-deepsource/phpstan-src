@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Methods;
 
@@ -17,69 +19,67 @@ use PHPStan\Type\VerbosityLevel;
  */
 final class MissingMethodReturnTypehintRule implements \PHPStan\Rules\Rule
 {
+    private \PHPStan\Rules\MissingTypehintCheck $missingTypehintCheck;
 
-	private \PHPStan\Rules\MissingTypehintCheck $missingTypehintCheck;
+    public function __construct(MissingTypehintCheck $missingTypehintCheck)
+    {
+        $this->missingTypehintCheck = $missingTypehintCheck;
+    }
 
-	public function __construct(MissingTypehintCheck $missingTypehintCheck)
-	{
-		$this->missingTypehintCheck = $missingTypehintCheck;
-	}
+    public function getNodeType(): string
+    {
+        return InClassMethodNode::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return InClassMethodNode::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $methodReflection = $scope->getFunction();
+        if (!$methodReflection instanceof MethodReflection) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		$methodReflection = $scope->getFunction();
-		if (!$methodReflection instanceof MethodReflection) {
-			return [];
-		}
+        $returnType = ParametersAcceptorSelector::selectSingle($methodReflection->getVariants())->getReturnType();
 
-		$returnType = ParametersAcceptorSelector::selectSingle($methodReflection->getVariants())->getReturnType();
+        if ($returnType instanceof MixedType && !$returnType->isExplicitMixed()) {
+            return [
+                RuleErrorBuilder::message(sprintf(
+                    'Method %s::%s() has no return typehint specified.',
+                    $methodReflection->getDeclaringClass()->getDisplayName(),
+                    $methodReflection->getName()
+                ))->build(),
+            ];
+        }
 
-		if ($returnType instanceof MixedType && !$returnType->isExplicitMixed()) {
-			return [
-				RuleErrorBuilder::message(sprintf(
-					'Method %s::%s() has no return typehint specified.',
-					$methodReflection->getDeclaringClass()->getDisplayName(),
-					$methodReflection->getName()
-				))->build(),
-			];
-		}
+        $messages = [];
+        foreach ($this->missingTypehintCheck->getIterableTypesWithMissingValueTypehint($returnType) as $iterableType) {
+            $iterableTypeDescription = $iterableType->describe(VerbosityLevel::typeOnly());
+            $messages[] = RuleErrorBuilder::message(sprintf(
+                'Method %s::%s() return type has no value type specified in iterable type %s.',
+                $methodReflection->getDeclaringClass()->getDisplayName(),
+                $methodReflection->getName(),
+                $iterableTypeDescription
+            ))->tip(MissingTypehintCheck::TURN_OFF_MISSING_ITERABLE_VALUE_TYPE_TIP)->build();
+        }
 
-		$messages = [];
-		foreach ($this->missingTypehintCheck->getIterableTypesWithMissingValueTypehint($returnType) as $iterableType) {
-			$iterableTypeDescription = $iterableType->describe(VerbosityLevel::typeOnly());
-			$messages[] = RuleErrorBuilder::message(sprintf(
-				'Method %s::%s() return type has no value type specified in iterable type %s.',
-				$methodReflection->getDeclaringClass()->getDisplayName(),
-				$methodReflection->getName(),
-				$iterableTypeDescription
-			))->tip(MissingTypehintCheck::TURN_OFF_MISSING_ITERABLE_VALUE_TYPE_TIP)->build();
-		}
+        foreach ($this->missingTypehintCheck->getNonGenericObjectTypesWithGenericClass($returnType) as [$name, $genericTypeNames]) {
+            $messages[] = RuleErrorBuilder::message(sprintf(
+                'Method %s::%s() return type with generic %s does not specify its types: %s',
+                $methodReflection->getDeclaringClass()->getDisplayName(),
+                $methodReflection->getName(),
+                $name,
+                implode(', ', $genericTypeNames)
+            ))->tip(MissingTypehintCheck::TURN_OFF_NON_GENERIC_CHECK_TIP)->build();
+        }
 
-		foreach ($this->missingTypehintCheck->getNonGenericObjectTypesWithGenericClass($returnType) as [$name, $genericTypeNames]) {
-			$messages[] = RuleErrorBuilder::message(sprintf(
-				'Method %s::%s() return type with generic %s does not specify its types: %s',
-				$methodReflection->getDeclaringClass()->getDisplayName(),
-				$methodReflection->getName(),
-				$name,
-				implode(', ', $genericTypeNames)
-			))->tip(MissingTypehintCheck::TURN_OFF_NON_GENERIC_CHECK_TIP)->build();
-		}
+        foreach ($this->missingTypehintCheck->getCallablesWithMissingSignature($returnType) as $callableType) {
+            $messages[] = RuleErrorBuilder::message(sprintf(
+                'Method %s::%s() return type has no signature specified for %s.',
+                $methodReflection->getDeclaringClass()->getDisplayName(),
+                $methodReflection->getName(),
+                $callableType->describe(VerbosityLevel::typeOnly())
+            ))->build();
+        }
 
-		foreach ($this->missingTypehintCheck->getCallablesWithMissingSignature($returnType) as $callableType) {
-			$messages[] = RuleErrorBuilder::message(sprintf(
-				'Method %s::%s() return type has no signature specified for %s.',
-				$methodReflection->getDeclaringClass()->getDisplayName(),
-				$methodReflection->getName(),
-				$callableType->describe(VerbosityLevel::typeOnly())
-			))->build();
-		}
-
-		return $messages;
-	}
-
+        return $messages;
+    }
 }

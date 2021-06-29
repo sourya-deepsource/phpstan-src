@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\DependencyInjection;
 
@@ -6,37 +8,34 @@ use PHPStan\File\FileHelper;
 
 class NeonLoader extends \Nette\DI\Config\Loader
 {
+    private FileHelper $fileHelper;
 
-	private FileHelper $fileHelper;
+    private ?string $generateBaselineFile;
 
-	private ?string $generateBaselineFile;
+    public function __construct(
+        FileHelper $fileHelper,
+        ?string $generateBaselineFile
+    ) {
+        $this->fileHelper = $fileHelper;
+        $this->generateBaselineFile = $generateBaselineFile;
+    }
 
-	public function __construct(
-		FileHelper $fileHelper,
-		?string $generateBaselineFile
-	)
-	{
-		$this->fileHelper = $fileHelper;
-		$this->generateBaselineFile = $generateBaselineFile;
-	}
+    /**
+     * @param string $file
+     * @param bool|null $merge
+     * @return mixed[]
+     */
+    public function load(string $file, ?bool $merge = true): array
+    {
+        if ($this->generateBaselineFile === null) {
+            return parent::load($file, $merge);
+        }
 
-	/**
-	 * @param string $file
-	 * @param bool|null $merge
-	 * @return mixed[]
-	 */
-	public function load(string $file, ?bool $merge = true): array
-	{
-		if ($this->generateBaselineFile === null) {
-			return parent::load($file, $merge);
-		}
+        $normalizedFile = $this->fileHelper->normalizePath($file);
+        if ($this->generateBaselineFile === $normalizedFile) {
+            return [];
+        }
 
-		$normalizedFile = $this->fileHelper->normalizePath($file);
-		if ($this->generateBaselineFile === $normalizedFile) {
-			return [];
-		}
-
-		return parent::load($file, $merge);
-	}
-
+        return parent::load($file, $merge);
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -12,30 +14,28 @@ use PHPStan\Type\TypeCombinator;
 
 class ArrayKeyDynamicReturnTypeExtension implements \PHPStan\Type\DynamicFunctionReturnTypeExtension
 {
+    public function isFunctionSupported(FunctionReflection $functionReflection): bool
+    {
+        return $functionReflection->getName() === 'key';
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection): bool
-	{
-		return $functionReflection->getName() === 'key';
-	}
+    public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
+    {
+        if (!isset($functionCall->args[0])) {
+            return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
+        }
 
-	public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
-	{
-		if (!isset($functionCall->args[0])) {
-			return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
-		}
+        $argType = $scope->getType($functionCall->args[0]->value);
+        $iterableAtLeastOnce = $argType->isIterableAtLeastOnce();
+        if ($iterableAtLeastOnce->no()) {
+            return new NullType();
+        }
 
-		$argType = $scope->getType($functionCall->args[0]->value);
-		$iterableAtLeastOnce = $argType->isIterableAtLeastOnce();
-		if ($iterableAtLeastOnce->no()) {
-			return new NullType();
-		}
+        $keyType = $argType->getIterableKeyType();
+        if ($iterableAtLeastOnce->yes()) {
+            return $keyType;
+        }
 
-		$keyType = $argType->getIterableKeyType();
-		if ($iterableAtLeastOnce->yes()) {
-			return $keyType;
-		}
-
-		return TypeCombinator::union($keyType, new NullType());
-	}
-
+        return TypeCombinator::union($keyType, new NullType());
+    }
 }

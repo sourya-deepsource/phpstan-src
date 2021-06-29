@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection;
 
@@ -7,26 +9,24 @@ use PHPStan\Type\Type;
 
 interface FunctionReflection
 {
+    public function getName(): string;
 
-	public function getName(): string;
+    /**
+     * @return \PHPStan\Reflection\ParametersAcceptor[]
+     */
+    public function getVariants(): array;
 
-	/**
-	 * @return \PHPStan\Reflection\ParametersAcceptor[]
-	 */
-	public function getVariants(): array;
+    public function isDeprecated(): TrinaryLogic;
 
-	public function isDeprecated(): TrinaryLogic;
+    public function getDeprecatedDescription(): ?string;
 
-	public function getDeprecatedDescription(): ?string;
+    public function isFinal(): TrinaryLogic;
 
-	public function isFinal(): TrinaryLogic;
+    public function isInternal(): TrinaryLogic;
 
-	public function isInternal(): TrinaryLogic;
+    public function getThrowType(): ?Type;
 
-	public function getThrowType(): ?Type;
+    public function hasSideEffects(): TrinaryLogic;
 
-	public function hasSideEffects(): TrinaryLogic;
-
-	public function isBuiltin(): bool;
-
+    public function isBuiltin(): bool;
 }

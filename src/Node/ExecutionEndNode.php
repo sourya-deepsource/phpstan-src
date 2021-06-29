@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Node;
 
@@ -8,51 +10,48 @@ use PHPStan\Analyser\StatementResult;
 
 class ExecutionEndNode extends NodeAbstract implements VirtualNode
 {
+    private Node $node;
 
-	private Node $node;
+    private StatementResult $statementResult;
 
-	private StatementResult $statementResult;
+    private bool $hasNativeReturnTypehint;
 
-	private bool $hasNativeReturnTypehint;
+    public function __construct(
+        Node $node,
+        StatementResult $statementResult,
+        bool $hasNativeReturnTypehint
+    ) {
+        parent::__construct($node->getAttributes());
+        $this->node = $node;
+        $this->statementResult = $statementResult;
+        $this->hasNativeReturnTypehint = $hasNativeReturnTypehint;
+    }
 
-	public function __construct(
-		Node $node,
-		StatementResult $statementResult,
-		bool $hasNativeReturnTypehint
-	)
-	{
-		parent::__construct($node->getAttributes());
-		$this->node = $node;
-		$this->statementResult = $statementResult;
-		$this->hasNativeReturnTypehint = $hasNativeReturnTypehint;
-	}
+    public function getNode(): Node
+    {
+        return $this->node;
+    }
 
-	public function getNode(): Node
-	{
-		return $this->node;
-	}
+    public function getStatementResult(): StatementResult
+    {
+        return $this->statementResult;
+    }
 
-	public function getStatementResult(): StatementResult
-	{
-		return $this->statementResult;
-	}
+    public function hasNativeReturnTypehint(): bool
+    {
+        return $this->hasNativeReturnTypehint;
+    }
 
-	public function hasNativeReturnTypehint(): bool
-	{
-		return $this->hasNativeReturnTypehint;
-	}
+    public function getType(): string
+    {
+        return 'PHPStan_Node_ExecutionEndNode';
+    }
 
-	public function getType(): string
-	{
-		return 'PHPStan_Node_ExecutionEndNode';
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getSubNodeNames(): array
-	{
-		return [];
-	}
-
+    /**
+     * @return string[]
+     */
+    public function getSubNodeNames(): array
+    {
+        return [];
+    }
 }

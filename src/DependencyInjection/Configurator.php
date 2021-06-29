@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\DependencyInjection;
 
@@ -7,45 +9,43 @@ use Nette\DI\ContainerLoader;
 
 class Configurator extends \Nette\Configurator
 {
+    private LoaderFactory $loaderFactory;
 
-	private LoaderFactory $loaderFactory;
+    public function __construct(LoaderFactory $loaderFactory)
+    {
+        $this->loaderFactory = $loaderFactory;
 
-	public function __construct(LoaderFactory $loaderFactory)
-	{
-		$this->loaderFactory = $loaderFactory;
+        parent::__construct();
+    }
 
-		parent::__construct();
-	}
+    protected function createLoader(): Loader
+    {
+        return $this->loaderFactory->createLoader();
+    }
 
-	protected function createLoader(): Loader
-	{
-		return $this->loaderFactory->createLoader();
-	}
+    /**
+     * @return mixed[]
+     */
+    protected function getDefaultParameters(): array
+    {
+        return [];
+    }
 
-	/**
-	 * @return mixed[]
-	 */
-	protected function getDefaultParameters(): array
-	{
-		return [];
-	}
+    public function getContainerCacheDirectory(): string
+    {
+        return $this->getCacheDirectory() . '/nette.configurator';
+    }
 
-	public function getContainerCacheDirectory(): string
-	{
-		return $this->getCacheDirectory() . '/nette.configurator';
-	}
+    public function loadContainer(): string
+    {
+        $loader = new ContainerLoader(
+            $this->getContainerCacheDirectory(),
+            $this->parameters['debugMode']
+        );
 
-	public function loadContainer(): string
-	{
-		$loader = new ContainerLoader(
-			$this->getContainerCacheDirectory(),
-			$this->parameters['debugMode']
-		);
-
-		return $loader->load(
-			[$this, 'generateContainer'],
-			[$this->parameters, array_keys($this->dynamicParameters), $this->configs, PHP_VERSION_ID - PHP_RELEASE_VERSION, NeonAdapter::CACHE_KEY]
-		);
-	}
-
+        return $loader->load(
+            [$this, 'generateContainer'],
+            [$this->parameters, array_keys($this->dynamicParameters), $this->configs, PHP_VERSION_ID - PHP_RELEASE_VERSION, NeonAdapter::CACHE_KEY]
+        );
+    }
 }

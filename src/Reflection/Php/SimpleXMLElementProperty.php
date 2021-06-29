@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection\Php;
 
@@ -14,89 +16,86 @@ use PHPStan\Type\TypeCombinator;
 
 class SimpleXMLElementProperty implements PropertyReflection
 {
+    private \PHPStan\Reflection\ClassReflection $declaringClass;
 
-	private \PHPStan\Reflection\ClassReflection $declaringClass;
+    private \PHPStan\Type\Type $type;
 
-	private \PHPStan\Type\Type $type;
+    public function __construct(
+        ClassReflection $declaringClass,
+        Type $type
+    ) {
+        $this->declaringClass = $declaringClass;
+        $this->type = $type;
+    }
 
-	public function __construct(
-		ClassReflection $declaringClass,
-		Type $type
-	)
-	{
-		$this->declaringClass = $declaringClass;
-		$this->type = $type;
-	}
+    public function getDeclaringClass(): ClassReflection
+    {
+        return $this->declaringClass;
+    }
 
-	public function getDeclaringClass(): ClassReflection
-	{
-		return $this->declaringClass;
-	}
+    public function isStatic(): bool
+    {
+        return false;
+    }
 
-	public function isStatic(): bool
-	{
-		return false;
-	}
+    public function isPrivate(): bool
+    {
+        return false;
+    }
 
-	public function isPrivate(): bool
-	{
-		return false;
-	}
+    public function isPublic(): bool
+    {
+        return true;
+    }
 
-	public function isPublic(): bool
-	{
-		return true;
-	}
+    public function getReadableType(): Type
+    {
+        return $this->type;
+    }
 
-	public function getReadableType(): Type
-	{
-		return $this->type;
-	}
+    public function getWritableType(): Type
+    {
+        return TypeCombinator::union(
+            $this->type,
+            new IntegerType(),
+            new FloatType(),
+            new StringType(),
+            new BooleanType()
+        );
+    }
 
-	public function getWritableType(): Type
-	{
-		return TypeCombinator::union(
-			$this->type,
-			new IntegerType(),
-			new FloatType(),
-			new StringType(),
-			new BooleanType()
-		);
-	}
+    public function isReadable(): bool
+    {
+        return true;
+    }
 
-	public function isReadable(): bool
-	{
-		return true;
-	}
+    public function isWritable(): bool
+    {
+        return true;
+    }
 
-	public function isWritable(): bool
-	{
-		return true;
-	}
+    public function canChangeTypeAfterAssignment(): bool
+    {
+        return false;
+    }
 
-	public function canChangeTypeAfterAssignment(): bool
-	{
-		return false;
-	}
+    public function isDeprecated(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function isDeprecated(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function getDeprecatedDescription(): ?string
+    {
+        return null;
+    }
 
-	public function getDeprecatedDescription(): ?string
-	{
-		return null;
-	}
+    public function isInternal(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function isInternal(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
-
-	public function getDocComment(): ?string
-	{
-		return null;
-	}
-
+    public function getDocComment(): ?string
+    {
+        return null;
+    }
 }

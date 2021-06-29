@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection\SignatureMap;
 
@@ -7,64 +9,61 @@ use PHPStan\Type\Type;
 
 class ParameterSignature
 {
+    private string $name;
 
-	private string $name;
+    private bool $optional;
 
-	private bool $optional;
+    private \PHPStan\Type\Type $type;
 
-	private \PHPStan\Type\Type $type;
+    private \PHPStan\Type\Type $nativeType;
 
-	private \PHPStan\Type\Type $nativeType;
+    private \PHPStan\Reflection\PassedByReference $passedByReference;
 
-	private \PHPStan\Reflection\PassedByReference $passedByReference;
+    private bool $variadic;
 
-	private bool $variadic;
+    public function __construct(
+        string $name,
+        bool $optional,
+        Type $type,
+        Type $nativeType,
+        PassedByReference $passedByReference,
+        bool $variadic
+    ) {
+        $this->name = $name;
+        $this->optional = $optional;
+        $this->type = $type;
+        $this->nativeType = $nativeType;
+        $this->passedByReference = $passedByReference;
+        $this->variadic = $variadic;
+    }
 
-	public function __construct(
-		string $name,
-		bool $optional,
-		Type $type,
-		Type $nativeType,
-		PassedByReference $passedByReference,
-		bool $variadic
-	)
-	{
-		$this->name = $name;
-		$this->optional = $optional;
-		$this->type = $type;
-		$this->nativeType = $nativeType;
-		$this->passedByReference = $passedByReference;
-		$this->variadic = $variadic;
-	}
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
-	public function getName(): string
-	{
-		return $this->name;
-	}
+    public function isOptional(): bool
+    {
+        return $this->optional;
+    }
 
-	public function isOptional(): bool
-	{
-		return $this->optional;
-	}
+    public function getType(): Type
+    {
+        return $this->type;
+    }
 
-	public function getType(): Type
-	{
-		return $this->type;
-	}
+    public function getNativeType(): Type
+    {
+        return $this->nativeType;
+    }
 
-	public function getNativeType(): Type
-	{
-		return $this->nativeType;
-	}
+    public function passedByReference(): PassedByReference
+    {
+        return $this->passedByReference;
+    }
 
-	public function passedByReference(): PassedByReference
-	{
-		return $this->passedByReference;
-	}
-
-	public function isVariadic(): bool
-	{
-		return $this->variadic;
-	}
-
+    public function isVariadic(): bool
+    {
+        return $this->variadic;
+    }
 }

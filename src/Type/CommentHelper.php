@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type;
 
@@ -7,15 +9,13 @@ use PhpParser\Node;
 /** @deprecated */
 class CommentHelper
 {
+    public static function getDocComment(Node $node): ?string
+    {
+        $phpDoc = $node->getDocComment();
+        if ($phpDoc !== null) {
+            return $phpDoc->getText();
+        }
 
-	public static function getDocComment(Node $node): ?string
-	{
-		$phpDoc = $node->getDocComment();
-		if ($phpDoc !== null) {
-			return $phpDoc->getText();
-		}
-
-		return null;
-	}
-
+        return null;
+    }
 }

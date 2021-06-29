@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -17,47 +19,45 @@ use PHPStan\Type\UnionType;
 
 class GettimeofdayDynamicFunctionReturnTypeExtension implements \PHPStan\Type\DynamicFunctionReturnTypeExtension
 {
+    public function isFunctionSupported(FunctionReflection $functionReflection): bool
+    {
+        return $functionReflection->getName() === 'gettimeofday';
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection): bool
-	{
-		return $functionReflection->getName() === 'gettimeofday';
-	}
+    public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
+    {
+        $arrayType = new ConstantArrayType([
+            new ConstantStringType('sec'),
+            new ConstantStringType('usec'),
+            new ConstantStringType('minuteswest'),
+            new ConstantStringType('dsttime'),
+        ], [
+            new IntegerType(),
+            new IntegerType(),
+            new IntegerType(),
+            new IntegerType(),
+        ]);
+        $floatType = new FloatType();
 
-	public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
-	{
-		$arrayType = new ConstantArrayType([
-			new ConstantStringType('sec'),
-			new ConstantStringType('usec'),
-			new ConstantStringType('minuteswest'),
-			new ConstantStringType('dsttime'),
-		], [
-			new IntegerType(),
-			new IntegerType(),
-			new IntegerType(),
-			new IntegerType(),
-		]);
-		$floatType = new FloatType();
+        if (!isset($functionCall->args[0])) {
+            return $arrayType;
+        }
 
-		if (!isset($functionCall->args[0])) {
-			return $arrayType;
-		}
+        $argType = $scope->getType($functionCall->args[0]->value);
+        $isTrueType = (new ConstantBooleanType(true))->isSuperTypeOf($argType);
+        $isFalseType = (new ConstantBooleanType(false))->isSuperTypeOf($argType);
+        $compareTypes = $isTrueType->compareTo($isFalseType);
+        if ($compareTypes === $isTrueType) {
+            return $floatType;
+        }
+        if ($compareTypes === $isFalseType) {
+            return $arrayType;
+        }
 
-		$argType = $scope->getType($functionCall->args[0]->value);
-		$isTrueType = (new ConstantBooleanType(true))->isSuperTypeOf($argType);
-		$isFalseType = (new ConstantBooleanType(false))->isSuperTypeOf($argType);
-		$compareTypes = $isTrueType->compareTo($isFalseType);
-		if ($compareTypes === $isTrueType) {
-			return $floatType;
-		}
-		if ($compareTypes === $isFalseType) {
-			return $arrayType;
-		}
+        if ($argType instanceof MixedType) {
+            return new BenevolentUnionType([$arrayType, $floatType]);
+        }
 
-		if ($argType instanceof MixedType) {
-			return new BenevolentUnionType([$arrayType, $floatType]);
-		}
-
-		return new UnionType([$arrayType, $floatType]);
-	}
-
+        return new UnionType([$arrayType, $floatType]);
+    }
 }

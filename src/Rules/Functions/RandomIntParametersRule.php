@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Functions;
 
@@ -16,56 +18,54 @@ use PHPStan\Type\VerbosityLevel;
  */
 class RandomIntParametersRule implements \PHPStan\Rules\Rule
 {
+    private ReflectionProvider $reflectionProvider;
 
-	private ReflectionProvider $reflectionProvider;
+    private bool $reportMaybes;
 
-	private bool $reportMaybes;
+    public function __construct(ReflectionProvider $reflectionProvider, bool $reportMaybes)
+    {
+        $this->reflectionProvider = $reflectionProvider;
+        $this->reportMaybes = $reportMaybes;
+    }
 
-	public function __construct(ReflectionProvider $reflectionProvider, bool $reportMaybes)
-	{
-		$this->reflectionProvider = $reflectionProvider;
-		$this->reportMaybes = $reportMaybes;
-	}
+    public function getNodeType(): string
+    {
+        return FuncCall::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return FuncCall::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if (!($node->name instanceof \PhpParser\Node\Name)) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if (!($node->name instanceof \PhpParser\Node\Name)) {
-			return [];
-		}
+        if ($this->reflectionProvider->resolveFunctionName($node->name, $scope) !== 'random_int') {
+            return [];
+        }
 
-		if ($this->reflectionProvider->resolveFunctionName($node->name, $scope) !== 'random_int') {
-			return [];
-		}
+        $minType = $scope->getType($node->args[0]->value)->toInteger();
+        $maxType = $scope->getType($node->args[1]->value)->toInteger();
 
-		$minType = $scope->getType($node->args[0]->value)->toInteger();
-		$maxType = $scope->getType($node->args[1]->value)->toInteger();
+        if (
+            !$minType instanceof ConstantIntegerType && !$minType instanceof IntegerRangeType
+            || !$maxType instanceof ConstantIntegerType && !$maxType instanceof IntegerRangeType
+        ) {
+            return [];
+        }
 
-		if (
-			!$minType instanceof ConstantIntegerType && !$minType instanceof IntegerRangeType
-			|| !$maxType instanceof ConstantIntegerType && !$maxType instanceof IntegerRangeType
-		) {
-			return [];
-		}
+        $isSmaller = $maxType->isSmallerThan($minType);
 
-		$isSmaller = $maxType->isSmallerThan($minType);
+        if ($isSmaller->yes() || $isSmaller->maybe() && $this->reportMaybes) {
+            $message = 'Parameter #1 $min (%s) of function random_int expects lower number than parameter #2 $max (%s).';
+            return [
+                RuleErrorBuilder::message(sprintf(
+                    $message,
+                    $minType->describe(VerbosityLevel::value()),
+                    $maxType->describe(VerbosityLevel::value())
+                ))->build(),
+            ];
+        }
 
-		if ($isSmaller->yes() || $isSmaller->maybe() && $this->reportMaybes) {
-			$message = 'Parameter #1 $min (%s) of function random_int expects lower number than parameter #2 $max (%s).';
-			return [
-				RuleErrorBuilder::message(sprintf(
-					$message,
-					$minType->describe(VerbosityLevel::value()),
-					$maxType->describe(VerbosityLevel::value())
-				))->build(),
-			];
-		}
-
-		return [];
-	}
-
+        return [];
+    }
 }

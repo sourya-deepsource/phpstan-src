@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Node;
 
@@ -7,25 +9,23 @@ use PHPStan\Analyser\Scope;
 
 class LiteralArrayItem
 {
+    private Scope $scope;
 
-	private Scope $scope;
+    private ?ArrayItem $arrayItem;
 
-	private ?ArrayItem $arrayItem;
+    public function __construct(Scope $scope, ?ArrayItem $arrayItem)
+    {
+        $this->scope = $scope;
+        $this->arrayItem = $arrayItem;
+    }
 
-	public function __construct(Scope $scope, ?ArrayItem $arrayItem)
-	{
-		$this->scope = $scope;
-		$this->arrayItem = $arrayItem;
-	}
+    public function getScope(): Scope
+    {
+        return $this->scope;
+    }
 
-	public function getScope(): Scope
-	{
-		return $this->scope;
-	}
-
-	public function getArrayItem(): ?ArrayItem
-	{
-		return $this->arrayItem;
-	}
-
+    public function getArrayItem(): ?ArrayItem
+    {
+        return $this->arrayItem;
+    }
 }

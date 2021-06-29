@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Comparison;
 
@@ -13,23 +15,21 @@ use PHPStan\Type\VoidType;
  */
 class UsageOfVoidMatchExpressionRule implements Rule
 {
+    public function getNodeType(): string
+    {
+        return Node\Expr\Match_::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Node\Expr\Match_::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $matchResultType = $scope->getType($node);
+        if (
+            $matchResultType instanceof VoidType
+            && !$scope->isInFirstLevelStatement()
+        ) {
+            return [RuleErrorBuilder::message('Result of match expression (void) is used.')->build()];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		$matchResultType = $scope->getType($node);
-		if (
-			$matchResultType instanceof VoidType
-			&& !$scope->isInFirstLevelStatement()
-		) {
-			return [RuleErrorBuilder::message('Result of match expression (void) is used.')->build()];
-		}
-
-		return [];
-	}
-
+        return [];
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Properties;
 
@@ -11,26 +13,24 @@ use PHPStan\Rules\Rule;
  */
 class AccessStaticPropertiesInAssignRule implements Rule
 {
+    private \PHPStan\Rules\Properties\AccessStaticPropertiesRule $accessStaticPropertiesRule;
 
-	private \PHPStan\Rules\Properties\AccessStaticPropertiesRule $accessStaticPropertiesRule;
+    public function __construct(AccessStaticPropertiesRule $accessStaticPropertiesRule)
+    {
+        $this->accessStaticPropertiesRule = $accessStaticPropertiesRule;
+    }
 
-	public function __construct(AccessStaticPropertiesRule $accessStaticPropertiesRule)
-	{
-		$this->accessStaticPropertiesRule = $accessStaticPropertiesRule;
-	}
+    public function getNodeType(): string
+    {
+        return Node\Expr\Assign::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Node\Expr\Assign::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if (!$node->var instanceof Node\Expr\StaticPropertyFetch) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if (!$node->var instanceof Node\Expr\StaticPropertyFetch) {
-			return [];
-		}
-
-		return $this->accessStaticPropertiesRule->processNode($node->var, $scope);
-	}
-
+        return $this->accessStaticPropertiesRule->processNode($node->var, $scope);
+    }
 }

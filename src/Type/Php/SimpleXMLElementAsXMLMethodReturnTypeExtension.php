@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -15,23 +17,21 @@ use SimpleXMLElement;
 
 class SimpleXMLElementAsXMLMethodReturnTypeExtension implements DynamicMethodReturnTypeExtension
 {
+    public function getClass(): string
+    {
+        return SimpleXMLElement::class;
+    }
 
-	public function getClass(): string
-	{
-		return SimpleXMLElement::class;
-	}
+    public function isMethodSupported(MethodReflection $methodReflection): bool
+    {
+        return $methodReflection->getName() === 'asXML';
+    }
 
-	public function isMethodSupported(MethodReflection $methodReflection): bool
-	{
-		return $methodReflection->getName() === 'asXML';
-	}
-
-	public function getTypeFromMethodCall(MethodReflection $methodReflection, MethodCall $methodCall, Scope $scope): Type
-	{
-		if (count($methodCall->args) === 1) {
-			return new BooleanType();
-		}
-		return new UnionType([new StringType(), new ConstantBooleanType(false)]);
-	}
-
+    public function getTypeFromMethodCall(MethodReflection $methodReflection, MethodCall $methodCall, Scope $scope): Type
+    {
+        if (count($methodCall->args) === 1) {
+            return new BooleanType();
+        }
+        return new UnionType([new StringType(), new ConstantBooleanType(false)]);
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\TooWideTypehints;
 
@@ -16,45 +18,43 @@ use PHPStan\Type\VerbosityLevel;
  */
 class TooWideArrowFunctionReturnTypehintRule implements Rule
 {
+    public function getNodeType(): string
+    {
+        return InArrowFunctionNode::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return InArrowFunctionNode::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $functionReturnType = $scope->getAnonymousFunctionReturnType();
+        if ($functionReturnType === null || !$functionReturnType instanceof UnionType) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		$functionReturnType = $scope->getAnonymousFunctionReturnType();
-		if ($functionReturnType === null || !$functionReturnType instanceof UnionType) {
-			return [];
-		}
+        $arrowFunction = $node->getOriginalNode();
+        if ($arrowFunction->returnType === null) {
+            return [];
+        }
+        $expr = $arrowFunction->expr;
+        if ($expr instanceof Node\Expr\YieldFrom || $expr instanceof Node\Expr\Yield_) {
+            return [];
+        }
 
-		$arrowFunction = $node->getOriginalNode();
-		if ($arrowFunction->returnType === null) {
-			return [];
-		}
-		$expr = $arrowFunction->expr;
-		if ($expr instanceof Node\Expr\YieldFrom || $expr instanceof Node\Expr\Yield_) {
-			return [];
-		}
+        $returnType = $scope->getType($expr);
+        if ($returnType instanceof NullType) {
+            return [];
+        }
+        $messages = [];
+        foreach ($functionReturnType->getTypes() as $type) {
+            if (!$type->isSuperTypeOf($returnType)->no()) {
+                continue;
+            }
 
-		$returnType = $scope->getType($expr);
-		if ($returnType instanceof NullType) {
-			return [];
-		}
-		$messages = [];
-		foreach ($functionReturnType->getTypes() as $type) {
-			if (!$type->isSuperTypeOf($returnType)->no()) {
-				continue;
-			}
+            $messages[] = RuleErrorBuilder::message(sprintf(
+                'Anonymous function never returns %s so it can be removed from the return typehint.',
+                $type->describe(VerbosityLevel::typeOnly())
+            ))->build();
+        }
 
-			$messages[] = RuleErrorBuilder::message(sprintf(
-				'Anonymous function never returns %s so it can be removed from the return typehint.',
-				$type->describe(VerbosityLevel::typeOnly())
-			))->build();
-		}
-
-		return $messages;
-	}
-
+        return $messages;
+    }
 }

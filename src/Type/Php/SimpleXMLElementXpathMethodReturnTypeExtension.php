@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -15,42 +17,40 @@ use PHPStan\Type\TypeUtils;
 
 class SimpleXMLElementXpathMethodReturnTypeExtension implements \PHPStan\Type\DynamicMethodReturnTypeExtension
 {
+    public function getClass(): string
+    {
+        return \SimpleXMLElement::class;
+    }
 
-	public function getClass(): string
-	{
-		return \SimpleXMLElement::class;
-	}
+    public function isMethodSupported(MethodReflection $methodReflection): bool
+    {
+        return $methodReflection->getName() === 'xpath';
+    }
 
-	public function isMethodSupported(MethodReflection $methodReflection): bool
-	{
-		return $methodReflection->getName() === 'xpath';
-	}
+    public function getTypeFromMethodCall(MethodReflection $methodReflection, MethodCall $methodCall, Scope $scope): Type
+    {
+        if (!isset($methodCall->args[0])) {
+            return ParametersAcceptorSelector::selectSingle($methodReflection->getVariants())->getReturnType();
+        }
 
-	public function getTypeFromMethodCall(MethodReflection $methodReflection, MethodCall $methodCall, Scope $scope): Type
-	{
-		if (!isset($methodCall->args[0])) {
-			return ParametersAcceptorSelector::selectSingle($methodReflection->getVariants())->getReturnType();
-		}
+        $argType = $scope->getType($methodCall->args[0]->value);
 
-		$argType = $scope->getType($methodCall->args[0]->value);
+        $xmlElement = new \SimpleXMLElement('<foo />'); // @phpstan-ignore-line
 
-		$xmlElement = new \SimpleXMLElement('<foo />'); // @phpstan-ignore-line
+        foreach (TypeUtils::getConstantStrings($argType) as $constantString) {
+            $result = @$xmlElement->xpath($constantString->getValue());
+            if ($result === false) {
+                // We can't be sure since it's maybe a namespaced xpath
+                return ParametersAcceptorSelector::selectSingle($methodReflection->getVariants())->getReturnType();
+            }
 
-		foreach (TypeUtils::getConstantStrings($argType) as $constantString) {
-			$result = @$xmlElement->xpath($constantString->getValue());
-			if ($result === false) {
-				// We can't be sure since it's maybe a namespaced xpath
-				return ParametersAcceptorSelector::selectSingle($methodReflection->getVariants())->getReturnType();
-			}
+            $argType = TypeCombinator::remove($argType, $constantString);
+        }
 
-			$argType = TypeCombinator::remove($argType, $constantString);
-		}
+        if (!$argType instanceof NeverType) {
+            return ParametersAcceptorSelector::selectSingle($methodReflection->getVariants())->getReturnType();
+        }
 
-		if (!$argType instanceof NeverType) {
-			return ParametersAcceptorSelector::selectSingle($methodReflection->getVariants())->getReturnType();
-		}
-
-		return new ArrayType(new MixedType(), $scope->getType($methodCall->var));
-	}
-
+        return new ArrayType(new MixedType(), $scope->getType($methodCall->var));
+    }
 }

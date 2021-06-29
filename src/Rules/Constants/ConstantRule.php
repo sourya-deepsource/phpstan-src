@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Constants;
 
@@ -11,24 +13,22 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class ConstantRule implements \PHPStan\Rules\Rule
 {
+    public function getNodeType(): string
+    {
+        return Node\Expr\ConstFetch::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Node\Expr\ConstFetch::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if (!$scope->hasConstant($node->name)) {
+            return [
+                RuleErrorBuilder::message(sprintf(
+                    'Constant %s not found.',
+                    (string) $node->name
+                ))->discoveringSymbolsTip()->build(),
+            ];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if (!$scope->hasConstant($node->name)) {
-			return [
-				RuleErrorBuilder::message(sprintf(
-					'Constant %s not found.',
-					(string) $node->name
-				))->discoveringSymbolsTip()->build(),
-			];
-		}
-
-		return [];
-	}
-
+        return [];
+    }
 }

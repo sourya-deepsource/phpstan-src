@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Node\Property;
 
@@ -8,35 +10,33 @@ use PHPStan\Analyser\Scope;
 
 class PropertyWrite
 {
+    /** @var PropertyFetch|StaticPropertyFetch */
+    private $fetch;
 
-	/** @var PropertyFetch|StaticPropertyFetch */
-	private $fetch;
+    private Scope $scope;
 
-	private Scope $scope;
+    /**
+     * PropertyWrite constructor.
+     *
+     * @param PropertyFetch|StaticPropertyFetch $fetch
+     * @param Scope $scope
+     */
+    public function __construct($fetch, Scope $scope)
+    {
+        $this->fetch = $fetch;
+        $this->scope = $scope;
+    }
 
-	/**
-	 * PropertyWrite constructor.
-	 *
-	 * @param PropertyFetch|StaticPropertyFetch $fetch
-	 * @param Scope $scope
-	 */
-	public function __construct($fetch, Scope $scope)
-	{
-		$this->fetch = $fetch;
-		$this->scope = $scope;
-	}
+    /**
+     * @return PropertyFetch|StaticPropertyFetch
+     */
+    public function getFetch()
+    {
+        return $this->fetch;
+    }
 
-	/**
-	 * @return PropertyFetch|StaticPropertyFetch
-	 */
-	public function getFetch()
-	{
-		return $this->fetch;
-	}
-
-	public function getScope(): Scope
-	{
-		return $this->scope;
-	}
-
+    public function getScope(): Scope
+    {
+        return $this->scope;
+    }
 }

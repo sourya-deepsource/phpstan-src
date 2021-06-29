@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Analyser;
 
@@ -7,37 +9,34 @@ use PHPStan\Type\Type;
 
 class EnsuredNonNullabilityResultExpression
 {
+    private Expr $expression;
 
-	private Expr $expression;
+    private Type $originalType;
 
-	private Type $originalType;
+    private Type $originalNativeType;
 
-	private Type $originalNativeType;
+    public function __construct(
+        Expr $expression,
+        Type $originalType,
+        Type $originalNativeType
+    ) {
+        $this->expression = $expression;
+        $this->originalType = $originalType;
+        $this->originalNativeType = $originalNativeType;
+    }
 
-	public function __construct(
-		Expr $expression,
-		Type $originalType,
-		Type $originalNativeType
-	)
-	{
-		$this->expression = $expression;
-		$this->originalType = $originalType;
-		$this->originalNativeType = $originalNativeType;
-	}
+    public function getExpression(): Expr
+    {
+        return $this->expression;
+    }
 
-	public function getExpression(): Expr
-	{
-		return $this->expression;
-	}
+    public function getOriginalType(): Type
+    {
+        return $this->originalType;
+    }
 
-	public function getOriginalType(): Type
-	{
-		return $this->originalType;
-	}
-
-	public function getOriginalNativeType(): Type
-	{
-		return $this->originalNativeType;
-	}
-
+    public function getOriginalNativeType(): Type
+    {
+        return $this->originalNativeType;
+    }
 }

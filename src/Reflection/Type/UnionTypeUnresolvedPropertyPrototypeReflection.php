@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection\Type;
 
@@ -7,61 +9,58 @@ use PHPStan\Type\Type;
 
 class UnionTypeUnresolvedPropertyPrototypeReflection implements UnresolvedPropertyPrototypeReflection
 {
+    private string $propertyName;
 
-	private string $propertyName;
+    /** @var UnresolvedPropertyPrototypeReflection[] */
+    private array $propertyPrototypes;
 
-	/** @var UnresolvedPropertyPrototypeReflection[] */
-	private array $propertyPrototypes;
+    private ?PropertyReflection $transformedProperty = null;
 
-	private ?PropertyReflection $transformedProperty = null;
+    private ?self $cachedDoNotResolveTemplateTypeMapToBounds = null;
 
-	private ?self $cachedDoNotResolveTemplateTypeMapToBounds = null;
+    /**
+     * @param UnresolvedPropertyPrototypeReflection[] $propertyPrototypes
+     */
+    public function __construct(
+        string $methodName,
+        array $propertyPrototypes
+    ) {
+        $this->propertyName = $methodName;
+        $this->propertyPrototypes = $propertyPrototypes;
+    }
 
-	/**
-	 * @param UnresolvedPropertyPrototypeReflection[] $propertyPrototypes
-	 */
-	public function __construct(
-		string $methodName,
-		array $propertyPrototypes
-	)
-	{
-		$this->propertyName = $methodName;
-		$this->propertyPrototypes = $propertyPrototypes;
-	}
+    public function doNotResolveTemplateTypeMapToBounds(): UnresolvedPropertyPrototypeReflection
+    {
+        if ($this->cachedDoNotResolveTemplateTypeMapToBounds !== null) {
+            return $this->cachedDoNotResolveTemplateTypeMapToBounds;
+        }
+        return $this->cachedDoNotResolveTemplateTypeMapToBounds = new self($this->propertyName, array_map(static function (UnresolvedPropertyPrototypeReflection $prototype): UnresolvedPropertyPrototypeReflection {
+            return $prototype->doNotResolveTemplateTypeMapToBounds();
+        }, $this->propertyPrototypes));
+    }
 
-	public function doNotResolveTemplateTypeMapToBounds(): UnresolvedPropertyPrototypeReflection
-	{
-		if ($this->cachedDoNotResolveTemplateTypeMapToBounds !== null) {
-			return $this->cachedDoNotResolveTemplateTypeMapToBounds;
-		}
-		return $this->cachedDoNotResolveTemplateTypeMapToBounds = new self($this->propertyName, array_map(static function (UnresolvedPropertyPrototypeReflection $prototype): UnresolvedPropertyPrototypeReflection {
-			return $prototype->doNotResolveTemplateTypeMapToBounds();
-		}, $this->propertyPrototypes));
-	}
+    public function getNakedProperty(): PropertyReflection
+    {
+        return $this->getTransformedProperty();
+    }
 
-	public function getNakedProperty(): PropertyReflection
-	{
-		return $this->getTransformedProperty();
-	}
+    public function getTransformedProperty(): PropertyReflection
+    {
+        if ($this->transformedProperty !== null) {
+            return $this->transformedProperty;
+        }
 
-	public function getTransformedProperty(): PropertyReflection
-	{
-		if ($this->transformedProperty !== null) {
-			return $this->transformedProperty;
-		}
+        $methods = array_map(static function (UnresolvedPropertyPrototypeReflection $prototype): PropertyReflection {
+            return $prototype->getTransformedProperty();
+        }, $this->propertyPrototypes);
 
-		$methods = array_map(static function (UnresolvedPropertyPrototypeReflection $prototype): PropertyReflection {
-			return $prototype->getTransformedProperty();
-		}, $this->propertyPrototypes);
+        return $this->transformedProperty = new UnionTypePropertyReflection($methods);
+    }
 
-		return $this->transformedProperty = new UnionTypePropertyReflection($methods);
-	}
-
-	public function withFechedOnType(Type $type): UnresolvedPropertyPrototypeReflection
-	{
-		return new self($this->propertyName, array_map(static function (UnresolvedPropertyPrototypeReflection $prototype) use ($type): UnresolvedPropertyPrototypeReflection {
-			return $prototype->withFechedOnType($type);
-		}, $this->propertyPrototypes));
-	}
-
+    public function withFechedOnType(Type $type): UnresolvedPropertyPrototypeReflection
+    {
+        return new self($this->propertyName, array_map(static function (UnresolvedPropertyPrototypeReflection $prototype) use ($type): UnresolvedPropertyPrototypeReflection {
+            return $prototype->withFechedOnType($type);
+        }, $this->propertyPrototypes));
+    }
 }

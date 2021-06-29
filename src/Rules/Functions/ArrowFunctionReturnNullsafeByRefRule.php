@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Functions;
 
@@ -13,32 +15,30 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class ArrowFunctionReturnNullsafeByRefRule implements Rule
 {
+    private NullsafeCheck $nullsafeCheck;
 
-	private NullsafeCheck $nullsafeCheck;
+    public function __construct(NullsafeCheck $nullsafeCheck)
+    {
+        $this->nullsafeCheck = $nullsafeCheck;
+    }
 
-	public function __construct(NullsafeCheck $nullsafeCheck)
-	{
-		$this->nullsafeCheck = $nullsafeCheck;
-	}
+    public function getNodeType(): string
+    {
+        return Node\Expr\ArrowFunction::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Node\Expr\ArrowFunction::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if (!$node->byRef) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if (!$node->byRef) {
-			return [];
-		}
+        if (!$this->nullsafeCheck->containsNullSafe($node->expr)) {
+            return [];
+        }
 
-		if (!$this->nullsafeCheck->containsNullSafe($node->expr)) {
-			return [];
-		}
-
-		return [
-			RuleErrorBuilder::message('Nullsafe cannot be returned by reference.')->nonIgnorable()->build(),
-		];
-	}
-
+        return [
+            RuleErrorBuilder::message('Nullsafe cannot be returned by reference.')->nonIgnorable()->build(),
+        ];
+    }
 }

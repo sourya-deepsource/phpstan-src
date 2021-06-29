@@ -1,10 +1,10 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Analyser;
 
 interface TypeSpecifierAwareExtension
 {
-
-	public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void;
-
+    public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void;
 }

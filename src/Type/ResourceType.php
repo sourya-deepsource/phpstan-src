@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type;
 
@@ -14,76 +16,74 @@ use PHPStan\Type\Traits\UndecidedComparisonTypeTrait;
 
 class ResourceType implements Type
 {
+    use JustNullableTypeTrait;
+    use NonCallableTypeTrait;
+    use NonIterableTypeTrait;
+    use NonObjectTypeTrait;
+    use TruthyBooleanTypeTrait;
+    use NonGenericTypeTrait;
+    use UndecidedComparisonTypeTrait;
 
-	use JustNullableTypeTrait;
-	use NonCallableTypeTrait;
-	use NonIterableTypeTrait;
-	use NonObjectTypeTrait;
-	use TruthyBooleanTypeTrait;
-	use NonGenericTypeTrait;
-	use UndecidedComparisonTypeTrait;
+    public function describe(VerbosityLevel $level): string
+    {
+        return 'resource';
+    }
 
-	public function describe(VerbosityLevel $level): string
-	{
-		return 'resource';
-	}
+    public function toNumber(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toNumber(): Type
-	{
-		return new ErrorType();
-	}
+    public function toString(): Type
+    {
+        return new StringType();
+    }
 
-	public function toString(): Type
-	{
-		return new StringType();
-	}
+    public function toInteger(): Type
+    {
+        return new IntegerType();
+    }
 
-	public function toInteger(): Type
-	{
-		return new IntegerType();
-	}
+    public function toFloat(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toFloat(): Type
-	{
-		return new ErrorType();
-	}
+    public function toArray(): Type
+    {
+        return new ConstantArrayType(
+            [new ConstantIntegerType(0)],
+            [$this],
+            1
+        );
+    }
 
-	public function toArray(): Type
-	{
-		return new ConstantArrayType(
-			[new ConstantIntegerType(0)],
-			[$this],
-			1
-		);
-	}
+    public function isOffsetAccessible(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function isOffsetAccessible(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function hasOffsetValueType(Type $offsetType): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function hasOffsetValueType(Type $offsetType): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function getOffsetValueType(Type $offsetType): Type
+    {
+        return new ErrorType();
+    }
 
-	public function getOffsetValueType(Type $offsetType): Type
-	{
-		return new ErrorType();
-	}
+    public function setOffsetValueType(?Type $offsetType, Type $valueType): Type
+    {
+        return new ErrorType();
+    }
 
-	public function setOffsetValueType(?Type $offsetType, Type $valueType): Type
-	{
-		return new ErrorType();
-	}
-
-	/**
-	 * @param mixed[] $properties
-	 * @return Type
-	 */
-	public static function __set_state(array $properties): Type
-	{
-		return new self();
-	}
-
+    /**
+     * @param mixed[] $properties
+     * @return Type
+     */
+    public static function __set_state(array $properties): Type
+    {
+        return new self();
+    }
 }

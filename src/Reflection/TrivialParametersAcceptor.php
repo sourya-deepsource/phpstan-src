@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection;
 
@@ -8,33 +10,31 @@ use PHPStan\Type\Type;
 
 class TrivialParametersAcceptor implements ParametersAcceptor
 {
+    public function getTemplateTypeMap(): TemplateTypeMap
+    {
+        return TemplateTypeMap::createEmpty();
+    }
 
-	public function getTemplateTypeMap(): TemplateTypeMap
-	{
-		return TemplateTypeMap::createEmpty();
-	}
+    public function getResolvedTemplateTypeMap(): TemplateTypeMap
+    {
+        return TemplateTypeMap::createEmpty();
+    }
 
-	public function getResolvedTemplateTypeMap(): TemplateTypeMap
-	{
-		return TemplateTypeMap::createEmpty();
-	}
+    /**
+     * @return array<int, \PHPStan\Reflection\ParameterReflection>
+     */
+    public function getParameters(): array
+    {
+        return [];
+    }
 
-	/**
-	 * @return array<int, \PHPStan\Reflection\ParameterReflection>
-	 */
-	public function getParameters(): array
-	{
-		return [];
-	}
+    public function isVariadic(): bool
+    {
+        return true;
+    }
 
-	public function isVariadic(): bool
-	{
-		return true;
-	}
-
-	public function getReturnType(): Type
-	{
-		return new MixedType();
-	}
-
+    public function getReturnType(): Type
+    {
+        return new MixedType();
+    }
 }

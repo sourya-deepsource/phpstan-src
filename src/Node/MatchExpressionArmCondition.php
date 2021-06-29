@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Node;
 
@@ -7,33 +9,31 @@ use PHPStan\Analyser\Scope;
 
 class MatchExpressionArmCondition
 {
+    private Expr $condition;
 
-	private Expr $condition;
+    private Scope $scope;
 
-	private Scope $scope;
+    private int $line;
 
-	private int $line;
+    public function __construct(Expr $condition, Scope $scope, int $line)
+    {
+        $this->condition = $condition;
+        $this->scope = $scope;
+        $this->line = $line;
+    }
 
-	public function __construct(Expr $condition, Scope $scope, int $line)
-	{
-		$this->condition = $condition;
-		$this->scope = $scope;
-		$this->line = $line;
-	}
+    public function getCondition(): Expr
+    {
+        return $this->condition;
+    }
 
-	public function getCondition(): Expr
-	{
-		return $this->condition;
-	}
+    public function getScope(): Scope
+    {
+        return $this->scope;
+    }
 
-	public function getScope(): Scope
-	{
-		return $this->scope;
-	}
-
-	public function getLine(): int
-	{
-		return $this->line;
-	}
-
+    public function getLine(): int
+    {
+        return $this->line;
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -17,52 +19,48 @@ use PHPStan\Type\TypeCombinator;
 
 class ArrayKeyExistsFunctionTypeSpecifyingExtension implements FunctionTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
+    private \PHPStan\Analyser\TypeSpecifier $typeSpecifier;
 
-	private \PHPStan\Analyser\TypeSpecifier $typeSpecifier;
+    public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
+    {
+        $this->typeSpecifier = $typeSpecifier;
+    }
 
-	public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
-	{
-		$this->typeSpecifier = $typeSpecifier;
-	}
+    public function isFunctionSupported(
+        FunctionReflection $functionReflection,
+        FuncCall $node,
+        TypeSpecifierContext $context
+    ): bool {
+        return $functionReflection->getName() === 'array_key_exists'
+            && !$context->null();
+    }
 
-	public function isFunctionSupported(
-		FunctionReflection $functionReflection,
-		FuncCall $node,
-		TypeSpecifierContext $context
-	): bool
-	{
-		return $functionReflection->getName() === 'array_key_exists'
-			&& !$context->null();
-	}
+    public function specifyTypes(
+        FunctionReflection $functionReflection,
+        FuncCall $node,
+        Scope $scope,
+        TypeSpecifierContext $context
+    ): SpecifiedTypes {
+        if (count($node->args) < 2) {
+            return new SpecifiedTypes();
+        }
+        $keyType = $scope->getType($node->args[0]->value);
 
-	public function specifyTypes(
-		FunctionReflection $functionReflection,
-		FuncCall $node,
-		Scope $scope,
-		TypeSpecifierContext $context
-	): SpecifiedTypes
-	{
-		if (count($node->args) < 2) {
-			return new SpecifiedTypes();
-		}
-		$keyType = $scope->getType($node->args[0]->value);
+        if ($context->truthy()) {
+            $type = TypeCombinator::intersect(
+                new ArrayType(new MixedType(), new MixedType()),
+                new HasOffsetType($keyType)
+            );
+        } else {
+            $type = new HasOffsetType($keyType);
+        }
 
-		if ($context->truthy()) {
-			$type = TypeCombinator::intersect(
-				new ArrayType(new MixedType(), new MixedType()),
-				new HasOffsetType($keyType)
-			);
-		} else {
-			$type = new HasOffsetType($keyType);
-		}
-
-		return $this->typeSpecifier->create(
-			$node->args[1]->value,
-			$type,
-			$context,
-			false,
-			$scope
-		);
-	}
-
+        return $this->typeSpecifier->create(
+            $node->args[1]->value,
+            $type,
+            $context,
+            false,
+            $scope
+        );
+    }
 }

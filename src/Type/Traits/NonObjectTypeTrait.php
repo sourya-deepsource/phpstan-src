@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Traits;
 
@@ -12,65 +14,63 @@ use PHPStan\TrinaryLogic;
 
 trait NonObjectTypeTrait
 {
+    public function canAccessProperties(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function canAccessProperties(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function hasProperty(string $propertyName): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function hasProperty(string $propertyName): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function getProperty(string $propertyName, ClassMemberAccessAnswerer $scope): PropertyReflection
+    {
+        throw new \PHPStan\ShouldNotHappenException();
+    }
 
-	public function getProperty(string $propertyName, ClassMemberAccessAnswerer $scope): PropertyReflection
-	{
-		throw new \PHPStan\ShouldNotHappenException();
-	}
+    public function getUnresolvedPropertyPrototype(string $propertyName, ClassMemberAccessAnswerer $scope): UnresolvedPropertyPrototypeReflection
+    {
+        throw new \PHPStan\ShouldNotHappenException();
+    }
 
-	public function getUnresolvedPropertyPrototype(string $propertyName, ClassMemberAccessAnswerer $scope): UnresolvedPropertyPrototypeReflection
-	{
-		throw new \PHPStan\ShouldNotHappenException();
-	}
+    public function canCallMethods(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function canCallMethods(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function hasMethod(string $methodName): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function hasMethod(string $methodName): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function getMethod(string $methodName, ClassMemberAccessAnswerer $scope): MethodReflection
+    {
+        throw new \PHPStan\ShouldNotHappenException();
+    }
 
-	public function getMethod(string $methodName, ClassMemberAccessAnswerer $scope): MethodReflection
-	{
-		throw new \PHPStan\ShouldNotHappenException();
-	}
+    public function getUnresolvedMethodPrototype(string $methodName, ClassMemberAccessAnswerer $scope): UnresolvedMethodPrototypeReflection
+    {
+        throw new \PHPStan\ShouldNotHappenException();
+    }
 
-	public function getUnresolvedMethodPrototype(string $methodName, ClassMemberAccessAnswerer $scope): UnresolvedMethodPrototypeReflection
-	{
-		throw new \PHPStan\ShouldNotHappenException();
-	}
+    public function canAccessConstants(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function canAccessConstants(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function hasConstant(string $constantName): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function hasConstant(string $constantName): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function getConstant(string $constantName): ConstantReflection
+    {
+        throw new \PHPStan\ShouldNotHappenException();
+    }
 
-	public function getConstant(string $constantName): ConstantReflection
-	{
-		throw new \PHPStan\ShouldNotHappenException();
-	}
-
-	public function isCloneable(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
-
+    public function isCloneable(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 }

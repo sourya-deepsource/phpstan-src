@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Properties;
 
@@ -12,74 +14,71 @@ use PHPStan\Rules\RuleLevelHelper;
  */
 class ReadingWriteOnlyPropertiesRule implements \PHPStan\Rules\Rule
 {
+    private \PHPStan\Rules\Properties\PropertyDescriptor $propertyDescriptor;
 
-	private \PHPStan\Rules\Properties\PropertyDescriptor $propertyDescriptor;
+    private \PHPStan\Rules\Properties\PropertyReflectionFinder $propertyReflectionFinder;
 
-	private \PHPStan\Rules\Properties\PropertyReflectionFinder $propertyReflectionFinder;
+    private RuleLevelHelper $ruleLevelHelper;
 
-	private RuleLevelHelper $ruleLevelHelper;
+    private bool $checkThisOnly;
 
-	private bool $checkThisOnly;
+    public function __construct(
+        PropertyDescriptor $propertyDescriptor,
+        PropertyReflectionFinder $propertyReflectionFinder,
+        RuleLevelHelper $ruleLevelHelper,
+        bool $checkThisOnly
+    ) {
+        $this->propertyDescriptor = $propertyDescriptor;
+        $this->propertyReflectionFinder = $propertyReflectionFinder;
+        $this->ruleLevelHelper = $ruleLevelHelper;
+        $this->checkThisOnly = $checkThisOnly;
+    }
 
-	public function __construct(
-		PropertyDescriptor $propertyDescriptor,
-		PropertyReflectionFinder $propertyReflectionFinder,
-		RuleLevelHelper $ruleLevelHelper,
-		bool $checkThisOnly
-	)
-	{
-		$this->propertyDescriptor = $propertyDescriptor;
-		$this->propertyReflectionFinder = $propertyReflectionFinder;
-		$this->ruleLevelHelper = $ruleLevelHelper;
-		$this->checkThisOnly = $checkThisOnly;
-	}
+    public function getNodeType(): string
+    {
+        return \PhpParser\Node\Expr::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return \PhpParser\Node\Expr::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if (
+            !($node instanceof Node\Expr\PropertyFetch)
+            && !($node instanceof Node\Expr\StaticPropertyFetch)
+        ) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if (
-			!($node instanceof Node\Expr\PropertyFetch)
-			&& !($node instanceof Node\Expr\StaticPropertyFetch)
-		) {
-			return [];
-		}
+        if (
+            $node instanceof Node\Expr\PropertyFetch
+            && $this->checkThisOnly
+            && !$this->ruleLevelHelper->isThis($node->var)
+        ) {
+            return [];
+        }
 
-		if (
-			$node instanceof Node\Expr\PropertyFetch
-			&& $this->checkThisOnly
-			&& !$this->ruleLevelHelper->isThis($node->var)
-		) {
-			return [];
-		}
+        if ($scope->isInExpressionAssign($node)) {
+            return [];
+        }
 
-		if ($scope->isInExpressionAssign($node)) {
-			return [];
-		}
+        $propertyReflection = $this->propertyReflectionFinder->findPropertyReflectionFromNode($node, $scope);
+        if ($propertyReflection === null) {
+            return [];
+        }
+        if (!$scope->canAccessProperty($propertyReflection)) {
+            return [];
+        }
 
-		$propertyReflection = $this->propertyReflectionFinder->findPropertyReflectionFromNode($node, $scope);
-		if ($propertyReflection === null) {
-			return [];
-		}
-		if (!$scope->canAccessProperty($propertyReflection)) {
-			return [];
-		}
+        if (!$propertyReflection->isReadable()) {
+            $propertyDescription = $this->propertyDescriptor->describeProperty($propertyReflection, $node);
 
-		if (!$propertyReflection->isReadable()) {
-			$propertyDescription = $this->propertyDescriptor->describeProperty($propertyReflection, $node);
+            return [
+                RuleErrorBuilder::message(sprintf(
+                    '%s is not readable.',
+                    $propertyDescription
+                ))->build(),
+            ];
+        }
 
-			return [
-				RuleErrorBuilder::message(sprintf(
-					'%s is not readable.',
-					$propertyDescription
-				))->build(),
-			];
-		}
-
-		return [];
-	}
-
+        return [];
+    }
 }

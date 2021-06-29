@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Arrays;
 
@@ -10,25 +12,23 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class OffsetAccessWithoutDimForReadingRule implements \PHPStan\Rules\Rule
 {
+    public function getNodeType(): string
+    {
+        return \PhpParser\Node\Expr\ArrayDimFetch::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return \PhpParser\Node\Expr\ArrayDimFetch::class;
-	}
+    public function processNode(\PhpParser\Node $node, Scope $scope): array
+    {
+        if ($scope->isInExpressionAssign($node)) {
+            return [];
+        }
 
-	public function processNode(\PhpParser\Node $node, Scope $scope): array
-	{
-		if ($scope->isInExpressionAssign($node)) {
-			return [];
-		}
+        if ($node->dim !== null) {
+            return [];
+        }
 
-		if ($node->dim !== null) {
-			return [];
-		}
-
-		return [
-			RuleErrorBuilder::message('Cannot use [] for reading.')->nonIgnorable()->build(),
-		];
-	}
-
+        return [
+            RuleErrorBuilder::message('Cannot use [] for reading.')->nonIgnorable()->build(),
+        ];
+    }
 }

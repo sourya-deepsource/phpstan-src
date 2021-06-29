@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -16,32 +18,30 @@ use PHPStan\Type\UnionType;
 
 class XMLReaderOpenReturnTypeExtension implements DynamicMethodReturnTypeExtension, DynamicStaticMethodReturnTypeExtension
 {
+    private const XML_READER_CLASS = 'XMLReader';
 
-	private const XML_READER_CLASS = 'XMLReader';
+    public function getClass(): string
+    {
+        return self::XML_READER_CLASS;
+    }
 
-	public function getClass(): string
-	{
-		return self::XML_READER_CLASS;
-	}
+    public function isMethodSupported(MethodReflection $methodReflection): bool
+    {
+        return $methodReflection->getName() === 'open';
+    }
 
-	public function isMethodSupported(MethodReflection $methodReflection): bool
-	{
-		return $methodReflection->getName() === 'open';
-	}
+    public function isStaticMethodSupported(MethodReflection $methodReflection): bool
+    {
+        return $this->isMethodSupported($methodReflection);
+    }
 
-	public function isStaticMethodSupported(MethodReflection $methodReflection): bool
-	{
-		return $this->isMethodSupported($methodReflection);
-	}
+    public function getTypeFromMethodCall(MethodReflection $methodReflection, MethodCall $methodCall, Scope $scope): Type
+    {
+        return new BooleanType();
+    }
 
-	public function getTypeFromMethodCall(MethodReflection $methodReflection, MethodCall $methodCall, Scope $scope): Type
-	{
-		return new BooleanType();
-	}
-
-	public function getTypeFromStaticMethodCall(MethodReflection $methodReflection, StaticCall $methodCall, Scope $scope): Type
-	{
-		return new UnionType([new ObjectType(self::XML_READER_CLASS), new ConstantBooleanType(false)]);
-	}
-
+    public function getTypeFromStaticMethodCall(MethodReflection $methodReflection, StaticCall $methodCall, Scope $scope): Type
+    {
+        return new UnionType([new ObjectType(self::XML_READER_CLASS), new ConstantBooleanType(false)]);
+    }
 }

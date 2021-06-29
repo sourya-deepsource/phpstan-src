@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection\Dummy;
 
@@ -11,78 +13,76 @@ use PHPStan\Type\Type;
 
 class DummyConstantReflection implements ConstantReflection
 {
+    private string $name;
 
-	private string $name;
+    public function __construct(string $name)
+    {
+        $this->name = $name;
+    }
 
-	public function __construct(string $name)
-	{
-		$this->name = $name;
-	}
+    public function getDeclaringClass(): ClassReflection
+    {
+        $broker = Broker::getInstance();
 
-	public function getDeclaringClass(): ClassReflection
-	{
-		$broker = Broker::getInstance();
+        return $broker->getClass(\stdClass::class);
+    }
 
-		return $broker->getClass(\stdClass::class);
-	}
+    public function getFileName(): ?string
+    {
+        return null;
+    }
 
-	public function getFileName(): ?string
-	{
-		return null;
-	}
+    public function isStatic(): bool
+    {
+        return true;
+    }
 
-	public function isStatic(): bool
-	{
-		return true;
-	}
+    public function isPrivate(): bool
+    {
+        return false;
+    }
 
-	public function isPrivate(): bool
-	{
-		return false;
-	}
+    public function isPublic(): bool
+    {
+        return true;
+    }
 
-	public function isPublic(): bool
-	{
-		return true;
-	}
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
-	public function getName(): string
-	{
-		return $this->name;
-	}
+    /**
+     * @return mixed
+     */
+    public function getValue()
+    {
+        // so that Scope::getTypeFromValue() returns mixed
+        return new \stdClass();
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getValue()
-	{
-		// so that Scope::getTypeFromValue() returns mixed
-		return new \stdClass();
-	}
+    public function getValueType(): Type
+    {
+        return new MixedType();
+    }
 
-	public function getValueType(): Type
-	{
-		return new MixedType();
-	}
+    public function isDeprecated(): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function isDeprecated(): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
+    public function getDeprecatedDescription(): ?string
+    {
+        return null;
+    }
 
-	public function getDeprecatedDescription(): ?string
-	{
-		return null;
-	}
+    public function isInternal(): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function isInternal(): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
-
-	public function getDocComment(): ?string
-	{
-		return null;
-	}
-
+    public function getDocComment(): ?string
+    {
+        return null;
+    }
 }

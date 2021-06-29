@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -15,62 +17,60 @@ use PHPStan\Type\UnionType;
 
 final class DsMapDynamicReturnTypeExtension implements DynamicMethodReturnTypeExtension
 {
+    public function getClass(): string
+    {
+        return 'Ds\Map';
+    }
 
-	public function getClass(): string
-	{
-		return 'Ds\Map';
-	}
+    public function isMethodSupported(MethodReflection $methodReflection): bool
+    {
+        return $methodReflection->getName() === 'get' || $methodReflection->getName() === 'remove';
+    }
 
-	public function isMethodSupported(MethodReflection $methodReflection): bool
-	{
-		return $methodReflection->getName() === 'get' || $methodReflection->getName() === 'remove';
-	}
+    public function getTypeFromMethodCall(MethodReflection $methodReflection, MethodCall $methodCall, Scope $scope): Type
+    {
+        $returnType = ParametersAcceptorSelector::selectFromArgs(
+            $scope,
+            $methodCall->args,
+            $methodReflection->getVariants()
+        )->getReturnType();
 
-	public function getTypeFromMethodCall(MethodReflection $methodReflection, MethodCall $methodCall, Scope $scope): Type
-	{
-		$returnType = ParametersAcceptorSelector::selectFromArgs(
-			$scope,
-			$methodCall->args,
-			$methodReflection->getVariants()
-		)->getReturnType();
+        if (count($methodCall->args) > 1) {
+            return $returnType;
+        }
 
-		if (count($methodCall->args) > 1) {
-			return $returnType;
-		}
+        if ($returnType instanceof UnionType) {
+            $types = array_values(
+                array_filter(
+                    $returnType->getTypes(),
+                    static function (Type $type): bool {
+                        if (
+                            $type instanceof TemplateType
+                            && $type->getName() === 'TDefault'
+                            && (
+                                $type->getScope()->equals(TemplateTypeScope::createWithMethod('Ds\Map', 'get'))
+                                || $type->getScope()->equals(TemplateTypeScope::createWithMethod('Ds\Map', 'remove'))
+                            )
+                        ) {
+                            return false;
+                        }
 
-		if ($returnType instanceof UnionType) {
-			$types = array_values(
-				array_filter(
-					$returnType->getTypes(),
-					static function (Type $type): bool {
-						if (
-							$type instanceof TemplateType
-							&& $type->getName() === 'TDefault'
-							&& (
-								$type->getScope()->equals(TemplateTypeScope::createWithMethod('Ds\Map', 'get'))
-								|| $type->getScope()->equals(TemplateTypeScope::createWithMethod('Ds\Map', 'remove'))
-							)
-						) {
-							return false;
-						}
+                        return true;
+                    }
+                )
+            );
 
-						return true;
-					}
-				)
-			);
+            if (count($types) === 1) {
+                return $types[0];
+            }
 
-			if (count($types) === 1) {
-				return $types[0];
-			}
+            if (count($types) === 0) {
+                return $returnType;
+            }
 
-			if (count($types) === 0) {
-				return $returnType;
-			}
+            return TypeCombinator::union(...$types);
+        }
 
-			return TypeCombinator::union(...$types);
-		}
-
-		return $returnType;
-	}
-
+        return $returnType;
+    }
 }

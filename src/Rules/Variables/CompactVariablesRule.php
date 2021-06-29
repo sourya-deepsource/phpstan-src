@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Variables;
 
@@ -15,77 +17,75 @@ use PHPStan\Type\Type;
  */
 final class CompactVariablesRule implements Rule
 {
+    private bool $checkMaybeUndefinedVariables;
 
-	private bool $checkMaybeUndefinedVariables;
+    public function __construct(bool $checkMaybeUndefinedVariables)
+    {
+        $this->checkMaybeUndefinedVariables = $checkMaybeUndefinedVariables;
+    }
 
-	public function __construct(bool $checkMaybeUndefinedVariables)
-	{
-		$this->checkMaybeUndefinedVariables = $checkMaybeUndefinedVariables;
-	}
+    public function getNodeType(): string
+    {
+        return Node\Expr\FuncCall::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Node\Expr\FuncCall::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if ($node->name instanceof Node\Expr) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if ($node->name instanceof Node\Expr) {
-			return [];
-		}
+        $functionName = strtolower($node->name->toString());
 
-		$functionName = strtolower($node->name->toString());
+        if ($functionName !== 'compact') {
+            return [];
+        }
 
-		if ($functionName !== 'compact') {
-			return [];
-		}
+        $functionArguments = $node->args;
+        $messages = [];
 
-		$functionArguments = $node->args;
-		$messages = [];
+        foreach ($functionArguments as $argument) {
+            $argumentType = $scope->getType($argument->value);
+            $constantStrings = $this->findConstantStrings($argumentType);
+            foreach ($constantStrings as $constantString) {
+                $variableName = $constantString->getValue();
+                $scopeHasVariable = $scope->hasVariableType($variableName);
 
-		foreach ($functionArguments as $argument) {
-			$argumentType = $scope->getType($argument->value);
-			$constantStrings = $this->findConstantStrings($argumentType);
-			foreach ($constantStrings as $constantString) {
-				$variableName = $constantString->getValue();
-				$scopeHasVariable = $scope->hasVariableType($variableName);
+                if ($scopeHasVariable->no()) {
+                    $messages[] = RuleErrorBuilder::message(
+                        sprintf('Call to function compact() contains undefined variable $%s.', $variableName)
+                    )->line($argument->getLine())->build();
+                } elseif ($this->checkMaybeUndefinedVariables && $scopeHasVariable->maybe()) {
+                    $messages[] = RuleErrorBuilder::message(
+                        sprintf('Call to function compact() contains possibly undefined variable $%s.', $variableName)
+                    )->line($argument->getLine())->build();
+                }
+            }
+        }
 
-				if ($scopeHasVariable->no()) {
-					$messages[] = RuleErrorBuilder::message(
-						sprintf('Call to function compact() contains undefined variable $%s.', $variableName)
-					)->line($argument->getLine())->build();
-				} elseif ($this->checkMaybeUndefinedVariables && $scopeHasVariable->maybe()) {
-					$messages[] = RuleErrorBuilder::message(
-						sprintf('Call to function compact() contains possibly undefined variable $%s.', $variableName)
-					)->line($argument->getLine())->build();
-				}
-			}
-		}
+        return $messages;
+    }
 
-		return $messages;
-	}
+    /**
+     * @param Type $type
+     * @return array<int, ConstantStringType>
+     */
+    private function findConstantStrings(Type $type): array
+    {
+        if ($type instanceof ConstantStringType) {
+            return [$type];
+        }
 
-	/**
-	 * @param Type $type
-	 * @return array<int, ConstantStringType>
-	 */
-	private function findConstantStrings(Type $type): array
-	{
-		if ($type instanceof ConstantStringType) {
-			return [$type];
-		}
+        if ($type instanceof ConstantArrayType) {
+            $result = [];
+            foreach ($type->getValueTypes() as $valueType) {
+                $constantStrings = $this->findConstantStrings($valueType);
+                $result = array_merge($result, $constantStrings);
+            }
 
-		if ($type instanceof ConstantArrayType) {
-			$result = [];
-			foreach ($type->getValueTypes() as $valueType) {
-				$constantStrings = $this->findConstantStrings($valueType);
-				$result = array_merge($result, $constantStrings);
-			}
+            return $result;
+        }
 
-			return $result;
-		}
-
-		return [];
-	}
-
+        return [];
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Classes;
 
@@ -21,110 +23,107 @@ use PHPStan\Type\VerbosityLevel;
  */
 class MixinRule implements Rule
 {
+    private FileTypeMapper $fileTypeMapper;
 
-	private FileTypeMapper $fileTypeMapper;
+    private ReflectionProvider $reflectionProvider;
 
-	private ReflectionProvider $reflectionProvider;
+    private \PHPStan\Rules\ClassCaseSensitivityCheck $classCaseSensitivityCheck;
 
-	private \PHPStan\Rules\ClassCaseSensitivityCheck $classCaseSensitivityCheck;
+    private \PHPStan\Rules\Generics\GenericObjectTypeCheck $genericObjectTypeCheck;
 
-	private \PHPStan\Rules\Generics\GenericObjectTypeCheck $genericObjectTypeCheck;
+    private MissingTypehintCheck $missingTypehintCheck;
 
-	private MissingTypehintCheck $missingTypehintCheck;
+    private bool $checkClassCaseSensitivity;
 
-	private bool $checkClassCaseSensitivity;
+    public function __construct(
+        FileTypeMapper $fileTypeMapper,
+        ReflectionProvider $reflectionProvider,
+        ClassCaseSensitivityCheck $classCaseSensitivityCheck,
+        GenericObjectTypeCheck $genericObjectTypeCheck,
+        MissingTypehintCheck $missingTypehintCheck,
+        bool $checkClassCaseSensitivity
+    ) {
+        $this->fileTypeMapper = $fileTypeMapper;
+        $this->reflectionProvider = $reflectionProvider;
+        $this->classCaseSensitivityCheck = $classCaseSensitivityCheck;
+        $this->genericObjectTypeCheck = $genericObjectTypeCheck;
+        $this->missingTypehintCheck = $missingTypehintCheck;
+        $this->checkClassCaseSensitivity = $checkClassCaseSensitivity;
+    }
 
-	public function __construct(
-		FileTypeMapper $fileTypeMapper,
-		ReflectionProvider $reflectionProvider,
-		ClassCaseSensitivityCheck $classCaseSensitivityCheck,
-		GenericObjectTypeCheck $genericObjectTypeCheck,
-		MissingTypehintCheck $missingTypehintCheck,
-		bool $checkClassCaseSensitivity
-	)
-	{
-		$this->fileTypeMapper = $fileTypeMapper;
-		$this->reflectionProvider = $reflectionProvider;
-		$this->classCaseSensitivityCheck = $classCaseSensitivityCheck;
-		$this->genericObjectTypeCheck = $genericObjectTypeCheck;
-		$this->missingTypehintCheck = $missingTypehintCheck;
-		$this->checkClassCaseSensitivity = $checkClassCaseSensitivity;
-	}
+    public function getNodeType(): string
+    {
+        return Node\Stmt\Class_::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Node\Stmt\Class_::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if (!isset($node->namespacedName)) {
+            // anonymous class
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if (!isset($node->namespacedName)) {
-			// anonymous class
-			return [];
-		}
+        $className = (string) $node->namespacedName;
+        $docComment = $node->getDocComment();
+        if ($docComment === null) {
+            return [];
+        }
+        $resolvedPhpDoc = $this->fileTypeMapper->getResolvedPhpDoc(
+            $scope->getFile(),
+            $className,
+            null,
+            null,
+            $docComment->getText()
+        );
+        $mixinTags = $resolvedPhpDoc->getMixinTags();
+        $errors = [];
+        foreach ($mixinTags as $mixinTag) {
+            $type = $mixinTag->getType();
+            if (!$type->canCallMethods()->yes() || !$type->canAccessProperties()->yes()) {
+                $errors[] = RuleErrorBuilder::message(sprintf('PHPDoc tag @mixin contains non-object type %s.', $type->describe(VerbosityLevel::typeOnly())))->build();
+                continue;
+            }
 
-		$className = (string) $node->namespacedName;
-		$docComment = $node->getDocComment();
-		if ($docComment === null) {
-			return [];
-		}
-		$resolvedPhpDoc = $this->fileTypeMapper->getResolvedPhpDoc(
-			$scope->getFile(),
-			$className,
-			null,
-			null,
-			$docComment->getText()
-		);
-		$mixinTags = $resolvedPhpDoc->getMixinTags();
-		$errors = [];
-		foreach ($mixinTags as $mixinTag) {
-			$type = $mixinTag->getType();
-			if (!$type->canCallMethods()->yes() || !$type->canAccessProperties()->yes()) {
-				$errors[] = RuleErrorBuilder::message(sprintf('PHPDoc tag @mixin contains non-object type %s.', $type->describe(VerbosityLevel::typeOnly())))->build();
-				continue;
-			}
+            if (
+                $type instanceof ErrorType
+                || ($type instanceof NeverType && !$type->isExplicit())
+            ) {
+                $errors[] = RuleErrorBuilder::message('PHPDoc tag @mixin contains unresolvable type.')->build();
+                continue;
+            }
 
-			if (
-				$type instanceof ErrorType
-				|| ($type instanceof NeverType && !$type->isExplicit())
-			) {
-				$errors[] = RuleErrorBuilder::message('PHPDoc tag @mixin contains unresolvable type.')->build();
-				continue;
-			}
+            $errors = array_merge($errors, $this->genericObjectTypeCheck->check(
+                $type,
+                'PHPDoc tag @mixin contains generic type %s but class %s is not generic.',
+                'Generic type %s in PHPDoc tag @mixin does not specify all template types of class %s: %s',
+                'Generic type %s in PHPDoc tag @mixin specifies %d template types, but class %s supports only %d: %s',
+                'Type %s in generic type %s in PHPDoc tag @mixin is not subtype of template type %s of class %s.'
+            ));
 
-			$errors = array_merge($errors, $this->genericObjectTypeCheck->check(
-				$type,
-				'PHPDoc tag @mixin contains generic type %s but class %s is not generic.',
-				'Generic type %s in PHPDoc tag @mixin does not specify all template types of class %s: %s',
-				'Generic type %s in PHPDoc tag @mixin specifies %d template types, but class %s supports only %d: %s',
-				'Type %s in generic type %s in PHPDoc tag @mixin is not subtype of template type %s of class %s.'
-			));
+            foreach ($this->missingTypehintCheck->getNonGenericObjectTypesWithGenericClass($type) as [$innerName, $genericTypeNames]) {
+                $errors[] = RuleErrorBuilder::message(sprintf(
+                    'PHPDoc tag @mixin contains generic %s but does not specify its types: %s',
+                    $innerName,
+                    implode(', ', $genericTypeNames)
+                ))->tip(MissingTypehintCheck::TURN_OFF_NON_GENERIC_CHECK_TIP)->build();
+            }
 
-			foreach ($this->missingTypehintCheck->getNonGenericObjectTypesWithGenericClass($type) as [$innerName, $genericTypeNames]) {
-				$errors[] = RuleErrorBuilder::message(sprintf(
-					'PHPDoc tag @mixin contains generic %s but does not specify its types: %s',
-					$innerName,
-					implode(', ', $genericTypeNames)
-				))->tip(MissingTypehintCheck::TURN_OFF_NON_GENERIC_CHECK_TIP)->build();
-			}
+            foreach ($type->getReferencedClasses() as $class) {
+                if (!$this->reflectionProvider->hasClass($class)) {
+                    $errors[] = RuleErrorBuilder::message(sprintf('PHPDoc tag @mixin contains unknown class %s.', $class))->discoveringSymbolsTip()->build();
+                } elseif ($this->reflectionProvider->getClass($class)->isTrait()) {
+                    $errors[] = RuleErrorBuilder::message(sprintf('PHPDoc tag @mixin contains invalid type %s.', $class))->build();
+                } elseif ($this->checkClassCaseSensitivity) {
+                    $errors = array_merge(
+                        $errors,
+                        $this->classCaseSensitivityCheck->checkClassNames([
+                            new ClassNameNodePair($class, $node),
+                        ])
+                    );
+                }
+            }
+        }
 
-			foreach ($type->getReferencedClasses() as $class) {
-				if (!$this->reflectionProvider->hasClass($class)) {
-					$errors[] = RuleErrorBuilder::message(sprintf('PHPDoc tag @mixin contains unknown class %s.', $class))->discoveringSymbolsTip()->build();
-				} elseif ($this->reflectionProvider->getClass($class)->isTrait()) {
-					$errors[] = RuleErrorBuilder::message(sprintf('PHPDoc tag @mixin contains invalid type %s.', $class))->build();
-				} elseif ($this->checkClassCaseSensitivity) {
-					$errors = array_merge(
-						$errors,
-						$this->classCaseSensitivityCheck->checkClassNames([
-							new ClassNameNodePair($class, $node),
-						])
-					);
-				}
-			}
-		}
-
-		return $errors;
-	}
-
+        return $errors;
+    }
 }

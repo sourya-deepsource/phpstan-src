@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection\Dummy;
 
@@ -12,89 +14,87 @@ use PHPStan\Type\Type;
 
 class DummyMethodReflection implements MethodReflection
 {
+    private string $name;
 
-	private string $name;
+    public function __construct(string $name)
+    {
+        $this->name = $name;
+    }
 
-	public function __construct(string $name)
-	{
-		$this->name = $name;
-	}
+    public function getDeclaringClass(): ClassReflection
+    {
+        $broker = Broker::getInstance();
 
-	public function getDeclaringClass(): ClassReflection
-	{
-		$broker = Broker::getInstance();
+        return $broker->getClass(\stdClass::class);
+    }
 
-		return $broker->getClass(\stdClass::class);
-	}
+    public function isStatic(): bool
+    {
+        return false;
+    }
 
-	public function isStatic(): bool
-	{
-		return false;
-	}
+    public function isPrivate(): bool
+    {
+        return false;
+    }
 
-	public function isPrivate(): bool
-	{
-		return false;
-	}
+    public function isPublic(): bool
+    {
+        return true;
+    }
 
-	public function isPublic(): bool
-	{
-		return true;
-	}
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
-	public function getName(): string
-	{
-		return $this->name;
-	}
+    public function getPrototype(): ClassMemberReflection
+    {
+        return $this;
+    }
 
-	public function getPrototype(): ClassMemberReflection
-	{
-		return $this;
-	}
+    /**
+     * @return \PHPStan\Reflection\ParametersAcceptor[]
+     */
+    public function getVariants(): array
+    {
+        return [
+            new TrivialParametersAcceptor(),
+        ];
+    }
 
-	/**
-	 * @return \PHPStan\Reflection\ParametersAcceptor[]
-	 */
-	public function getVariants(): array
-	{
-		return [
-			new TrivialParametersAcceptor(),
-		];
-	}
+    public function isDeprecated(): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function isDeprecated(): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
+    public function getDeprecatedDescription(): ?string
+    {
+        return null;
+    }
 
-	public function getDeprecatedDescription(): ?string
-	{
-		return null;
-	}
+    public function isFinal(): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function isFinal(): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
+    public function isInternal(): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function isInternal(): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
+    public function getThrowType(): ?Type
+    {
+        return null;
+    }
 
-	public function getThrowType(): ?Type
-	{
-		return null;
-	}
+    public function hasSideEffects(): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function hasSideEffects(): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
-
-	public function getDocComment(): ?string
-	{
-		return null;
-	}
-
+    public function getDocComment(): ?string
+    {
+        return null;
+    }
 }

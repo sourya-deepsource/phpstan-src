@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Functions;
 
@@ -13,33 +15,31 @@ use PHPStan\Type\ThisType;
  */
 class ClosureUsesThisRule implements Rule
 {
+    public function getNodeType(): string
+    {
+        return Node\Expr\Closure::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Node\Expr\Closure::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if ($node->static) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if ($node->static) {
-			return [];
-		}
+        $messages = [];
+        foreach ($node->uses as $closureUse) {
+            $varType = $scope->getType($closureUse->var);
+            if (!is_string($closureUse->var->name)) {
+                continue;
+            }
+            if (!$varType instanceof ThisType) {
+                continue;
+            }
 
-		$messages = [];
-		foreach ($node->uses as $closureUse) {
-			$varType = $scope->getType($closureUse->var);
-			if (!is_string($closureUse->var->name)) {
-				continue;
-			}
-			if (!$varType instanceof ThisType) {
-				continue;
-			}
-
-			$messages[] = RuleErrorBuilder::message(sprintf('Anonymous function uses $this assigned to variable $%s. Use $this directly in the function body.', $closureUse->var->name))
-				->line($closureUse->getLine())
-				->build();
-		}
-		return $messages;
-	}
-
+            $messages[] = RuleErrorBuilder::message(sprintf('Anonymous function uses $this assigned to variable $%s. Use $this directly in the function body.', $closureUse->var->name))
+                ->line($closureUse->getLine())
+                ->build();
+        }
+        return $messages;
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Traits;
 
@@ -22,121 +24,119 @@ use PHPStan\Type\Type;
 
 trait ObjectTypeTrait
 {
+    use MaybeCallableTypeTrait;
+    use MaybeIterableTypeTrait;
+    use MaybeOffsetAccessibleTypeTrait;
+    use TruthyBooleanTypeTrait;
 
-	use MaybeCallableTypeTrait;
-	use MaybeIterableTypeTrait;
-	use MaybeOffsetAccessibleTypeTrait;
-	use TruthyBooleanTypeTrait;
+    public function canAccessProperties(): TrinaryLogic
+    {
+        return TrinaryLogic::createYes();
+    }
 
-	public function canAccessProperties(): TrinaryLogic
-	{
-		return TrinaryLogic::createYes();
-	}
+    public function hasProperty(string $propertyName): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function hasProperty(string $propertyName): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
+    public function getProperty(string $propertyName, ClassMemberAccessAnswerer $scope): PropertyReflection
+    {
+        return $this->getUnresolvedPropertyPrototype($propertyName, $scope)->getTransformedProperty();
+    }
 
-	public function getProperty(string $propertyName, ClassMemberAccessAnswerer $scope): PropertyReflection
-	{
-		return $this->getUnresolvedPropertyPrototype($propertyName, $scope)->getTransformedProperty();
-	}
+    public function getUnresolvedPropertyPrototype(string $propertyName, ClassMemberAccessAnswerer $scope): UnresolvedPropertyPrototypeReflection
+    {
+        $property = new DummyPropertyReflection();
+        return new CallbackUnresolvedPropertyPrototypeReflection(
+            $property,
+            $property->getDeclaringClass(),
+            false,
+            static function (Type $type): Type {
+                return $type;
+            }
+        );
+    }
 
-	public function getUnresolvedPropertyPrototype(string $propertyName, ClassMemberAccessAnswerer $scope): UnresolvedPropertyPrototypeReflection
-	{
-		$property = new DummyPropertyReflection();
-		return new CallbackUnresolvedPropertyPrototypeReflection(
-			$property,
-			$property->getDeclaringClass(),
-			false,
-			static function (Type $type): Type {
-				return $type;
-			}
-		);
-	}
+    public function canCallMethods(): TrinaryLogic
+    {
+        return TrinaryLogic::createYes();
+    }
 
-	public function canCallMethods(): TrinaryLogic
-	{
-		return TrinaryLogic::createYes();
-	}
+    public function hasMethod(string $methodName): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function hasMethod(string $methodName): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
+    public function getMethod(string $methodName, ClassMemberAccessAnswerer $scope): MethodReflection
+    {
+        return $this->getUnresolvedMethodPrototype($methodName, $scope)->getTransformedMethod();
+    }
 
-	public function getMethod(string $methodName, ClassMemberAccessAnswerer $scope): MethodReflection
-	{
-		return $this->getUnresolvedMethodPrototype($methodName, $scope)->getTransformedMethod();
-	}
+    public function getUnresolvedMethodPrototype(string $methodName, ClassMemberAccessAnswerer $scope): UnresolvedMethodPrototypeReflection
+    {
+        $method = new DummyMethodReflection($methodName);
+        return new CallbackUnresolvedMethodPrototypeReflection(
+            $method,
+            $method->getDeclaringClass(),
+            false,
+            static function (Type $type): Type {
+                return $type;
+            }
+        );
+    }
 
-	public function getUnresolvedMethodPrototype(string $methodName, ClassMemberAccessAnswerer $scope): UnresolvedMethodPrototypeReflection
-	{
-		$method = new DummyMethodReflection($methodName);
-		return new CallbackUnresolvedMethodPrototypeReflection(
-			$method,
-			$method->getDeclaringClass(),
-			false,
-			static function (Type $type): Type {
-				return $type;
-			}
-		);
-	}
+    public function canAccessConstants(): TrinaryLogic
+    {
+        return TrinaryLogic::createYes();
+    }
 
-	public function canAccessConstants(): TrinaryLogic
-	{
-		return TrinaryLogic::createYes();
-	}
+    public function hasConstant(string $constantName): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function hasConstant(string $constantName): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
+    public function getConstant(string $constantName): ConstantReflection
+    {
+        return new DummyConstantReflection($constantName);
+    }
 
-	public function getConstant(string $constantName): ConstantReflection
-	{
-		return new DummyConstantReflection($constantName);
-	}
+    public function isCloneable(): TrinaryLogic
+    {
+        return TrinaryLogic::createYes();
+    }
 
-	public function isCloneable(): TrinaryLogic
-	{
-		return TrinaryLogic::createYes();
-	}
+    public function isArray(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function isArray(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function isNumericString(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function isNumericString(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function toNumber(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toNumber(): Type
-	{
-		return new ErrorType();
-	}
+    public function toString(): Type
+    {
+        return new StringType();
+    }
 
-	public function toString(): Type
-	{
-		return new StringType();
-	}
+    public function toInteger(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toInteger(): Type
-	{
-		return new ErrorType();
-	}
+    public function toFloat(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toFloat(): Type
-	{
-		return new ErrorType();
-	}
-
-	public function toArray(): Type
-	{
-		return new ArrayType(new MixedType(), new MixedType());
-	}
-
+    public function toArray(): Type
+    {
+        return new ArrayType(new MixedType(), new MixedType());
+    }
 }

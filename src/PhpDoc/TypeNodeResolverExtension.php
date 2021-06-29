@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\PhpDoc;
 
@@ -8,9 +10,7 @@ use PHPStan\Type\Type;
 
 interface TypeNodeResolverExtension
 {
+    public const EXTENSION_TAG = 'phpstan.phpDoc.typeNodeResolverExtension';
 
-	public const EXTENSION_TAG = 'phpstan.phpDoc.typeNodeResolverExtension';
-
-	public function resolve(TypeNode $typeNode, NameScope $nameScope): ?Type;
-
+    public function resolve(TypeNode $typeNode, NameScope $nameScope): ?Type;
 }

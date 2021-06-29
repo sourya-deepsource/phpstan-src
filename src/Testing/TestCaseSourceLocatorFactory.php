@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Testing;
 
@@ -19,66 +21,63 @@ use PHPStan\Reflection\BetterReflection\SourceLocator\PhpVersionBlacklistSourceL
 
 class TestCaseSourceLocatorFactory
 {
+    private Container $container;
 
-	private Container $container;
+    private ComposerJsonAndInstalledJsonSourceLocatorMaker $composerJsonAndInstalledJsonSourceLocatorMaker;
 
-	private ComposerJsonAndInstalledJsonSourceLocatorMaker $composerJsonAndInstalledJsonSourceLocatorMaker;
+    private AutoloadSourceLocator $autoloadSourceLocator;
 
-	private AutoloadSourceLocator $autoloadSourceLocator;
+    private \PhpParser\Parser $phpParser;
 
-	private \PhpParser\Parser $phpParser;
+    private PhpStormStubsSourceStubber $phpstormStubsSourceStubber;
 
-	private PhpStormStubsSourceStubber $phpstormStubsSourceStubber;
+    private ReflectionSourceStubber $reflectionSourceStubber;
 
-	private ReflectionSourceStubber $reflectionSourceStubber;
+    public function __construct(
+        Container $container,
+        ComposerJsonAndInstalledJsonSourceLocatorMaker $composerJsonAndInstalledJsonSourceLocatorMaker,
+        AutoloadSourceLocator $autoloadSourceLocator,
+        \PhpParser\Parser $phpParser,
+        PhpStormStubsSourceStubber $phpstormStubsSourceStubber,
+        ReflectionSourceStubber $reflectionSourceStubber
+    ) {
+        $this->container = $container;
+        $this->composerJsonAndInstalledJsonSourceLocatorMaker = $composerJsonAndInstalledJsonSourceLocatorMaker;
+        $this->autoloadSourceLocator = $autoloadSourceLocator;
+        $this->phpParser = $phpParser;
+        $this->phpstormStubsSourceStubber = $phpstormStubsSourceStubber;
+        $this->reflectionSourceStubber = $reflectionSourceStubber;
+    }
 
-	public function __construct(
-		Container $container,
-		ComposerJsonAndInstalledJsonSourceLocatorMaker $composerJsonAndInstalledJsonSourceLocatorMaker,
-		AutoloadSourceLocator $autoloadSourceLocator,
-		\PhpParser\Parser $phpParser,
-		PhpStormStubsSourceStubber $phpstormStubsSourceStubber,
-		ReflectionSourceStubber $reflectionSourceStubber
-	)
-	{
-		$this->container = $container;
-		$this->composerJsonAndInstalledJsonSourceLocatorMaker = $composerJsonAndInstalledJsonSourceLocatorMaker;
-		$this->autoloadSourceLocator = $autoloadSourceLocator;
-		$this->phpParser = $phpParser;
-		$this->phpstormStubsSourceStubber = $phpstormStubsSourceStubber;
-		$this->reflectionSourceStubber = $reflectionSourceStubber;
-	}
+    public function create(): SourceLocator
+    {
+        $classLoaderReflection = new \ReflectionClass(ClassLoader::class);
+        if ($classLoaderReflection->getFileName() === false) {
+            throw new \PHPStan\ShouldNotHappenException('Unknown ClassLoader filename');
+        }
 
-	public function create(): SourceLocator
-	{
-		$classLoaderReflection = new \ReflectionClass(ClassLoader::class);
-		if ($classLoaderReflection->getFileName() === false) {
-			throw new \PHPStan\ShouldNotHappenException('Unknown ClassLoader filename');
-		}
+        $composerProjectPath = dirname($classLoaderReflection->getFileName(), 3);
+        if (!is_file($composerProjectPath . '/composer.json')) {
+            throw new \PHPStan\ShouldNotHappenException(sprintf('composer.json not found in directory %s', $composerProjectPath));
+        }
 
-		$composerProjectPath = dirname($classLoaderReflection->getFileName(), 3);
-		if (!is_file($composerProjectPath . '/composer.json')) {
-			throw new \PHPStan\ShouldNotHappenException(sprintf('composer.json not found in directory %s', $composerProjectPath));
-		}
+        $composerSourceLocator = $this->composerJsonAndInstalledJsonSourceLocatorMaker->create($composerProjectPath);
+        if ($composerSourceLocator === null) {
+            throw new \PHPStan\ShouldNotHappenException('Could not create composer source locator');
+        }
 
-		$composerSourceLocator = $this->composerJsonAndInstalledJsonSourceLocatorMaker->create($composerProjectPath);
-		if ($composerSourceLocator === null) {
-			throw new \PHPStan\ShouldNotHappenException('Could not create composer source locator');
-		}
+        $locators = [
+            $composerSourceLocator,
+        ];
+        $astLocator = new Locator($this->phpParser, function (): FunctionReflector {
+            return $this->container->getService('testCaseFunctionReflector');
+        });
 
-		$locators = [
-			$composerSourceLocator,
-		];
-		$astLocator = new Locator($this->phpParser, function (): FunctionReflector {
-			return $this->container->getService('testCaseFunctionReflector');
-		});
+        $locators[] = new PhpInternalSourceLocator($astLocator, $this->phpstormStubsSourceStubber);
+        $locators[] = $this->autoloadSourceLocator;
+        $locators[] = new PhpVersionBlacklistSourceLocator(new PhpInternalSourceLocator($astLocator, $this->reflectionSourceStubber), $this->phpstormStubsSourceStubber);
+        $locators[] = new PhpVersionBlacklistSourceLocator(new EvaledCodeSourceLocator($astLocator, $this->reflectionSourceStubber), $this->phpstormStubsSourceStubber);
 
-		$locators[] = new PhpInternalSourceLocator($astLocator, $this->phpstormStubsSourceStubber);
-		$locators[] = $this->autoloadSourceLocator;
-		$locators[] = new PhpVersionBlacklistSourceLocator(new PhpInternalSourceLocator($astLocator, $this->reflectionSourceStubber), $this->phpstormStubsSourceStubber);
-		$locators[] = new PhpVersionBlacklistSourceLocator(new EvaledCodeSourceLocator($astLocator, $this->reflectionSourceStubber), $this->phpstormStubsSourceStubber);
-
-		return new MemoizingSourceLocator(new AggregateSourceLocator($locators));
-	}
-
+        return new MemoizingSourceLocator(new AggregateSourceLocator($locators));
+    }
 }

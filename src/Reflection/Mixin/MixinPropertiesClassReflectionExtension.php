@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection\Mixin;
 
@@ -10,58 +12,56 @@ use PHPStan\Type\TypeUtils;
 
 class MixinPropertiesClassReflectionExtension implements PropertiesClassReflectionExtension
 {
+    /** @var string[] */
+    private array $mixinExcludeClasses;
 
-	/** @var string[] */
-	private array $mixinExcludeClasses;
+    /**
+     * @param string[] $mixinExcludeClasses
+     */
+    public function __construct(array $mixinExcludeClasses)
+    {
+        $this->mixinExcludeClasses = $mixinExcludeClasses;
+    }
 
-	/**
-	 * @param string[] $mixinExcludeClasses
-	 */
-	public function __construct(array $mixinExcludeClasses)
-	{
-		$this->mixinExcludeClasses = $mixinExcludeClasses;
-	}
+    public function hasProperty(ClassReflection $classReflection, string $propertyName): bool
+    {
+        return $this->findProperty($classReflection, $propertyName) !== null;
+    }
 
-	public function hasProperty(ClassReflection $classReflection, string $propertyName): bool
-	{
-		return $this->findProperty($classReflection, $propertyName) !== null;
-	}
+    public function getProperty(ClassReflection $classReflection, string $propertyName): PropertyReflection
+    {
+        $property = $this->findProperty($classReflection, $propertyName);
+        if ($property === null) {
+            throw new \PHPStan\ShouldNotHappenException();
+        }
 
-	public function getProperty(ClassReflection $classReflection, string $propertyName): PropertyReflection
-	{
-		$property = $this->findProperty($classReflection, $propertyName);
-		if ($property === null) {
-			throw new \PHPStan\ShouldNotHappenException();
-		}
+        return $property;
+    }
 
-		return $property;
-	}
+    private function findProperty(ClassReflection $classReflection, string $propertyName): ?PropertyReflection
+    {
+        $mixinTypes = $classReflection->getResolvedMixinTypes();
+        foreach ($mixinTypes as $type) {
+            if (count(array_intersect(TypeUtils::getDirectClassNames($type), $this->mixinExcludeClasses)) > 0) {
+                continue;
+            }
 
-	private function findProperty(ClassReflection $classReflection, string $propertyName): ?PropertyReflection
-	{
-		$mixinTypes = $classReflection->getResolvedMixinTypes();
-		foreach ($mixinTypes as $type) {
-			if (count(array_intersect(TypeUtils::getDirectClassNames($type), $this->mixinExcludeClasses)) > 0) {
-				continue;
-			}
+            if (!$type->hasProperty($propertyName)->yes()) {
+                continue;
+            }
 
-			if (!$type->hasProperty($propertyName)->yes()) {
-				continue;
-			}
+            return $type->getProperty($propertyName, new OutOfClassScope());
+        }
 
-			return $type->getProperty($propertyName, new OutOfClassScope());
-		}
+        foreach ($classReflection->getParents() as $parentClass) {
+            $property = $this->findProperty($parentClass, $propertyName);
+            if ($property === null) {
+                continue;
+            }
 
-		foreach ($classReflection->getParents() as $parentClass) {
-			$property = $this->findProperty($parentClass, $propertyName);
-			if ($property === null) {
-				continue;
-			}
+            return $property;
+        }
 
-			return $property;
-		}
-
-		return null;
-	}
-
+        return null;
+    }
 }

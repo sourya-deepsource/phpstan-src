@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\DependencyInjection\Reflection;
 
@@ -12,50 +14,47 @@ use PHPStan\Reflection\PropertiesClassReflectionExtension;
  */
 class DirectClassReflectionExtensionRegistryProvider implements ClassReflectionExtensionRegistryProvider
 {
+    /** @var \PHPStan\Reflection\PropertiesClassReflectionExtension[] */
+    private array $propertiesClassReflectionExtensions;
 
-	/** @var \PHPStan\Reflection\PropertiesClassReflectionExtension[] */
-	private array $propertiesClassReflectionExtensions;
+    /** @var \PHPStan\Reflection\MethodsClassReflectionExtension[] */
+    private array $methodsClassReflectionExtensions;
 
-	/** @var \PHPStan\Reflection\MethodsClassReflectionExtension[] */
-	private array $methodsClassReflectionExtensions;
+    private Broker $broker;
 
-	private Broker $broker;
+    /**
+     * @param \PHPStan\Reflection\PropertiesClassReflectionExtension[] $propertiesClassReflectionExtensions
+     * @param \PHPStan\Reflection\MethodsClassReflectionExtension[] $methodsClassReflectionExtensions
+     */
+    public function __construct(
+        array $propertiesClassReflectionExtensions,
+        array $methodsClassReflectionExtensions
+    ) {
+        $this->propertiesClassReflectionExtensions = $propertiesClassReflectionExtensions;
+        $this->methodsClassReflectionExtensions = $methodsClassReflectionExtensions;
+    }
 
-	/**
-	 * @param \PHPStan\Reflection\PropertiesClassReflectionExtension[] $propertiesClassReflectionExtensions
-	 * @param \PHPStan\Reflection\MethodsClassReflectionExtension[] $methodsClassReflectionExtensions
-	 */
-	public function __construct(
-		array $propertiesClassReflectionExtensions,
-		array $methodsClassReflectionExtensions
-	)
-	{
-		$this->propertiesClassReflectionExtensions = $propertiesClassReflectionExtensions;
-		$this->methodsClassReflectionExtensions = $methodsClassReflectionExtensions;
-	}
+    public function setBroker(Broker $broker): void
+    {
+        $this->broker = $broker;
+    }
 
-	public function setBroker(Broker $broker): void
-	{
-		$this->broker = $broker;
-	}
+    public function addPropertiesClassReflectionExtension(PropertiesClassReflectionExtension $extension): void
+    {
+        $this->propertiesClassReflectionExtensions[] = $extension;
+    }
 
-	public function addPropertiesClassReflectionExtension(PropertiesClassReflectionExtension $extension): void
-	{
-		$this->propertiesClassReflectionExtensions[] = $extension;
-	}
+    public function addMethodsClassReflectionExtension(MethodsClassReflectionExtension $extension): void
+    {
+        $this->methodsClassReflectionExtensions[] = $extension;
+    }
 
-	public function addMethodsClassReflectionExtension(MethodsClassReflectionExtension $extension): void
-	{
-		$this->methodsClassReflectionExtensions[] = $extension;
-	}
-
-	public function getRegistry(): ClassReflectionExtensionRegistry
-	{
-		return new ClassReflectionExtensionRegistry(
-			$this->broker,
-			$this->propertiesClassReflectionExtensions,
-			$this->methodsClassReflectionExtensions
-		);
-	}
-
+    public function getRegistry(): ClassReflectionExtensionRegistry
+    {
+        return new ClassReflectionExtensionRegistry(
+            $this->broker,
+            $this->propertiesClassReflectionExtensions,
+            $this->methodsClassReflectionExtensions
+        );
+    }
 }

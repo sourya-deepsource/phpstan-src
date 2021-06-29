@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Exceptions;
 
@@ -14,19 +16,17 @@ use PHPStan\Type\VerbosityLevel;
  */
 class CatchWithUnthrownExceptionRule implements Rule
 {
+    public function getNodeType(): string
+    {
+        return CatchWithUnthrownExceptionNode::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return CatchWithUnthrownExceptionNode::class;
-	}
-
-	public function processNode(Node $node, Scope $scope): array
-	{
-		return [
-			RuleErrorBuilder::message(
-				sprintf('Dead catch - %s is never thrown in the try block.', $node->getCaughtType()->describe(VerbosityLevel::typeOnly()))
-			)->line($node->getLine())->build(),
-		];
-	}
-
+    public function processNode(Node $node, Scope $scope): array
+    {
+        return [
+            RuleErrorBuilder::message(
+                sprintf('Dead catch - %s is never thrown in the try block.', $node->getCaughtType()->describe(VerbosityLevel::typeOnly()))
+            )->line($node->getLine())->build(),
+        ];
+    }
 }

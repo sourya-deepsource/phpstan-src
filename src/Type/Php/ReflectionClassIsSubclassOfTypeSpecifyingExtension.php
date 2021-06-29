@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -16,42 +18,40 @@ use PHPStan\Type\ObjectType;
 
 class ReflectionClassIsSubclassOfTypeSpecifyingExtension implements MethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
+    private TypeSpecifier $typeSpecifier;
 
-	private TypeSpecifier $typeSpecifier;
+    public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
+    {
+        $this->typeSpecifier = $typeSpecifier;
+    }
 
-	public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
-	{
-		$this->typeSpecifier = $typeSpecifier;
-	}
+    public function getClass(): string
+    {
+        return \ReflectionClass::class;
+    }
 
-	public function getClass(): string
-	{
-		return \ReflectionClass::class;
-	}
+    public function isMethodSupported(MethodReflection $methodReflection, MethodCall $node, TypeSpecifierContext $context): bool
+    {
+        return $methodReflection->getName() === 'isSubclassOf'
+            && isset($node->args[0])
+            && $context->true();
+    }
 
-	public function isMethodSupported(MethodReflection $methodReflection, MethodCall $node, TypeSpecifierContext $context): bool
-	{
-		return $methodReflection->getName() === 'isSubclassOf'
-			&& isset($node->args[0])
-			&& $context->true();
-	}
+    public function specifyTypes(MethodReflection $methodReflection, MethodCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
+    {
+        $valueType = $scope->getType($node->args[0]->value);
+        if (!$valueType instanceof ConstantStringType) {
+            return new SpecifiedTypes([], []);
+        }
 
-	public function specifyTypes(MethodReflection $methodReflection, MethodCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
-	{
-		$valueType = $scope->getType($node->args[0]->value);
-		if (!$valueType instanceof ConstantStringType) {
-			return new SpecifiedTypes([], []);
-		}
-
-		return $this->typeSpecifier->create(
-			$node->var,
-			new GenericObjectType(\ReflectionClass::class, [
-				new ObjectType($valueType->getValue()),
-			]),
-			$context,
-			false,
-			$scope
-		);
-	}
-
+        return $this->typeSpecifier->create(
+            $node->var,
+            new GenericObjectType(\ReflectionClass::class, [
+                new ObjectType($valueType->getValue()),
+            ]),
+            $context,
+            false,
+            $scope
+        );
+    }
 }

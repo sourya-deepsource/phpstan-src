@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -25,195 +27,192 @@ use PHPStan\Type\UnionType;
 
 class FilterVarDynamicReturnTypeExtension implements DynamicFunctionReturnTypeExtension
 {
+    private ReflectionProvider $reflectionProvider;
 
-	private ReflectionProvider $reflectionProvider;
+    private ConstantStringType $flagsString;
 
-	private ConstantStringType $flagsString;
+    /** @var array<int, Type>|null */
+    private ?array $filterTypeMap = null;
 
-	/** @var array<int, Type>|null */
-	private ?array $filterTypeMap = null;
+    public function __construct(ReflectionProvider $reflectionProvider)
+    {
+        $this->reflectionProvider = $reflectionProvider;
 
-	public function __construct(ReflectionProvider $reflectionProvider)
-	{
-		$this->reflectionProvider = $reflectionProvider;
+        $this->flagsString = new ConstantStringType('flags');
+    }
 
-		$this->flagsString = new ConstantStringType('flags');
-	}
+    /**
+     * @return array<int, Type>
+     */
+    private function getFilterTypeMap(): array
+    {
+        if ($this->filterTypeMap !== null) {
+            return $this->filterTypeMap;
+        }
 
-	/**
-	 * @return array<int, Type>
-	 */
-	private function getFilterTypeMap(): array
-	{
-		if ($this->filterTypeMap !== null) {
-			return $this->filterTypeMap;
-		}
+        $booleanType = new BooleanType();
+        $floatType = new FloatType();
+        $intType = new IntegerType();
+        $stringType = new StringType();
 
-		$booleanType = new BooleanType();
-		$floatType = new FloatType();
-		$intType = new IntegerType();
-		$stringType = new StringType();
+        $this->filterTypeMap = [
+            $this->getConstant('FILTER_UNSAFE_RAW') => $stringType,
+            $this->getConstant('FILTER_SANITIZE_EMAIL') => $stringType,
+            $this->getConstant('FILTER_SANITIZE_ENCODED') => $stringType,
+            $this->getConstant('FILTER_SANITIZE_NUMBER_FLOAT') => $stringType,
+            $this->getConstant('FILTER_SANITIZE_NUMBER_INT') => $stringType,
+            $this->getConstant('FILTER_SANITIZE_SPECIAL_CHARS') => $stringType,
+            $this->getConstant('FILTER_SANITIZE_STRING') => $stringType,
+            $this->getConstant('FILTER_SANITIZE_URL') => $stringType,
+            $this->getConstant('FILTER_VALIDATE_BOOLEAN') => $booleanType,
+            $this->getConstant('FILTER_VALIDATE_EMAIL') => $stringType,
+            $this->getConstant('FILTER_VALIDATE_FLOAT') => $floatType,
+            $this->getConstant('FILTER_VALIDATE_INT') => $intType,
+            $this->getConstant('FILTER_VALIDATE_IP') => $stringType,
+            $this->getConstant('FILTER_VALIDATE_MAC') => $stringType,
+            $this->getConstant('FILTER_VALIDATE_REGEXP') => $stringType,
+            $this->getConstant('FILTER_VALIDATE_URL') => $stringType,
+        ];
 
-		$this->filterTypeMap = [
-			$this->getConstant('FILTER_UNSAFE_RAW') => $stringType,
-			$this->getConstant('FILTER_SANITIZE_EMAIL') => $stringType,
-			$this->getConstant('FILTER_SANITIZE_ENCODED') => $stringType,
-			$this->getConstant('FILTER_SANITIZE_NUMBER_FLOAT') => $stringType,
-			$this->getConstant('FILTER_SANITIZE_NUMBER_INT') => $stringType,
-			$this->getConstant('FILTER_SANITIZE_SPECIAL_CHARS') => $stringType,
-			$this->getConstant('FILTER_SANITIZE_STRING') => $stringType,
-			$this->getConstant('FILTER_SANITIZE_URL') => $stringType,
-			$this->getConstant('FILTER_VALIDATE_BOOLEAN') => $booleanType,
-			$this->getConstant('FILTER_VALIDATE_EMAIL') => $stringType,
-			$this->getConstant('FILTER_VALIDATE_FLOAT') => $floatType,
-			$this->getConstant('FILTER_VALIDATE_INT') => $intType,
-			$this->getConstant('FILTER_VALIDATE_IP') => $stringType,
-			$this->getConstant('FILTER_VALIDATE_MAC') => $stringType,
-			$this->getConstant('FILTER_VALIDATE_REGEXP') => $stringType,
-			$this->getConstant('FILTER_VALIDATE_URL') => $stringType,
-		];
+        if ($this->reflectionProvider->hasConstant(new Node\Name('FILTER_SANITIZE_MAGIC_QUOTES'), null)) {
+            $this->filterTypeMap[$this->getConstant('FILTER_SANITIZE_MAGIC_QUOTES')] = $stringType;
+        }
 
-		if ($this->reflectionProvider->hasConstant(new Node\Name('FILTER_SANITIZE_MAGIC_QUOTES'), null)) {
-			$this->filterTypeMap[$this->getConstant('FILTER_SANITIZE_MAGIC_QUOTES')] = $stringType;
-		}
+        if ($this->reflectionProvider->hasConstant(new Node\Name('FILTER_SANITIZE_ADD_SLASHES'), null)) {
+            $this->filterTypeMap[$this->getConstant('FILTER_SANITIZE_ADD_SLASHES')] = $stringType;
+        }
 
-		if ($this->reflectionProvider->hasConstant(new Node\Name('FILTER_SANITIZE_ADD_SLASHES'), null)) {
-			$this->filterTypeMap[$this->getConstant('FILTER_SANITIZE_ADD_SLASHES')] = $stringType;
-		}
+        return $this->filterTypeMap;
+    }
 
-		return $this->filterTypeMap;
-	}
+    private function getConstant(string $constantName): int
+    {
+        $constant = $this->reflectionProvider->getConstant(new Node\Name($constantName), null);
+        $valueType = $constant->getValueType();
+        if (!$valueType instanceof ConstantIntegerType) {
+            throw new \PHPStan\ShouldNotHappenException(sprintf('Constant %s does not have integer type.', $constantName));
+        }
 
-	private function getConstant(string $constantName): int
-	{
-		$constant = $this->reflectionProvider->getConstant(new Node\Name($constantName), null);
-		$valueType = $constant->getValueType();
-		if (!$valueType instanceof ConstantIntegerType) {
-			throw new \PHPStan\ShouldNotHappenException(sprintf('Constant %s does not have integer type.', $constantName));
-		}
+        return $valueType->getValue();
+    }
 
-		return $valueType->getValue();
-	}
+    public function isFunctionSupported(FunctionReflection $functionReflection): bool
+    {
+        return strtolower($functionReflection->getName()) === 'filter_var';
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection): bool
-	{
-		return strtolower($functionReflection->getName()) === 'filter_var';
-	}
+    public function getTypeFromFunctionCall(
+        FunctionReflection $functionReflection,
+        FuncCall $functionCall,
+        Scope $scope
+    ): Type {
+        $mixedType = new MixedType();
 
-	public function getTypeFromFunctionCall(
-		FunctionReflection $functionReflection,
-		FuncCall $functionCall,
-		Scope $scope
-	): Type
-	{
-		$mixedType = new MixedType();
+        $filterArg = $functionCall->args[1] ?? null;
+        if ($filterArg === null) {
+            $filterValue = $this->getConstant('FILTER_DEFAULT');
+        } else {
+            $filterType = $scope->getType($filterArg->value);
+            if (!$filterType instanceof ConstantIntegerType) {
+                return $mixedType;
+            }
+            $filterValue = $filterType->getValue();
+        }
 
-		$filterArg = $functionCall->args[1] ?? null;
-		if ($filterArg === null) {
-			$filterValue = $this->getConstant('FILTER_DEFAULT');
-		} else {
-			$filterType = $scope->getType($filterArg->value);
-			if (!$filterType instanceof ConstantIntegerType) {
-				return $mixedType;
-			}
-			$filterValue = $filterType->getValue();
-		}
+        $flagsArg = $functionCall->args[2] ?? null;
+        $inputType = $scope->getType($functionCall->args[0]->value);
+        $exactType = $this->determineExactType($inputType, $filterValue);
+        if ($exactType !== null) {
+            $type = $exactType;
+        } else {
+            $type = $this->getFilterTypeMap()[$filterValue] ?? $mixedType;
+            $otherType = $this->getOtherType($flagsArg, $scope);
 
-		$flagsArg = $functionCall->args[2] ?? null;
-		$inputType = $scope->getType($functionCall->args[0]->value);
-		$exactType = $this->determineExactType($inputType, $filterValue);
-		if ($exactType !== null) {
-			$type = $exactType;
-		} else {
-			$type = $this->getFilterTypeMap()[$filterValue] ?? $mixedType;
-			$otherType = $this->getOtherType($flagsArg, $scope);
+            if ($otherType->isSuperTypeOf($type)->no()) {
+                $type = new UnionType([$type, $otherType]);
+            }
+        }
 
-			if ($otherType->isSuperTypeOf($type)->no()) {
-				$type = new UnionType([$type, $otherType]);
-			}
-		}
+        if ($this->hasFlag($this->getConstant('FILTER_FORCE_ARRAY'), $flagsArg, $scope)) {
+            return new ArrayType(new MixedType(), $type);
+        }
 
-		if ($this->hasFlag($this->getConstant('FILTER_FORCE_ARRAY'), $flagsArg, $scope)) {
-			return new ArrayType(new MixedType(), $type);
-		}
-
-		return $type;
-	}
+        return $type;
+    }
 
 
-	private function determineExactType(Type $in, int $filterValue): ?Type
-	{
-		if (($filterValue === $this->getConstant('FILTER_VALIDATE_BOOLEAN') && $in instanceof BooleanType)
-			|| ($filterValue === $this->getConstant('FILTER_VALIDATE_INT') && $in instanceof IntegerType)
-			|| ($filterValue === $this->getConstant('FILTER_VALIDATE_FLOAT') && $in instanceof FloatType)) {
-			return $in;
-		}
+    private function determineExactType(Type $in, int $filterValue): ?Type
+    {
+        if (($filterValue === $this->getConstant('FILTER_VALIDATE_BOOLEAN') && $in instanceof BooleanType)
+            || ($filterValue === $this->getConstant('FILTER_VALIDATE_INT') && $in instanceof IntegerType)
+            || ($filterValue === $this->getConstant('FILTER_VALIDATE_FLOAT') && $in instanceof FloatType)) {
+            return $in;
+        }
 
-		if ($filterValue === $this->getConstant('FILTER_VALIDATE_FLOAT') && $in instanceof IntegerType) {
-			return $in->toFloat();
-		}
+        if ($filterValue === $this->getConstant('FILTER_VALIDATE_FLOAT') && $in instanceof IntegerType) {
+            return $in->toFloat();
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	private function getOtherType(?Node\Arg $flagsArg, Scope $scope): Type
-	{
-		$falseType = new ConstantBooleanType(false);
-		if ($flagsArg === null) {
-			return $falseType;
-		}
+    private function getOtherType(?Node\Arg $flagsArg, Scope $scope): Type
+    {
+        $falseType = new ConstantBooleanType(false);
+        if ($flagsArg === null) {
+            return $falseType;
+        }
 
-		$defaultType = $this->getDefault($flagsArg, $scope);
-		if ($defaultType !== null) {
-			return $defaultType;
-		}
+        $defaultType = $this->getDefault($flagsArg, $scope);
+        if ($defaultType !== null) {
+            return $defaultType;
+        }
 
-		if ($this->hasFlag($this->getConstant('FILTER_NULL_ON_FAILURE'), $flagsArg, $scope)) {
-			return new NullType();
-		}
+        if ($this->hasFlag($this->getConstant('FILTER_NULL_ON_FAILURE'), $flagsArg, $scope)) {
+            return new NullType();
+        }
 
-		return $falseType;
-	}
+        return $falseType;
+    }
 
-	private function getDefault(Node\Arg $expression, Scope $scope): ?Type
-	{
-		$exprType = $scope->getType($expression->value);
-		if (!$exprType instanceof ConstantArrayType) {
-			return null;
-		}
+    private function getDefault(Node\Arg $expression, Scope $scope): ?Type
+    {
+        $exprType = $scope->getType($expression->value);
+        if (!$exprType instanceof ConstantArrayType) {
+            return null;
+        }
 
-		$optionsType = $exprType->getOffsetValueType(new ConstantStringType('options'));
-		if (!$optionsType instanceof ConstantArrayType) {
-			return null;
-		}
+        $optionsType = $exprType->getOffsetValueType(new ConstantStringType('options'));
+        if (!$optionsType instanceof ConstantArrayType) {
+            return null;
+        }
 
-		$defaultType = $optionsType->getOffsetValueType(new ConstantStringType('default'));
-		if (!$defaultType instanceof ErrorType) {
-			return $defaultType;
-		}
+        $defaultType = $optionsType->getOffsetValueType(new ConstantStringType('default'));
+        if (!$defaultType instanceof ErrorType) {
+            return $defaultType;
+        }
 
-		return null;
-	}
+        return null;
+    }
 
 
-	private function hasFlag(int $flag, ?Node\Arg $expression, Scope $scope): bool
-	{
-		if ($expression === null) {
-			return false;
-		}
+    private function hasFlag(int $flag, ?Node\Arg $expression, Scope $scope): bool
+    {
+        if ($expression === null) {
+            return false;
+        }
 
-		$type = $this->getFlagsValue($scope->getType($expression->value));
+        $type = $this->getFlagsValue($scope->getType($expression->value));
 
-		return $type instanceof ConstantIntegerType && ($type->getValue() & $flag) === $flag;
-	}
+        return $type instanceof ConstantIntegerType && ($type->getValue() & $flag) === $flag;
+    }
 
-	private function getFlagsValue(Type $exprType): Type
-	{
-		if (!$exprType instanceof ConstantArrayType) {
-			return $exprType;
-		}
+    private function getFlagsValue(Type $exprType): Type
+    {
+        if (!$exprType instanceof ConstantArrayType) {
+            return $exprType;
+        }
 
-		return $exprType->getOffsetValueType($this->flagsString);
-	}
-
+        return $exprType->getOffsetValueType($this->flagsString);
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type;
 
@@ -13,102 +15,100 @@ use PHPStan\Type\Traits\UndecidedComparisonTypeTrait;
 
 class VoidType implements Type
 {
+    use NonCallableTypeTrait;
+    use NonIterableTypeTrait;
+    use NonObjectTypeTrait;
+    use NonOffsetAccessibleTypeTrait;
+    use FalseyBooleanTypeTrait;
+    use NonGenericTypeTrait;
+    use UndecidedComparisonTypeTrait;
 
-	use NonCallableTypeTrait;
-	use NonIterableTypeTrait;
-	use NonObjectTypeTrait;
-	use NonOffsetAccessibleTypeTrait;
-	use FalseyBooleanTypeTrait;
-	use NonGenericTypeTrait;
-	use UndecidedComparisonTypeTrait;
+    /**
+     * @return string[]
+     */
+    public function getReferencedClasses(): array
+    {
+        return [];
+    }
 
-	/**
-	 * @return string[]
-	 */
-	public function getReferencedClasses(): array
-	{
-		return [];
-	}
+    public function accepts(Type $type, bool $strictTypes): TrinaryLogic
+    {
+        if ($type instanceof CompoundType) {
+            return $type->isAcceptedBy($this, $strictTypes);
+        }
 
-	public function accepts(Type $type, bool $strictTypes): TrinaryLogic
-	{
-		if ($type instanceof CompoundType) {
-			return $type->isAcceptedBy($this, $strictTypes);
-		}
+        return TrinaryLogic::createFromBoolean($type instanceof self);
+    }
 
-		return TrinaryLogic::createFromBoolean($type instanceof self);
-	}
+    public function isSuperTypeOf(Type $type): TrinaryLogic
+    {
+        if ($type instanceof self) {
+            return TrinaryLogic::createYes();
+        }
 
-	public function isSuperTypeOf(Type $type): TrinaryLogic
-	{
-		if ($type instanceof self) {
-			return TrinaryLogic::createYes();
-		}
+        if ($type instanceof CompoundType) {
+            return $type->isSubTypeOf($this);
+        }
 
-		if ($type instanceof CompoundType) {
-			return $type->isSubTypeOf($this);
-		}
+        return TrinaryLogic::createNo();
+    }
 
-		return TrinaryLogic::createNo();
-	}
+    public function equals(Type $type): bool
+    {
+        return $type instanceof self;
+    }
 
-	public function equals(Type $type): bool
-	{
-		return $type instanceof self;
-	}
+    public function describe(VerbosityLevel $level): string
+    {
+        return 'void';
+    }
 
-	public function describe(VerbosityLevel $level): string
-	{
-		return 'void';
-	}
+    public function toNumber(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toNumber(): Type
-	{
-		return new ErrorType();
-	}
+    public function toString(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toString(): Type
-	{
-		return new ErrorType();
-	}
+    public function toInteger(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toInteger(): Type
-	{
-		return new ErrorType();
-	}
+    public function toFloat(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toFloat(): Type
-	{
-		return new ErrorType();
-	}
+    public function toArray(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toArray(): Type
-	{
-		return new ErrorType();
-	}
+    public function isArray(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function isArray(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function isNumericString(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function isNumericString(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function traverse(callable $cb): Type
+    {
+        return $this;
+    }
 
-	public function traverse(callable $cb): Type
-	{
-		return $this;
-	}
-
-	/**
-	 * @param mixed[] $properties
-	 * @return Type
-	 */
-	public static function __set_state(array $properties): Type
-	{
-		return new self();
-	}
-
+    /**
+     * @param mixed[] $properties
+     * @return Type
+     */
+    public static function __set_state(array $properties): Type
+    {
+        return new self();
+    }
 }

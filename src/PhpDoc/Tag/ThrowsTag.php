@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\PhpDoc\Tag;
 
@@ -6,17 +8,15 @@ use PHPStan\Type\Type;
 
 class ThrowsTag
 {
+    private \PHPStan\Type\Type $type;
 
-	private \PHPStan\Type\Type $type;
+    public function __construct(Type $type)
+    {
+        $this->type = $type;
+    }
 
-	public function __construct(Type $type)
-	{
-		$this->type = $type;
-	}
-
-	public function getType(): Type
-	{
-		return $this->type;
-	}
-
+    public function getType(): Type
+    {
+        return $this->type;
+    }
 }

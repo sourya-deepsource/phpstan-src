@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection\ReflectionProvider;
 
@@ -7,17 +9,15 @@ use PHPStan\Reflection\ReflectionProvider;
 
 class LazyReflectionProviderProvider implements ReflectionProviderProvider
 {
+    private Container $container;
 
-	private Container $container;
+    public function __construct(Container $container)
+    {
+        $this->container = $container;
+    }
 
-	public function __construct(Container $container)
-	{
-		$this->container = $container;
-	}
-
-	public function getReflectionProvider(): ReflectionProvider
-	{
-		return $this->container->getByType(ReflectionProvider::class);
-	}
-
+    public function getReflectionProvider(): ReflectionProvider
+    {
+        return $this->container->getByType(ReflectionProvider::class);
+    }
 }

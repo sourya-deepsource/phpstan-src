@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -22,47 +24,45 @@ use PHPStan\Type\UnionType;
 
 class GetClassDynamicReturnTypeExtension implements DynamicFunctionReturnTypeExtension
 {
+    public function isFunctionSupported(FunctionReflection $functionReflection): bool
+    {
+        return $functionReflection->getName() === 'get_class';
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection): bool
-	{
-		return $functionReflection->getName() === 'get_class';
-	}
+    public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
+    {
+        $args = $functionCall->args;
+        if (count($args) === 0) {
+            if ($scope->isInClass()) {
+                return new ConstantStringType($scope->getClassReflection()->getName(), true);
+            }
 
-	public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
-	{
-		$args = $functionCall->args;
-		if (count($args) === 0) {
-			if ($scope->isInClass()) {
-				return new ConstantStringType($scope->getClassReflection()->getName(), true);
-			}
+            return new ConstantBooleanType(false);
+        }
 
-			return new ConstantBooleanType(false);
-		}
+        $argType = $scope->getType($args[0]->value);
 
-		$argType = $scope->getType($args[0]->value);
+        return TypeTraverser::map(
+            $argType,
+            static function (Type $type, callable $traverse): Type {
+                if ($type instanceof UnionType || $type instanceof IntersectionType) {
+                    return $traverse($type);
+                }
 
-		return TypeTraverser::map(
-			$argType,
-			static function (Type $type, callable $traverse): Type {
-				if ($type instanceof UnionType || $type instanceof IntersectionType) {
-					return $traverse($type);
-				}
+                if ($type instanceof TemplateType && !$type instanceof TypeWithClassName) {
+                    return new GenericClassStringType($type);
+                } elseif ($type instanceof MixedType) {
+                    return new ClassStringType();
+                } elseif ($type instanceof StaticType) {
+                    return new GenericClassStringType($type->getStaticObjectType());
+                } elseif ($type instanceof TypeWithClassName) {
+                    return new GenericClassStringType($type);
+                } elseif ($type instanceof ObjectWithoutClassType) {
+                    return new ClassStringType();
+                }
 
-				if ($type instanceof TemplateType && !$type instanceof TypeWithClassName) {
-					return new GenericClassStringType($type);
-				} elseif ($type instanceof MixedType) {
-					return new ClassStringType();
-				} elseif ($type instanceof StaticType) {
-					return new GenericClassStringType($type->getStaticObjectType());
-				} elseif ($type instanceof TypeWithClassName) {
-					return new GenericClassStringType($type);
-				} elseif ($type instanceof ObjectWithoutClassType) {
-					return new ClassStringType();
-				}
-
-				return new ConstantBooleanType(false);
-			}
-		);
-	}
-
+                return new ConstantBooleanType(false);
+            }
+        );
+    }
 }

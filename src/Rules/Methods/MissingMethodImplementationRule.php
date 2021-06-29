@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Methods;
 
@@ -14,46 +16,44 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class MissingMethodImplementationRule implements Rule
 {
+    public function getNodeType(): string
+    {
+        return InClassNode::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return InClassNode::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $classReflection = $node->getClassReflection();
+        if ($classReflection->isInterface()) {
+            return [];
+        }
+        if ($classReflection->isAbstract()) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		$classReflection = $node->getClassReflection();
-		if ($classReflection->isInterface()) {
-			return [];
-		}
-		if ($classReflection->isAbstract()) {
-			return [];
-		}
+        $messages = [];
 
-		$messages = [];
+        try {
+            $nativeMethods = $classReflection->getNativeReflection()->getMethods();
+        } catch (IdentifierNotFound $e) {
+            return [];
+        }
+        foreach ($nativeMethods as $method) {
+            if (!$method->isAbstract()) {
+                continue;
+            }
 
-		try {
-			$nativeMethods = $classReflection->getNativeReflection()->getMethods();
-		} catch (IdentifierNotFound $e) {
-			return [];
-		}
-		foreach ($nativeMethods as $method) {
-			if (!$method->isAbstract()) {
-				continue;
-			}
+            $declaringClass = $method->getDeclaringClass();
 
-			$declaringClass = $method->getDeclaringClass();
+            $messages[] = RuleErrorBuilder::message(sprintf(
+                'Non-abstract class %s contains abstract method %s() from %s %s.',
+                $classReflection->getDisplayName(),
+                $method->getName(),
+                $declaringClass->isInterface() ? 'interface' : 'class',
+                $declaringClass->getName()
+            ))->nonIgnorable()->build();
+        }
 
-			$messages[] = RuleErrorBuilder::message(sprintf(
-				'Non-abstract class %s contains abstract method %s() from %s %s.',
-				$classReflection->getDisplayName(),
-				$method->getName(),
-				$declaringClass->isInterface() ? 'interface' : 'class',
-				$declaringClass->getName()
-			))->nonIgnorable()->build();
-		}
-
-		return $messages;
-	}
-
+        return $messages;
+    }
 }

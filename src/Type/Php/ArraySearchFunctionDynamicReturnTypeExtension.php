@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -21,143 +23,141 @@ use PHPStan\Type\UnionType;
 
 final class ArraySearchFunctionDynamicReturnTypeExtension implements DynamicFunctionReturnTypeExtension
 {
+    public function isFunctionSupported(FunctionReflection $functionReflection): bool
+    {
+        return $functionReflection->getName() === 'array_search';
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection): bool
-	{
-		return $functionReflection->getName() === 'array_search';
-	}
+    public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
+    {
+        $argsCount = count($functionCall->args);
+        if ($argsCount < 2) {
+            return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
+        }
 
-	public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
-	{
-		$argsCount = count($functionCall->args);
-		if ($argsCount < 2) {
-			return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
-		}
+        $haystackArgType = $scope->getType($functionCall->args[1]->value);
+        $haystackIsArray = (new ArrayType(new MixedType(), new MixedType()))->isSuperTypeOf($haystackArgType);
+        if ($haystackIsArray->no()) {
+            return new NullType();
+        }
 
-		$haystackArgType = $scope->getType($functionCall->args[1]->value);
-		$haystackIsArray = (new ArrayType(new MixedType(), new MixedType()))->isSuperTypeOf($haystackArgType);
-		if ($haystackIsArray->no()) {
-			return new NullType();
-		}
+        if ($argsCount < 3) {
+            return TypeCombinator::union($haystackArgType->getIterableKeyType(), new ConstantBooleanType(false));
+        }
 
-		if ($argsCount < 3) {
-			return TypeCombinator::union($haystackArgType->getIterableKeyType(), new ConstantBooleanType(false));
-		}
+        $strictArgType = $scope->getType($functionCall->args[2]->value);
+        if (!($strictArgType instanceof ConstantBooleanType)) {
+            return TypeCombinator::union($haystackArgType->getIterableKeyType(), new ConstantBooleanType(false), new NullType());
+        } elseif ($strictArgType->getValue() === false) {
+            return TypeCombinator::union($haystackArgType->getIterableKeyType(), new ConstantBooleanType(false));
+        }
 
-		$strictArgType = $scope->getType($functionCall->args[2]->value);
-		if (!($strictArgType instanceof ConstantBooleanType)) {
-			return TypeCombinator::union($haystackArgType->getIterableKeyType(), new ConstantBooleanType(false), new NullType());
-		} elseif ($strictArgType->getValue() === false) {
-			return TypeCombinator::union($haystackArgType->getIterableKeyType(), new ConstantBooleanType(false));
-		}
+        $needleArgType = $scope->getType($functionCall->args[0]->value);
+        if ($haystackArgType->getIterableValueType()->isSuperTypeOf($needleArgType)->no()) {
+            return new ConstantBooleanType(false);
+        }
 
-		$needleArgType = $scope->getType($functionCall->args[0]->value);
-		if ($haystackArgType->getIterableValueType()->isSuperTypeOf($needleArgType)->no()) {
-			return new ConstantBooleanType(false);
-		}
+        $typesFromConstantArrays = [];
+        if ($haystackIsArray->maybe()) {
+            $typesFromConstantArrays[] = new NullType();
+        }
 
-		$typesFromConstantArrays = [];
-		if ($haystackIsArray->maybe()) {
-			$typesFromConstantArrays[] = new NullType();
-		}
+        $haystackArrays = $this->pickArrays($haystackArgType);
+        if (count($haystackArrays) === 0) {
+            return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
+        }
 
-		$haystackArrays = $this->pickArrays($haystackArgType);
-		if (count($haystackArrays) === 0) {
-			return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
-		}
+        $arrays = [];
+        $typesFromConstantArraysCount = 0;
+        foreach ($haystackArrays as $haystackArray) {
+            if (!$haystackArray instanceof ConstantArrayType) {
+                $arrays[] = $haystackArray;
+                continue;
+            }
 
-		$arrays = [];
-		$typesFromConstantArraysCount = 0;
-		foreach ($haystackArrays as $haystackArray) {
-			if (!$haystackArray instanceof ConstantArrayType) {
-				$arrays[] = $haystackArray;
-				continue;
-			}
+            $typesFromConstantArrays[] = $this->resolveTypeFromConstantHaystackAndNeedle($needleArgType, $haystackArray);
+            $typesFromConstantArraysCount++;
+        }
 
-			$typesFromConstantArrays[] = $this->resolveTypeFromConstantHaystackAndNeedle($needleArgType, $haystackArray);
-			$typesFromConstantArraysCount++;
-		}
+        if (
+            $typesFromConstantArraysCount > 0
+            && count($haystackArrays) === $typesFromConstantArraysCount
+        ) {
+            return TypeCombinator::union(...$typesFromConstantArrays);
+        }
 
-		if (
-			$typesFromConstantArraysCount > 0
-			&& count($haystackArrays) === $typesFromConstantArraysCount
-		) {
-			return TypeCombinator::union(...$typesFromConstantArrays);
-		}
+        $iterableKeyType = TypeCombinator::union(...$arrays)->getIterableKeyType();
 
-		$iterableKeyType = TypeCombinator::union(...$arrays)->getIterableKeyType();
+        return TypeCombinator::union(
+            $iterableKeyType,
+            new ConstantBooleanType(false),
+            ...$typesFromConstantArrays
+        );
+    }
 
-		return TypeCombinator::union(
-			$iterableKeyType,
-			new ConstantBooleanType(false),
-			...$typesFromConstantArrays
-		);
-	}
+    private function resolveTypeFromConstantHaystackAndNeedle(Type $needle, ConstantArrayType $haystack): Type
+    {
+        $matchesByType = [];
 
-	private function resolveTypeFromConstantHaystackAndNeedle(Type $needle, ConstantArrayType $haystack): Type
-	{
-		$matchesByType = [];
+        foreach ($haystack->getValueTypes() as $index => $valueType) {
+            $isNeedleSuperType = $valueType->isSuperTypeOf($needle);
+            if ($isNeedleSuperType->no()) {
+                $matchesByType[] = new ConstantBooleanType(false);
+                continue;
+            }
 
-		foreach ($haystack->getValueTypes() as $index => $valueType) {
-			$isNeedleSuperType = $valueType->isSuperTypeOf($needle);
-			if ($isNeedleSuperType->no()) {
-				$matchesByType[] = new ConstantBooleanType(false);
-				continue;
-			}
+            if ($needle instanceof ConstantScalarType && $valueType instanceof ConstantScalarType
+                && $needle->getValue() === $valueType->getValue()
+            ) {
+                return $haystack->getKeyTypes()[$index];
+            }
 
-			if ($needle instanceof ConstantScalarType && $valueType instanceof ConstantScalarType
-				&& $needle->getValue() === $valueType->getValue()
-			) {
-				return $haystack->getKeyTypes()[$index];
-			}
+            $matchesByType[] = $haystack->getKeyTypes()[$index];
+            if (!$isNeedleSuperType->maybe()) {
+                continue;
+            }
 
-			$matchesByType[] = $haystack->getKeyTypes()[$index];
-			if (!$isNeedleSuperType->maybe()) {
-				continue;
-			}
+            $matchesByType[] = new ConstantBooleanType(false);
+        }
 
-			$matchesByType[] = new ConstantBooleanType(false);
-		}
+        if (count($matchesByType) > 0) {
+            if (
+                $haystack->getIterableValueType()->accepts($needle, true)->yes()
+                && $needle->isSuperTypeOf(new ObjectWithoutClassType())->no()
+            ) {
+                return TypeCombinator::union(...$matchesByType);
+            }
 
-		if (count($matchesByType) > 0) {
-			if (
-				$haystack->getIterableValueType()->accepts($needle, true)->yes()
-				&& $needle->isSuperTypeOf(new ObjectWithoutClassType())->no()
-			) {
-				return TypeCombinator::union(...$matchesByType);
-			}
+            return TypeCombinator::union(new ConstantBooleanType(false), ...$matchesByType);
+        }
 
-			return TypeCombinator::union(new ConstantBooleanType(false), ...$matchesByType);
-		}
+        return new ConstantBooleanType(false);
+    }
 
-		return new ConstantBooleanType(false);
-	}
+    /**
+     * @param Type $type
+     * @return Type[]
+     */
+    private function pickArrays(Type $type): array
+    {
+        if ($type instanceof ArrayType) {
+            return [$type];
+        }
 
-	/**
-	 * @param Type $type
-	 * @return Type[]
-	 */
-	private function pickArrays(Type $type): array
-	{
-		if ($type instanceof ArrayType) {
-			return [$type];
-		}
+        if ($type instanceof UnionType || $type instanceof IntersectionType) {
+            $arrayTypes = [];
 
-		if ($type instanceof UnionType || $type instanceof IntersectionType) {
-			$arrayTypes = [];
+            foreach ($type->getTypes() as $innerType) {
+                if (!($innerType instanceof ArrayType)) {
+                    continue;
+                }
 
-			foreach ($type->getTypes() as $innerType) {
-				if (!($innerType instanceof ArrayType)) {
-					continue;
-				}
+                $arrayTypes[] = $innerType;
+            }
 
-				$arrayTypes[] = $innerType;
-			}
+            return $arrayTypes;
+        }
 
-			return $arrayTypes;
-		}
-
-		return [];
-	}
-
+        return [];
+    }
 }

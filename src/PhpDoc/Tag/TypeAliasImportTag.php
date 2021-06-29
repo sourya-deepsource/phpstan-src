@@ -1,36 +1,36 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\PhpDoc\Tag;
 
 final class TypeAliasImportTag
 {
+    private string $importedAlias;
 
-	private string $importedAlias;
+    private string $importedFrom;
 
-	private string $importedFrom;
+    private ?string $importedAs;
 
-	private ?string $importedAs;
+    public function __construct(string $importedAlias, string $importedFrom, ?string $importedAs)
+    {
+        $this->importedAlias = $importedAlias;
+        $this->importedFrom = $importedFrom;
+        $this->importedAs = $importedAs;
+    }
 
-	public function __construct(string $importedAlias, string $importedFrom, ?string $importedAs)
-	{
-		$this->importedAlias = $importedAlias;
-		$this->importedFrom = $importedFrom;
-		$this->importedAs = $importedAs;
-	}
+    public function getImportedAlias(): string
+    {
+        return $this->importedAlias;
+    }
 
-	public function getImportedAlias(): string
-	{
-		return $this->importedAlias;
-	}
+    public function getImportedFrom(): string
+    {
+        return $this->importedFrom;
+    }
 
-	public function getImportedFrom(): string
-	{
-		return $this->importedFrom;
-	}
-
-	public function getImportedAs(): ?string
-	{
-		return $this->importedAs;
-	}
-
+    public function getImportedAs(): ?string
+    {
+        return $this->importedAs;
+    }
 }

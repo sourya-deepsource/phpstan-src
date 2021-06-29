@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -22,54 +24,51 @@ use PHPStan\Type\TypeUtils;
 
 class ExplodeFunctionDynamicReturnTypeExtension implements \PHPStan\Type\DynamicFunctionReturnTypeExtension
 {
+    private PhpVersion $phpVersion;
 
-	private PhpVersion $phpVersion;
+    public function __construct(PhpVersion $phpVersion)
+    {
+        $this->phpVersion = $phpVersion;
+    }
 
-	public function __construct(PhpVersion $phpVersion)
-	{
-		$this->phpVersion = $phpVersion;
-	}
+    public function isFunctionSupported(FunctionReflection $functionReflection): bool
+    {
+        return $functionReflection->getName() === 'explode';
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection): bool
-	{
-		return $functionReflection->getName() === 'explode';
-	}
+    public function getTypeFromFunctionCall(
+        FunctionReflection $functionReflection,
+        FuncCall $functionCall,
+        Scope $scope
+    ): Type {
+        if (count($functionCall->args) < 2) {
+            return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
+        }
 
-	public function getTypeFromFunctionCall(
-		FunctionReflection $functionReflection,
-		FuncCall $functionCall,
-		Scope $scope
-	): Type
-	{
-		if (count($functionCall->args) < 2) {
-			return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
-		}
+        $delimiterType = $scope->getType($functionCall->args[0]->value);
+        $isSuperset = (new ConstantStringType(''))->isSuperTypeOf($delimiterType);
+        if ($isSuperset->yes()) {
+            if ($this->phpVersion->getVersionId() >= 80000) {
+                return new NeverType();
+            }
+            return new ConstantBooleanType(false);
+        } elseif ($isSuperset->no()) {
+            $arrayType = new ArrayType(new IntegerType(), new StringType());
+            if (
+                !isset($functionCall->args[2])
+                || IntegerRangeType::fromInterval(0, null)->isSuperTypeOf($scope->getType($functionCall->args[2]->value))->yes()
+            ) {
+                return TypeCombinator::intersect($arrayType, new NonEmptyArrayType());
+            }
 
-		$delimiterType = $scope->getType($functionCall->args[0]->value);
-		$isSuperset = (new ConstantStringType(''))->isSuperTypeOf($delimiterType);
-		if ($isSuperset->yes()) {
-			if ($this->phpVersion->getVersionId() >= 80000) {
-				return new NeverType();
-			}
-			return new ConstantBooleanType(false);
-		} elseif ($isSuperset->no()) {
-			$arrayType = new ArrayType(new IntegerType(), new StringType());
-			if (
-				!isset($functionCall->args[2])
-				|| IntegerRangeType::fromInterval(0, null)->isSuperTypeOf($scope->getType($functionCall->args[2]->value))->yes()
-			) {
-				return TypeCombinator::intersect($arrayType, new NonEmptyArrayType());
-			}
+            return $arrayType;
+        }
 
-			return $arrayType;
-		}
+        $returnType = ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
+        if ($delimiterType instanceof MixedType) {
+            return TypeUtils::toBenevolentUnion($returnType);
+        }
 
-		$returnType = ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
-		if ($delimiterType instanceof MixedType) {
-			return TypeUtils::toBenevolentUnion($returnType);
-		}
-
-		return $returnType;
-	}
-
+        return $returnType;
+    }
 }

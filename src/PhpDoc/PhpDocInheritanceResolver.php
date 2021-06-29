@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\PhpDoc;
 
@@ -7,106 +9,101 @@ use PHPStan\Type\FileTypeMapper;
 
 class PhpDocInheritanceResolver
 {
+    private \PHPStan\Type\FileTypeMapper $fileTypeMapper;
 
-	private \PHPStan\Type\FileTypeMapper $fileTypeMapper;
+    public function __construct(
+        FileTypeMapper $fileTypeMapper
+    ) {
+        $this->fileTypeMapper = $fileTypeMapper;
+    }
 
-	public function __construct(
-		FileTypeMapper $fileTypeMapper
-	)
-	{
-		$this->fileTypeMapper = $fileTypeMapper;
-	}
+    public function resolvePhpDocForProperty(
+        ?string $docComment,
+        ClassReflection $classReflection,
+        string $classReflectionFileName,
+        ?string $declaringTraitName,
+        string $propertyName
+    ): ResolvedPhpDocBlock {
+        $phpDocBlock = PhpDocBlock::resolvePhpDocBlockForProperty(
+            $docComment,
+            $classReflection,
+            null,
+            $propertyName,
+            $classReflectionFileName,
+            null,
+            [],
+            []
+        );
 
-	public function resolvePhpDocForProperty(
-		?string $docComment,
-		ClassReflection $classReflection,
-		string $classReflectionFileName,
-		?string $declaringTraitName,
-		string $propertyName
-	): ResolvedPhpDocBlock
-	{
-		$phpDocBlock = PhpDocBlock::resolvePhpDocBlockForProperty(
-			$docComment,
-			$classReflection,
-			null,
-			$propertyName,
-			$classReflectionFileName,
-			null,
-			[],
-			[]
-		);
+        return $this->docBlockTreeToResolvedDocBlock($phpDocBlock, $declaringTraitName, null);
+    }
 
-		return $this->docBlockTreeToResolvedDocBlock($phpDocBlock, $declaringTraitName, null);
-	}
+    /**
+     * @param string|null $docComment
+     * @param string $fileName
+     * @param ClassReflection $classReflection
+     * @param string|null $declaringTraitName
+     * @param string $methodName
+     * @param array<int, string> $positionalParameterNames
+     * @return ResolvedPhpDocBlock
+     */
+    public function resolvePhpDocForMethod(
+        ?string $docComment,
+        string $fileName,
+        ClassReflection $classReflection,
+        ?string $declaringTraitName,
+        string $methodName,
+        array $positionalParameterNames
+    ): ResolvedPhpDocBlock {
+        $phpDocBlock = PhpDocBlock::resolvePhpDocBlockForMethod(
+            $docComment,
+            $classReflection,
+            $declaringTraitName,
+            $methodName,
+            $fileName,
+            null,
+            $positionalParameterNames,
+            $positionalParameterNames
+        );
 
-	/**
-	 * @param string|null $docComment
-	 * @param string $fileName
-	 * @param ClassReflection $classReflection
-	 * @param string|null $declaringTraitName
-	 * @param string $methodName
-	 * @param array<int, string> $positionalParameterNames
-	 * @return ResolvedPhpDocBlock
-	 */
-	public function resolvePhpDocForMethod(
-		?string $docComment,
-		string $fileName,
-		ClassReflection $classReflection,
-		?string $declaringTraitName,
-		string $methodName,
-		array $positionalParameterNames
-	): ResolvedPhpDocBlock
-	{
-		$phpDocBlock = PhpDocBlock::resolvePhpDocBlockForMethod(
-			$docComment,
-			$classReflection,
-			$declaringTraitName,
-			$methodName,
-			$fileName,
-			null,
-			$positionalParameterNames,
-			$positionalParameterNames
-		);
+        return $this->docBlockTreeToResolvedDocBlock($phpDocBlock, $phpDocBlock->getTrait(), $methodName);
+    }
 
-		return $this->docBlockTreeToResolvedDocBlock($phpDocBlock, $phpDocBlock->getTrait(), $methodName);
-	}
+    private function docBlockTreeToResolvedDocBlock(PhpDocBlock $phpDocBlock, ?string $traitName, ?string $functionName): ResolvedPhpDocBlock
+    {
+        $parents = [];
+        $parentPhpDocBlocks = [];
 
-	private function docBlockTreeToResolvedDocBlock(PhpDocBlock $phpDocBlock, ?string $traitName, ?string $functionName): ResolvedPhpDocBlock
-	{
-		$parents = [];
-		$parentPhpDocBlocks = [];
+        foreach ($phpDocBlock->getParents() as $parentPhpDocBlock) {
+            if (
+                $parentPhpDocBlock->getClassReflection()->isBuiltin()
+                && $functionName !== null
+                && strtolower($functionName) === '__construct'
+            ) {
+                continue;
+            }
+            $parents[] = $this->docBlockTreeToResolvedDocBlock(
+                $parentPhpDocBlock,
+                $parentPhpDocBlock->getTrait(),
+                $functionName
+            );
+            $parentPhpDocBlocks[] = $parentPhpDocBlock;
+        }
 
-		foreach ($phpDocBlock->getParents() as $parentPhpDocBlock) {
-			if (
-				$parentPhpDocBlock->getClassReflection()->isBuiltin()
-				&& $functionName !== null
-				&& strtolower($functionName) === '__construct'
-			) {
-				continue;
-			}
-			$parents[] = $this->docBlockTreeToResolvedDocBlock(
-				$parentPhpDocBlock,
-				$parentPhpDocBlock->getTrait(),
-				$functionName
-			);
-			$parentPhpDocBlocks[] = $parentPhpDocBlock;
-		}
+        $oneResolvedDockBlock = $this->docBlockToResolvedDocBlock($phpDocBlock, $traitName, $functionName);
+        return $oneResolvedDockBlock->merge($parents, $parentPhpDocBlocks);
+    }
 
-		$oneResolvedDockBlock = $this->docBlockToResolvedDocBlock($phpDocBlock, $traitName, $functionName);
-		return $oneResolvedDockBlock->merge($parents, $parentPhpDocBlocks);
-	}
+    private function docBlockToResolvedDocBlock(PhpDocBlock $phpDocBlock, ?string $traitName, ?string $functionName): ResolvedPhpDocBlock
+    {
+        $classReflection = $phpDocBlock->getClassReflection();
 
-	private function docBlockToResolvedDocBlock(PhpDocBlock $phpDocBlock, ?string $traitName, ?string $functionName): ResolvedPhpDocBlock
-	{
-		$classReflection = $phpDocBlock->getClassReflection();
-
-		return $this->fileTypeMapper->getResolvedPhpDoc(
-			$phpDocBlock->getFile(),
-			$classReflection->getName(),
-			$traitName,
-			$functionName,
-			$phpDocBlock->getDocComment()
-		);
-	}
-
+        return $this->fileTypeMapper->getResolvedPhpDoc(
+            $phpDocBlock->getFile(),
+            $classReflection->getName(),
+            $traitName,
+            $functionName,
+            $phpDocBlock->getDocComment()
+        );
+    }
 }

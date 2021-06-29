@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Generic;
 
@@ -12,27 +14,25 @@ use PHPStan\Type\Type;
  */
 class TemplateTypeParameterStrategy implements TemplateTypeStrategy
 {
+    public function accepts(TemplateType $left, Type $right, bool $strictTypes): TrinaryLogic
+    {
+        if ($right instanceof CompoundType) {
+            return CompoundTypeHelper::accepts($right, $left, $strictTypes);
+        }
 
-	public function accepts(TemplateType $left, Type $right, bool $strictTypes): TrinaryLogic
-	{
-		if ($right instanceof CompoundType) {
-			return CompoundTypeHelper::accepts($right, $left, $strictTypes);
-		}
+        return $left->getBound()->accepts($right, $strictTypes);
+    }
 
-		return $left->getBound()->accepts($right, $strictTypes);
-	}
+    public function isArgument(): bool
+    {
+        return false;
+    }
 
-	public function isArgument(): bool
-	{
-		return false;
-	}
-
-	/**
-	 * @param mixed[] $properties
-	 */
-	public static function __set_state(array $properties): self
-	{
-		return new self();
-	}
-
+    /**
+     * @param mixed[] $properties
+     */
+    public static function __set_state(array $properties): self
+    {
+        return new self();
+    }
 }

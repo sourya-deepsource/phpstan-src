@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Accessory;
 
@@ -23,136 +25,134 @@ use PHPStan\Type\UnionType;
 
 class AccessoryNumericStringType implements CompoundType, AccessoryType
 {
+    use NonCallableTypeTrait;
+    use NonObjectTypeTrait;
+    use NonIterableTypeTrait;
+    use UndecidedBooleanTypeTrait;
+    use UndecidedComparisonCompoundTypeTrait;
+    use NonGenericTypeTrait;
 
-	use NonCallableTypeTrait;
-	use NonObjectTypeTrait;
-	use NonIterableTypeTrait;
-	use UndecidedBooleanTypeTrait;
-	use UndecidedComparisonCompoundTypeTrait;
-	use NonGenericTypeTrait;
+    public function getReferencedClasses(): array
+    {
+        return [];
+    }
 
-	public function getReferencedClasses(): array
-	{
-		return [];
-	}
+    public function accepts(Type $type, bool $strictTypes): TrinaryLogic
+    {
+        if ($type instanceof CompoundType) {
+            return CompoundTypeHelper::accepts($type, $this, $strictTypes);
+        }
 
-	public function accepts(Type $type, bool $strictTypes): TrinaryLogic
-	{
-		if ($type instanceof CompoundType) {
-			return CompoundTypeHelper::accepts($type, $this, $strictTypes);
-		}
+        return $type->isNumericString();
+    }
 
-		return $type->isNumericString();
-	}
+    public function isSuperTypeOf(Type $type): TrinaryLogic
+    {
+        if ($this->equals($type)) {
+            return TrinaryLogic::createYes();
+        }
 
-	public function isSuperTypeOf(Type $type): TrinaryLogic
-	{
-		if ($this->equals($type)) {
-			return TrinaryLogic::createYes();
-		}
+        return $type->isNumericString();
+    }
 
-		return $type->isNumericString();
-	}
+    public function isSubTypeOf(Type $otherType): TrinaryLogic
+    {
+        if ($otherType instanceof UnionType || $otherType instanceof IntersectionType) {
+            return $otherType->isSuperTypeOf($this);
+        }
 
-	public function isSubTypeOf(Type $otherType): TrinaryLogic
-	{
-		if ($otherType instanceof UnionType || $otherType instanceof IntersectionType) {
-			return $otherType->isSuperTypeOf($this);
-		}
+        return $otherType->isNumericString()
+            ->and($otherType instanceof self ? TrinaryLogic::createYes() : TrinaryLogic::createMaybe());
+    }
 
-		return $otherType->isNumericString()
-			->and($otherType instanceof self ? TrinaryLogic::createYes() : TrinaryLogic::createMaybe());
-	}
+    public function isAcceptedBy(Type $acceptingType, bool $strictTypes): TrinaryLogic
+    {
+        return $this->isSubTypeOf($acceptingType);
+    }
 
-	public function isAcceptedBy(Type $acceptingType, bool $strictTypes): TrinaryLogic
-	{
-		return $this->isSubTypeOf($acceptingType);
-	}
+    public function equals(Type $type): bool
+    {
+        return $type instanceof self;
+    }
 
-	public function equals(Type $type): bool
-	{
-		return $type instanceof self;
-	}
+    public function describe(\PHPStan\Type\VerbosityLevel $level): string
+    {
+        return 'numeric';
+    }
 
-	public function describe(\PHPStan\Type\VerbosityLevel $level): string
-	{
-		return 'numeric';
-	}
+    public function isOffsetAccessible(): TrinaryLogic
+    {
+        return TrinaryLogic::createYes();
+    }
 
-	public function isOffsetAccessible(): TrinaryLogic
-	{
-		return TrinaryLogic::createYes();
-	}
+    public function hasOffsetValueType(Type $offsetType): TrinaryLogic
+    {
+        return (new IntegerType())->isSuperTypeOf($offsetType)->and(TrinaryLogic::createMaybe());
+    }
 
-	public function hasOffsetValueType(Type $offsetType): TrinaryLogic
-	{
-		return (new IntegerType())->isSuperTypeOf($offsetType)->and(TrinaryLogic::createMaybe());
-	}
+    public function getOffsetValueType(Type $offsetType): Type
+    {
+        if ($this->hasOffsetValueType($offsetType)->no()) {
+            return new ErrorType();
+        }
 
-	public function getOffsetValueType(Type $offsetType): Type
-	{
-		if ($this->hasOffsetValueType($offsetType)->no()) {
-			return new ErrorType();
-		}
+        return new StringType();
+    }
 
-		return new StringType();
-	}
+    public function setOffsetValueType(?Type $offsetType, Type $valueType): Type
+    {
+        return $this;
+    }
 
-	public function setOffsetValueType(?Type $offsetType, Type $valueType): Type
-	{
-		return $this;
-	}
+    public function isArray(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function isArray(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function toNumber(): Type
+    {
+        return new UnionType([
+            $this->toInteger(),
+            $this->toFloat(),
+        ]);
+    }
 
-	public function toNumber(): Type
-	{
-		return new UnionType([
-			$this->toInteger(),
-			$this->toFloat(),
-		]);
-	}
+    public function toInteger(): Type
+    {
+        return new IntegerType();
+    }
 
-	public function toInteger(): Type
-	{
-		return new IntegerType();
-	}
+    public function toFloat(): Type
+    {
+        return new FloatType();
+    }
 
-	public function toFloat(): Type
-	{
-		return new FloatType();
-	}
+    public function toString(): Type
+    {
+        return $this;
+    }
 
-	public function toString(): Type
-	{
-		return $this;
-	}
+    public function toArray(): Type
+    {
+        return new ConstantArrayType(
+            [new ConstantIntegerType(0)],
+            [$this],
+            1
+        );
+    }
 
-	public function toArray(): Type
-	{
-		return new ConstantArrayType(
-			[new ConstantIntegerType(0)],
-			[$this],
-			1
-		);
-	}
+    public function isNumericString(): TrinaryLogic
+    {
+        return TrinaryLogic::createYes();
+    }
 
-	public function isNumericString(): TrinaryLogic
-	{
-		return TrinaryLogic::createYes();
-	}
+    public function traverse(callable $cb): Type
+    {
+        return $this;
+    }
 
-	public function traverse(callable $cb): Type
-	{
-		return $this;
-	}
-
-	public static function __set_state(array $properties): Type
-	{
-		return new self();
-	}
-
+    public static function __set_state(array $properties): Type
+    {
+        return new self();
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Arrays;
 
@@ -18,71 +20,69 @@ use PHPStan\Type\VerbosityLevel;
  */
 class OffsetAccessValueAssignmentRule implements \PHPStan\Rules\Rule
 {
+    private RuleLevelHelper $ruleLevelHelper;
 
-	private RuleLevelHelper $ruleLevelHelper;
+    public function __construct(RuleLevelHelper $ruleLevelHelper)
+    {
+        $this->ruleLevelHelper = $ruleLevelHelper;
+    }
 
-	public function __construct(RuleLevelHelper $ruleLevelHelper)
-	{
-		$this->ruleLevelHelper = $ruleLevelHelper;
-	}
+    public function getNodeType(): string
+    {
+        return Expr::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Expr::class;
-	}
+    public function processNode(\PhpParser\Node $node, Scope $scope): array
+    {
+        if (
+            !$node instanceof Assign
+            && !$node instanceof AssignOp
+            && !$node instanceof Expr\AssignRef
+        ) {
+            return [];
+        }
 
-	public function processNode(\PhpParser\Node $node, Scope $scope): array
-	{
-		if (
-			!$node instanceof Assign
-			&& !$node instanceof AssignOp
-			&& !$node instanceof Expr\AssignRef
-		) {
-			return [];
-		}
+        if (!$node->var instanceof Expr\ArrayDimFetch) {
+            return [];
+        }
 
-		if (!$node->var instanceof Expr\ArrayDimFetch) {
-			return [];
-		}
+        $arrayDimFetch = $node->var;
 
-		$arrayDimFetch = $node->var;
+        if ($node instanceof Assign || $node instanceof Expr\AssignRef) {
+            $assignedValueType = $scope->getType($node->expr);
+        } else {
+            $assignedValueType = $scope->getType($node);
+        }
 
-		if ($node instanceof Assign || $node instanceof Expr\AssignRef) {
-			$assignedValueType = $scope->getType($node->expr);
-		} else {
-			$assignedValueType = $scope->getType($node);
-		}
+        $originalArrayType = $scope->getType($arrayDimFetch->var);
+        $arrayTypeResult = $this->ruleLevelHelper->findTypeToCheck(
+            $scope,
+            $arrayDimFetch->var,
+            '',
+            static function (Type $varType) use ($assignedValueType): bool {
+                $result = $varType->setOffsetValueType(new MixedType(), $assignedValueType);
+                return !($result instanceof ErrorType);
+            }
+        );
+        $arrayType = $arrayTypeResult->getType();
+        if ($arrayType instanceof ErrorType) {
+            return [];
+        }
+        $isOffsetAccessible = $arrayType->isOffsetAccessible();
+        if (!$isOffsetAccessible->yes()) {
+            return [];
+        }
+        $resultType = $arrayType->setOffsetValueType(new MixedType(), $assignedValueType);
+        if (!$resultType instanceof ErrorType) {
+            return [];
+        }
 
-		$originalArrayType = $scope->getType($arrayDimFetch->var);
-		$arrayTypeResult = $this->ruleLevelHelper->findTypeToCheck(
-			$scope,
-			$arrayDimFetch->var,
-			'',
-			static function (Type $varType) use ($assignedValueType): bool {
-				$result = $varType->setOffsetValueType(new MixedType(), $assignedValueType);
-				return !($result instanceof ErrorType);
-			}
-		);
-		$arrayType = $arrayTypeResult->getType();
-		if ($arrayType instanceof ErrorType) {
-			return [];
-		}
-		$isOffsetAccessible = $arrayType->isOffsetAccessible();
-		if (!$isOffsetAccessible->yes()) {
-			return [];
-		}
-		$resultType = $arrayType->setOffsetValueType(new MixedType(), $assignedValueType);
-		if (!$resultType instanceof ErrorType) {
-			return [];
-		}
-
-		return [
-			RuleErrorBuilder::message(sprintf(
-				'%s does not accept %s.',
-				$originalArrayType->describe(VerbosityLevel::value()),
-				$assignedValueType->describe(VerbosityLevel::typeOnly())
-			))->build(),
-		];
-	}
-
+        return [
+            RuleErrorBuilder::message(sprintf(
+                '%s does not accept %s.',
+                $originalArrayType->describe(VerbosityLevel::value()),
+                $assignedValueType->describe(VerbosityLevel::typeOnly())
+            ))->build(),
+        ];
+    }
 }

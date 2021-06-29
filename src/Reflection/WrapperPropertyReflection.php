@@ -1,10 +1,10 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection;
 
 interface WrapperPropertyReflection extends PropertyReflection
 {
-
-	public function getOriginalReflection(): PropertyReflection;
-
+    public function getOriginalReflection(): PropertyReflection;
 }

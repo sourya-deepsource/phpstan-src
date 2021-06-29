@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -18,57 +20,55 @@ use PHPStan\Type\FunctionTypeSpecifyingExtension;
 
 class IsCallableFunctionTypeSpecifyingExtension implements FunctionTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
+    private \PHPStan\Type\Php\MethodExistsTypeSpecifyingExtension $methodExistsExtension;
 
-	private \PHPStan\Type\Php\MethodExistsTypeSpecifyingExtension $methodExistsExtension;
+    private \PHPStan\Analyser\TypeSpecifier $typeSpecifier;
 
-	private \PHPStan\Analyser\TypeSpecifier $typeSpecifier;
+    public function __construct(MethodExistsTypeSpecifyingExtension $methodExistsExtension)
+    {
+        $this->methodExistsExtension = $methodExistsExtension;
+    }
 
-	public function __construct(MethodExistsTypeSpecifyingExtension $methodExistsExtension)
-	{
-		$this->methodExistsExtension = $methodExistsExtension;
-	}
+    public function isFunctionSupported(FunctionReflection $functionReflection, FuncCall $node, TypeSpecifierContext $context): bool
+    {
+        return strtolower($functionReflection->getName()) === 'is_callable'
+            && !$context->null();
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection, FuncCall $node, TypeSpecifierContext $context): bool
-	{
-		return strtolower($functionReflection->getName()) === 'is_callable'
-			&& !$context->null();
-	}
+    public function specifyTypes(FunctionReflection $functionReflection, FuncCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
+    {
+        if ($context->null()) {
+            throw new \PHPStan\ShouldNotHappenException();
+        }
 
-	public function specifyTypes(FunctionReflection $functionReflection, FuncCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
-	{
-		if ($context->null()) {
-			throw new \PHPStan\ShouldNotHappenException();
-		}
+        if (!isset($node->args[0])) {
+            return new SpecifiedTypes();
+        }
 
-		if (!isset($node->args[0])) {
-			return new SpecifiedTypes();
-		}
+        $value = $node->args[0]->value;
+        $valueType = $scope->getType($value);
+        if (
+            $value instanceof Array_
+            && count($value->items) === 2
+            && $valueType instanceof ConstantArrayType
+            && !$valueType->isCallable()->no()
+        ) {
+            if ($value->items[0] === null || $value->items[1] === null) {
+                throw new \PHPStan\ShouldNotHappenException();
+            }
 
-		$value = $node->args[0]->value;
-		$valueType = $scope->getType($value);
-		if (
-			$value instanceof Array_
-			&& count($value->items) === 2
-			&& $valueType instanceof ConstantArrayType
-			&& !$valueType->isCallable()->no()
-		) {
-			if ($value->items[0] === null || $value->items[1] === null) {
-				throw new \PHPStan\ShouldNotHappenException();
-			}
+            $functionCall = new FuncCall(new Name('method_exists'), [
+                new Arg($value->items[0]->value),
+                new Arg($value->items[1]->value),
+            ]);
+            return $this->methodExistsExtension->specifyTypes($functionReflection, $functionCall, $scope, $context);
+        }
 
-			$functionCall = new FuncCall(new Name('method_exists'), [
-				new Arg($value->items[0]->value),
-				new Arg($value->items[1]->value),
-			]);
-			return $this->methodExistsExtension->specifyTypes($functionReflection, $functionCall, $scope, $context);
-		}
+        return $this->typeSpecifier->create($value, new CallableType(), $context, false, $scope);
+    }
 
-		return $this->typeSpecifier->create($value, new CallableType(), $context, false, $scope);
-	}
-
-	public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
-	{
-		$this->typeSpecifier = $typeSpecifier;
-	}
-
+    public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
+    {
+        $this->typeSpecifier = $typeSpecifier;
+    }
 }

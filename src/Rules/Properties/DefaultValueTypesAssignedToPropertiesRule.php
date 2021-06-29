@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Properties;
 
@@ -15,55 +17,53 @@ use PHPStan\Type\VerbosityLevel;
  */
 class DefaultValueTypesAssignedToPropertiesRule implements \PHPStan\Rules\Rule
 {
+    private \PHPStan\Rules\RuleLevelHelper $ruleLevelHelper;
 
-	private \PHPStan\Rules\RuleLevelHelper $ruleLevelHelper;
+    public function __construct(RuleLevelHelper $ruleLevelHelper)
+    {
+        $this->ruleLevelHelper = $ruleLevelHelper;
+    }
 
-	public function __construct(RuleLevelHelper $ruleLevelHelper)
-	{
-		$this->ruleLevelHelper = $ruleLevelHelper;
-	}
+    public function getNodeType(): string
+    {
+        return ClassPropertyNode::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return ClassPropertyNode::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if (!$scope->isInClass()) {
+            throw new \PHPStan\ShouldNotHappenException();
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if (!$scope->isInClass()) {
-			throw new \PHPStan\ShouldNotHappenException();
-		}
+        $classReflection = $scope->getClassReflection();
+        $default = $node->getDefault();
+        if ($default === null) {
+            return [];
+        }
 
-		$classReflection = $scope->getClassReflection();
-		$default = $node->getDefault();
-		if ($default === null) {
-			return [];
-		}
+        $propertyReflection = $classReflection->getNativeProperty($node->getName());
+        $propertyType = $propertyReflection->getWritableType();
+        if ($propertyReflection->getNativeType() instanceof MixedType) {
+            if ($default instanceof Node\Expr\ConstFetch && (string) $default->name === 'null') {
+                return [];
+            }
+        }
+        $defaultValueType = $scope->getType($default);
+        if ($this->ruleLevelHelper->accepts($propertyType, $defaultValueType, true)) {
+            return [];
+        }
 
-		$propertyReflection = $classReflection->getNativeProperty($node->getName());
-		$propertyType = $propertyReflection->getWritableType();
-		if ($propertyReflection->getNativeType() instanceof MixedType) {
-			if ($default instanceof Node\Expr\ConstFetch && (string) $default->name === 'null') {
-				return [];
-			}
-		}
-		$defaultValueType = $scope->getType($default);
-		if ($this->ruleLevelHelper->accepts($propertyType, $defaultValueType, true)) {
-			return [];
-		}
+        $verbosityLevel = VerbosityLevel::getRecommendedLevelByType($propertyType, $defaultValueType);
 
-		$verbosityLevel = VerbosityLevel::getRecommendedLevelByType($propertyType, $defaultValueType);
-
-		return [
-			RuleErrorBuilder::message(sprintf(
-				'%s %s::$%s (%s) does not accept default value of type %s.',
-				$node->isStatic() ? 'Static property' : 'Property',
-				$classReflection->getDisplayName(),
-				$node->getName(),
-				$propertyType->describe($verbosityLevel),
-				$defaultValueType->describe($verbosityLevel)
-			))->build(),
-		];
-	}
-
+        return [
+            RuleErrorBuilder::message(sprintf(
+                '%s %s::$%s (%s) does not accept default value of type %s.',
+                $node->isStatic() ? 'Static property' : 'Property',
+                $classReflection->getDisplayName(),
+                $node->getName(),
+                $propertyType->describe($verbosityLevel),
+                $defaultValueType->describe($verbosityLevel)
+            ))->build(),
+        ];
+    }
 }

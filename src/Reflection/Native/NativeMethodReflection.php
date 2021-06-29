@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection\Native;
 
@@ -14,166 +16,163 @@ use PHPStan\Type\VoidType;
 
 class NativeMethodReflection implements MethodReflection
 {
+    private \PHPStan\Reflection\ReflectionProvider $reflectionProvider;
 
-	private \PHPStan\Reflection\ReflectionProvider $reflectionProvider;
+    private \PHPStan\Reflection\ClassReflection $declaringClass;
 
-	private \PHPStan\Reflection\ClassReflection $declaringClass;
+    private BuiltinMethodReflection $reflection;
 
-	private BuiltinMethodReflection $reflection;
+    /** @var \PHPStan\Reflection\ParametersAcceptorWithPhpDocs[] */
+    private array $variants;
 
-	/** @var \PHPStan\Reflection\ParametersAcceptorWithPhpDocs[] */
-	private array $variants;
+    private TrinaryLogic $hasSideEffects;
 
-	private TrinaryLogic $hasSideEffects;
+    private ?string $stubPhpDocString;
 
-	private ?string $stubPhpDocString;
+    private ?Type $throwType;
 
-	private ?Type $throwType;
+    /**
+     * @param \PHPStan\Reflection\ReflectionProvider $reflectionProvider
+     * @param \PHPStan\Reflection\ClassReflection $declaringClass
+     * @param BuiltinMethodReflection $reflection
+     * @param \PHPStan\Reflection\ParametersAcceptorWithPhpDocs[] $variants
+     * @param TrinaryLogic $hasSideEffects
+     * @param string|null $stubPhpDocString
+     * @param Type|null $throwType
+     */
+    public function __construct(
+        ReflectionProvider $reflectionProvider,
+        ClassReflection $declaringClass,
+        BuiltinMethodReflection $reflection,
+        array $variants,
+        TrinaryLogic $hasSideEffects,
+        ?string $stubPhpDocString,
+        ?Type $throwType
+    ) {
+        $this->reflectionProvider = $reflectionProvider;
+        $this->declaringClass = $declaringClass;
+        $this->reflection = $reflection;
+        $this->variants = $variants;
+        $this->hasSideEffects = $hasSideEffects;
+        $this->stubPhpDocString = $stubPhpDocString;
+        $this->throwType = $throwType;
+    }
 
-	/**
-	 * @param \PHPStan\Reflection\ReflectionProvider $reflectionProvider
-	 * @param \PHPStan\Reflection\ClassReflection $declaringClass
-	 * @param BuiltinMethodReflection $reflection
-	 * @param \PHPStan\Reflection\ParametersAcceptorWithPhpDocs[] $variants
-	 * @param TrinaryLogic $hasSideEffects
-	 * @param string|null $stubPhpDocString
-	 * @param Type|null $throwType
-	 */
-	public function __construct(
-		ReflectionProvider $reflectionProvider,
-		ClassReflection $declaringClass,
-		BuiltinMethodReflection $reflection,
-		array $variants,
-		TrinaryLogic $hasSideEffects,
-		?string $stubPhpDocString,
-		?Type $throwType
-	)
-	{
-		$this->reflectionProvider = $reflectionProvider;
-		$this->declaringClass = $declaringClass;
-		$this->reflection = $reflection;
-		$this->variants = $variants;
-		$this->hasSideEffects = $hasSideEffects;
-		$this->stubPhpDocString = $stubPhpDocString;
-		$this->throwType = $throwType;
-	}
+    public function getDeclaringClass(): ClassReflection
+    {
+        return $this->declaringClass;
+    }
 
-	public function getDeclaringClass(): ClassReflection
-	{
-		return $this->declaringClass;
-	}
+    public function isStatic(): bool
+    {
+        return $this->reflection->isStatic();
+    }
 
-	public function isStatic(): bool
-	{
-		return $this->reflection->isStatic();
-	}
+    public function isPrivate(): bool
+    {
+        return $this->reflection->isPrivate();
+    }
 
-	public function isPrivate(): bool
-	{
-		return $this->reflection->isPrivate();
-	}
+    public function isPublic(): bool
+    {
+        return $this->reflection->isPublic();
+    }
 
-	public function isPublic(): bool
-	{
-		return $this->reflection->isPublic();
-	}
+    public function isAbstract(): bool
+    {
+        return $this->reflection->isAbstract();
+    }
 
-	public function isAbstract(): bool
-	{
-		return $this->reflection->isAbstract();
-	}
+    public function getPrototype(): ClassMemberReflection
+    {
+        try {
+            $prototypeMethod = $this->reflection->getPrototype();
+            $prototypeDeclaringClass = $this->reflectionProvider->getClass($prototypeMethod->getDeclaringClass()->getName());
 
-	public function getPrototype(): ClassMemberReflection
-	{
-		try {
-			$prototypeMethod = $this->reflection->getPrototype();
-			$prototypeDeclaringClass = $this->reflectionProvider->getClass($prototypeMethod->getDeclaringClass()->getName());
+            return new MethodPrototypeReflection(
+                $prototypeMethod->getName(),
+                $prototypeDeclaringClass,
+                $prototypeMethod->isStatic(),
+                $prototypeMethod->isPrivate(),
+                $prototypeMethod->isPublic(),
+                $prototypeMethod->isAbstract(),
+                $prototypeMethod->isFinal(),
+                $prototypeDeclaringClass->getNativeMethod($prototypeMethod->getName())->getVariants()
+            );
+        } catch (\ReflectionException $e) {
+            return $this;
+        }
+    }
 
-			return new MethodPrototypeReflection(
-				$prototypeMethod->getName(),
-				$prototypeDeclaringClass,
-				$prototypeMethod->isStatic(),
-				$prototypeMethod->isPrivate(),
-				$prototypeMethod->isPublic(),
-				$prototypeMethod->isAbstract(),
-				$prototypeMethod->isFinal(),
-				$prototypeDeclaringClass->getNativeMethod($prototypeMethod->getName())->getVariants()
-			);
-		} catch (\ReflectionException $e) {
-			return $this;
-		}
-	}
+    public function getName(): string
+    {
+        return $this->reflection->getName();
+    }
 
-	public function getName(): string
-	{
-		return $this->reflection->getName();
-	}
+    /**
+     * @return \PHPStan\Reflection\ParametersAcceptorWithPhpDocs[]
+     */
+    public function getVariants(): array
+    {
+        return $this->variants;
+    }
 
-	/**
-	 * @return \PHPStan\Reflection\ParametersAcceptorWithPhpDocs[]
-	 */
-	public function getVariants(): array
-	{
-		return $this->variants;
-	}
+    public function getDeprecatedDescription(): ?string
+    {
+        return null;
+    }
 
-	public function getDeprecatedDescription(): ?string
-	{
-		return null;
-	}
+    public function isDeprecated(): TrinaryLogic
+    {
+        return $this->reflection->isDeprecated();
+    }
 
-	public function isDeprecated(): TrinaryLogic
-	{
-		return $this->reflection->isDeprecated();
-	}
+    public function isInternal(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function isInternal(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function isFinal(): TrinaryLogic
+    {
+        return TrinaryLogic::createFromBoolean($this->reflection->isFinal());
+    }
 
-	public function isFinal(): TrinaryLogic
-	{
-		return TrinaryLogic::createFromBoolean($this->reflection->isFinal());
-	}
+    public function getThrowType(): ?Type
+    {
+        return $this->throwType;
+    }
 
-	public function getThrowType(): ?Type
-	{
-		return $this->throwType;
-	}
+    public function hasSideEffects(): TrinaryLogic
+    {
+        $name = strtolower($this->getName());
+        $isVoid = $this->isVoid();
+        if (
+            $name !== '__construct'
+            && $isVoid
+        ) {
+            return TrinaryLogic::createYes();
+        }
 
-	public function hasSideEffects(): TrinaryLogic
-	{
-		$name = strtolower($this->getName());
-		$isVoid = $this->isVoid();
-		if (
-			$name !== '__construct'
-			&& $isVoid
-		) {
-			return TrinaryLogic::createYes();
-		}
+        return $this->hasSideEffects;
+    }
 
-		return $this->hasSideEffects;
-	}
+    private function isVoid(): bool
+    {
+        foreach ($this->variants as $variant) {
+            if (!$variant->getReturnType() instanceof VoidType) {
+                return false;
+            }
+        }
 
-	private function isVoid(): bool
-	{
-		foreach ($this->variants as $variant) {
-			if (!$variant->getReturnType() instanceof VoidType) {
-				return false;
-			}
-		}
+        return true;
+    }
 
-		return true;
-	}
+    public function getDocComment(): ?string
+    {
+        if ($this->stubPhpDocString !== null) {
+            return $this->stubPhpDocString;
+        }
 
-	public function getDocComment(): ?string
-	{
-		if ($this->stubPhpDocString !== null) {
-			return $this->stubPhpDocString;
-		}
-
-		return $this->reflection->getDocComment();
-	}
-
+        return $this->reflection->getDocComment();
+    }
 }

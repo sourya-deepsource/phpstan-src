@@ -1,29 +1,28 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type;
 
 class GenericTypeVariableResolver
 {
+    public static function getType(
+        TypeWithClassName $type,
+        string $genericClassName,
+        string $typeVariableName
+    ): ?Type {
+        $ancestor = $type->getAncestorWithClassName($genericClassName);
+        if ($ancestor === null) {
+            return null;
+        }
 
-	public static function getType(
-		TypeWithClassName $type,
-		string $genericClassName,
-		string $typeVariableName
-	): ?Type
-	{
-		$ancestor = $type->getAncestorWithClassName($genericClassName);
-		if ($ancestor === null) {
-			return null;
-		}
+        $classReflection = $ancestor->getClassReflection();
+        if ($classReflection === null) {
+            return null;
+        }
 
-		$classReflection = $ancestor->getClassReflection();
-		if ($classReflection === null) {
-			return null;
-		}
+        $templateTypeMap = $classReflection->getActiveTemplateTypeMap();
 
-		$templateTypeMap = $classReflection->getActiveTemplateTypeMap();
-
-		return $templateTypeMap->getType($typeVariableName);
-	}
-
+        return $templateTypeMap->getType($typeVariableName);
+    }
 }

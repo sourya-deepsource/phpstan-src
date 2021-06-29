@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -13,59 +15,57 @@ use PHPStan\Type\UnionType;
 
 class RandomIntFunctionReturnTypeExtension implements \PHPStan\Type\DynamicFunctionReturnTypeExtension
 {
+    public function isFunctionSupported(FunctionReflection $functionReflection): bool
+    {
+        return $functionReflection->getName() === 'random_int';
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection): bool
-	{
-		return $functionReflection->getName() === 'random_int';
-	}
+    public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
+    {
+        if (count($functionCall->args) < 2) {
+            return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
+        }
 
-	public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
-	{
-		if (count($functionCall->args) < 2) {
-			return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
-		}
+        $minType = $scope->getType($functionCall->args[0]->value)->toInteger();
+        $maxType = $scope->getType($functionCall->args[1]->value)->toInteger();
 
-		$minType = $scope->getType($functionCall->args[0]->value)->toInteger();
-		$maxType = $scope->getType($functionCall->args[1]->value)->toInteger();
+        return $this->createRange($minType, $maxType);
+    }
 
-		return $this->createRange($minType, $maxType);
-	}
+    private function createRange(Type $minType, Type $maxType): Type
+    {
+        $minValues = array_map(
+            static function (Type $type): ?int {
+                if ($type instanceof IntegerRangeType) {
+                    return $type->getMin();
+                }
+                if ($type instanceof ConstantIntegerType) {
+                    return $type->getValue();
+                }
+                return null;
+            },
+            $minType instanceof UnionType ? $minType->getTypes() : [$minType]
+        );
 
-	private function createRange(Type $minType, Type $maxType): Type
-	{
-		$minValues = array_map(
-			static function (Type $type): ?int {
-				if ($type instanceof IntegerRangeType) {
-					return $type->getMin();
-				}
-				if ($type instanceof ConstantIntegerType) {
-					return $type->getValue();
-				}
-				return null;
-			},
-			$minType instanceof UnionType ? $minType->getTypes() : [$minType]
-		);
+        $maxValues = array_map(
+            static function (Type $type): ?int {
+                if ($type instanceof IntegerRangeType) {
+                    return $type->getMax();
+                }
+                if ($type instanceof ConstantIntegerType) {
+                    return $type->getValue();
+                }
+                return null;
+            },
+            $maxType instanceof UnionType ? $maxType->getTypes() : [$maxType]
+        );
 
-		$maxValues = array_map(
-			static function (Type $type): ?int {
-				if ($type instanceof IntegerRangeType) {
-					return $type->getMax();
-				}
-				if ($type instanceof ConstantIntegerType) {
-					return $type->getValue();
-				}
-				return null;
-			},
-			$maxType instanceof UnionType ? $maxType->getTypes() : [$maxType]
-		);
+        assert(count($minValues) > 0);
+        assert(count($maxValues) > 0);
 
-		assert(count($minValues) > 0);
-		assert(count($maxValues) > 0);
-
-		return IntegerRangeType::fromInterval(
-			in_array(null, $minValues, true) ? null : min($minValues),
-			in_array(null, $maxValues, true) ? null : max($maxValues)
-		);
-	}
-
+        return IntegerRangeType::fromInterval(
+            in_array(null, $minValues, true) ? null : min($minValues),
+            in_array(null, $maxValues, true) ? null : max($maxValues)
+        );
+    }
 }

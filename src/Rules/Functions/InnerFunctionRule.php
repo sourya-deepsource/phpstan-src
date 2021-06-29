@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Functions;
 
@@ -12,23 +14,21 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class InnerFunctionRule implements \PHPStan\Rules\Rule
 {
+    public function getNodeType(): string
+    {
+        return Function_::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Function_::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if ($scope->getFunction() === null) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if ($scope->getFunction() === null) {
-			return [];
-		}
-
-		return [
-			RuleErrorBuilder::message(
-				'Inner named functions are not supported by PHPStan. Consider refactoring to an anonymous function, class method, or a top-level-defined function. See issue #165 (https://github.com/phpstan/phpstan/issues/165) for more details.'
-			)->build(),
-		];
-	}
-
+        return [
+            RuleErrorBuilder::message(
+                'Inner named functions are not supported by PHPStan. Consider refactoring to an anonymous function, class method, or a top-level-defined function. See issue #165 (https://github.com/phpstan/phpstan/issues/165) for more details.'
+            )->build(),
+        ];
+    }
 }

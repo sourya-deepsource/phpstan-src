@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Node;
 
@@ -7,39 +9,37 @@ use PHPStan\Reflection\ClassReflection;
 
 class InClassNode extends \PhpParser\Node\Stmt implements VirtualNode
 {
+    private ClassLike $originalNode;
 
-	private ClassLike $originalNode;
+    private ClassReflection $classReflection;
 
-	private ClassReflection $classReflection;
+    public function __construct(ClassLike $originalNode, ClassReflection $classReflection)
+    {
+        parent::__construct($originalNode->getAttributes());
+        $this->originalNode = $originalNode;
+        $this->classReflection = $classReflection;
+    }
 
-	public function __construct(ClassLike $originalNode, ClassReflection $classReflection)
-	{
-		parent::__construct($originalNode->getAttributes());
-		$this->originalNode = $originalNode;
-		$this->classReflection = $classReflection;
-	}
+    public function getOriginalNode(): ClassLike
+    {
+        return $this->originalNode;
+    }
 
-	public function getOriginalNode(): ClassLike
-	{
-		return $this->originalNode;
-	}
+    public function getClassReflection(): ClassReflection
+    {
+        return $this->classReflection;
+    }
 
-	public function getClassReflection(): ClassReflection
-	{
-		return $this->classReflection;
-	}
+    public function getType(): string
+    {
+        return 'PHPStan_Stmt_InClassNode';
+    }
 
-	public function getType(): string
-	{
-		return 'PHPStan_Stmt_InClassNode';
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getSubNodeNames(): array
-	{
-		return [];
-	}
-
+    /**
+     * @return string[]
+     */
+    public function getSubNodeNames(): array
+    {
+        return [];
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Node;
 
@@ -7,25 +9,23 @@ use PHPStan\Analyser\Scope;
 
 class ReturnStatement
 {
+    private Scope $scope;
 
-	private Scope $scope;
+    private \PhpParser\Node\Stmt\Return_ $returnNode;
 
-	private \PhpParser\Node\Stmt\Return_ $returnNode;
+    public function __construct(Scope $scope, Return_ $returnNode)
+    {
+        $this->scope = $scope;
+        $this->returnNode = $returnNode;
+    }
 
-	public function __construct(Scope $scope, Return_ $returnNode)
-	{
-		$this->scope = $scope;
-		$this->returnNode = $returnNode;
-	}
+    public function getScope(): Scope
+    {
+        return $this->scope;
+    }
 
-	public function getScope(): Scope
-	{
-		return $this->scope;
-	}
-
-	public function getReturnNode(): Return_
-	{
-		return $this->returnNode;
-	}
-
+    public function getReturnNode(): Return_
+    {
+        return $this->returnNode;
+    }
 }

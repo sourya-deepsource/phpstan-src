@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Variables;
 
@@ -11,34 +13,32 @@ use PHPStan\Rules\IssetCheck;
  */
 class NullCoalesceRule implements \PHPStan\Rules\Rule
 {
+    private IssetCheck $issetCheck;
 
-	private IssetCheck $issetCheck;
+    public function __construct(IssetCheck $issetCheck)
+    {
+        $this->issetCheck = $issetCheck;
+    }
 
-	public function __construct(IssetCheck $issetCheck)
-	{
-		$this->issetCheck = $issetCheck;
-	}
+    public function getNodeType(): string
+    {
+        return \PhpParser\Node\Expr::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return \PhpParser\Node\Expr::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if ($node instanceof Node\Expr\BinaryOp\Coalesce) {
+            $error = $this->issetCheck->check($node->left, $scope, 'on left side of ??');
+        } elseif ($node instanceof Node\Expr\AssignOp\Coalesce) {
+            $error = $this->issetCheck->check($node->var, $scope, 'on left side of ??=');
+        } else {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if ($node instanceof Node\Expr\BinaryOp\Coalesce) {
-			$error = $this->issetCheck->check($node->left, $scope, 'on left side of ??');
-		} elseif ($node instanceof Node\Expr\AssignOp\Coalesce) {
-			$error = $this->issetCheck->check($node->var, $scope, 'on left side of ??=');
-		} else {
-			return [];
-		}
+        if ($error === null) {
+            return [];
+        }
 
-		if ($error === null) {
-			return [];
-		}
-
-		return [$error];
-	}
-
+        return [$error];
+    }
 }

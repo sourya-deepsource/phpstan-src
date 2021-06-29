@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Functions;
 
@@ -15,55 +17,53 @@ use PHPStan\Type\VoidType;
  */
 class CallToFunctionStamentWithoutSideEffectsRule implements Rule
 {
+    private \PHPStan\Reflection\ReflectionProvider $reflectionProvider;
 
-	private \PHPStan\Reflection\ReflectionProvider $reflectionProvider;
+    public function __construct(ReflectionProvider $reflectionProvider)
+    {
+        $this->reflectionProvider = $reflectionProvider;
+    }
 
-	public function __construct(ReflectionProvider $reflectionProvider)
-	{
-		$this->reflectionProvider = $reflectionProvider;
-	}
+    public function getNodeType(): string
+    {
+        return Node\Stmt\Expression::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Node\Stmt\Expression::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if (!$node->expr instanceof Node\Expr\FuncCall) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if (!$node->expr instanceof Node\Expr\FuncCall) {
-			return [];
-		}
+        $funcCall = $node->expr;
+        if (!($funcCall->name instanceof \PhpParser\Node\Name)) {
+            return [];
+        }
 
-		$funcCall = $node->expr;
-		if (!($funcCall->name instanceof \PhpParser\Node\Name)) {
-			return [];
-		}
+        if (!$this->reflectionProvider->hasFunction($funcCall->name, $scope)) {
+            return [];
+        }
 
-		if (!$this->reflectionProvider->hasFunction($funcCall->name, $scope)) {
-			return [];
-		}
+        $function = $this->reflectionProvider->getFunction($funcCall->name, $scope);
+        if ($function->hasSideEffects()->no()) {
+            $throwsType = $function->getThrowType();
+            if ($throwsType !== null && !$throwsType instanceof VoidType) {
+                return [];
+            }
 
-		$function = $this->reflectionProvider->getFunction($funcCall->name, $scope);
-		if ($function->hasSideEffects()->no()) {
-			$throwsType = $function->getThrowType();
-			if ($throwsType !== null && !$throwsType instanceof VoidType) {
-				return [];
-			}
+            $functionResult = $scope->getType($funcCall);
+            if ($functionResult instanceof NeverType && $functionResult->isExplicit()) {
+                return [];
+            }
 
-			$functionResult = $scope->getType($funcCall);
-			if ($functionResult instanceof NeverType && $functionResult->isExplicit()) {
-				return [];
-			}
+            return [
+                RuleErrorBuilder::message(sprintf(
+                    'Call to function %s() on a separate line has no effect.',
+                    $function->getName()
+                ))->build(),
+            ];
+        }
 
-			return [
-				RuleErrorBuilder::message(sprintf(
-					'Call to function %s() on a separate line has no effect.',
-					$function->getName()
-				))->build(),
-			];
-		}
-
-		return [];
-	}
-
+        return [];
+    }
 }

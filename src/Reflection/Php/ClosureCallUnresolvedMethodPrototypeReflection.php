@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection\Php;
 
@@ -9,35 +11,33 @@ use PHPStan\Type\Type;
 
 class ClosureCallUnresolvedMethodPrototypeReflection implements UnresolvedMethodPrototypeReflection
 {
+    private UnresolvedMethodPrototypeReflection $prototype;
 
-	private UnresolvedMethodPrototypeReflection $prototype;
+    private ClosureType $closure;
 
-	private ClosureType $closure;
+    public function __construct(UnresolvedMethodPrototypeReflection $prototype, ClosureType $closure)
+    {
+        $this->prototype = $prototype;
+        $this->closure = $closure;
+    }
 
-	public function __construct(UnresolvedMethodPrototypeReflection $prototype, ClosureType $closure)
-	{
-		$this->prototype = $prototype;
-		$this->closure = $closure;
-	}
+    public function doNotResolveTemplateTypeMapToBounds(): UnresolvedMethodPrototypeReflection
+    {
+        return new self($this->prototype->doNotResolveTemplateTypeMapToBounds(), $this->closure);
+    }
 
-	public function doNotResolveTemplateTypeMapToBounds(): UnresolvedMethodPrototypeReflection
-	{
-		return new self($this->prototype->doNotResolveTemplateTypeMapToBounds(), $this->closure);
-	}
+    public function getNakedMethod(): MethodReflection
+    {
+        return $this->getTransformedMethod();
+    }
 
-	public function getNakedMethod(): MethodReflection
-	{
-		return $this->getTransformedMethod();
-	}
+    public function getTransformedMethod(): MethodReflection
+    {
+        return new ClosureCallMethodReflection($this->prototype->getTransformedMethod(), $this->closure);
+    }
 
-	public function getTransformedMethod(): MethodReflection
-	{
-		return new ClosureCallMethodReflection($this->prototype->getTransformedMethod(), $this->closure);
-	}
-
-	public function withCalledOnType(Type $type): UnresolvedMethodPrototypeReflection
-	{
-		return new self($this->prototype->withCalledOnType($type), $this->closure);
-	}
-
+    public function withCalledOnType(Type $type): UnresolvedMethodPrototypeReflection
+    {
+        return new self($this->prototype->withCalledOnType($type), $this->closure);
+    }
 }

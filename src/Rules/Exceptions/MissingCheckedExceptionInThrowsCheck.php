@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Exceptions;
 
@@ -14,95 +16,93 @@ use PHPStan\Type\VerbosityLevel;
 
 class MissingCheckedExceptionInThrowsCheck
 {
+    private ExceptionTypeResolver $exceptionTypeResolver;
 
-	private ExceptionTypeResolver $exceptionTypeResolver;
+    public function __construct(ExceptionTypeResolver $exceptionTypeResolver)
+    {
+        $this->exceptionTypeResolver = $exceptionTypeResolver;
+    }
 
-	public function __construct(ExceptionTypeResolver $exceptionTypeResolver)
-	{
-		$this->exceptionTypeResolver = $exceptionTypeResolver;
-	}
+    /**
+     * @param Type|null $throwType
+     * @param ThrowPoint[] $throwPoints
+     * @return array<int, array{string, Node\Expr|Node\Stmt, int|null}>
+     */
+    public function check(?Type $throwType, array $throwPoints): array
+    {
+        if ($throwType === null) {
+            $throwType = new NeverType();
+        }
 
-	/**
-	 * @param Type|null $throwType
-	 * @param ThrowPoint[] $throwPoints
-	 * @return array<int, array{string, Node\Expr|Node\Stmt, int|null}>
-	 */
-	public function check(?Type $throwType, array $throwPoints): array
-	{
-		if ($throwType === null) {
-			$throwType = new NeverType();
-		}
+        $classes = [];
+        foreach ($throwPoints as $throwPoint) {
+            if (!$throwPoint->isExplicit()) {
+                continue;
+            }
 
-		$classes = [];
-		foreach ($throwPoints as $throwPoint) {
-			if (!$throwPoint->isExplicit()) {
-				continue;
-			}
+            foreach (TypeUtils::flattenTypes($throwPoint->getType()) as $throwPointType) {
+                if ($throwPointType->isSuperTypeOf(new ObjectType(\Throwable::class))->yes()) {
+                    continue;
+                }
+                if ($throwType->isSuperTypeOf($throwPointType)->yes()) {
+                    continue;
+                }
 
-			foreach (TypeUtils::flattenTypes($throwPoint->getType()) as $throwPointType) {
-				if ($throwPointType->isSuperTypeOf(new ObjectType(\Throwable::class))->yes()) {
-					continue;
-				}
-				if ($throwType->isSuperTypeOf($throwPointType)->yes()) {
-					continue;
-				}
+                if (
+                    $throwPointType instanceof TypeWithClassName
+                    && !$this->exceptionTypeResolver->isCheckedException($throwPointType->getClassName())
+                ) {
+                    continue;
+                }
 
-				if (
-					$throwPointType instanceof TypeWithClassName
-					&& !$this->exceptionTypeResolver->isCheckedException($throwPointType->getClassName())
-				) {
-					continue;
-				}
+                $classes[] = [$throwPointType->describe(VerbosityLevel::typeOnly()), $throwPoint->getNode(), $this->getNewCatchPosition($throwPointType, $throwPoint->getNode())];
+            }
+        }
 
-				$classes[] = [$throwPointType->describe(VerbosityLevel::typeOnly()), $throwPoint->getNode(), $this->getNewCatchPosition($throwPointType, $throwPoint->getNode())];
-			}
-		}
+        return $classes;
+    }
 
-		return $classes;
-	}
+    private function getNewCatchPosition(Type $throwPointType, Node $throwPointNode): ?int
+    {
+        if ($throwPointType instanceof TypeWithClassName) {
+            // to get rid of type subtraction
+            $throwPointType = new ObjectType($throwPointType->getClassName());
+        }
+        $tryCatch = $this->findTryCatch($throwPointNode);
+        if ($tryCatch === null) {
+            return null;
+        }
 
-	private function getNewCatchPosition(Type $throwPointType, Node $throwPointNode): ?int
-	{
-		if ($throwPointType instanceof TypeWithClassName) {
-			// to get rid of type subtraction
-			$throwPointType = new ObjectType($throwPointType->getClassName());
-		}
-		$tryCatch = $this->findTryCatch($throwPointNode);
-		if ($tryCatch === null) {
-			return null;
-		}
+        $position = 0;
+        foreach ($tryCatch->catches as $catch) {
+            $type = TypeCombinator::union(...array_map(static function (Node\Name $class): ObjectType {
+                return new ObjectType($class->toString());
+            }, $catch->types));
+            if (!$throwPointType->isSuperTypeOf($type)->yes()) {
+                continue;
+            }
 
-		$position = 0;
-		foreach ($tryCatch->catches as $catch) {
-			$type = TypeCombinator::union(...array_map(static function (Node\Name $class): ObjectType {
-				return new ObjectType($class->toString());
-			}, $catch->types));
-			if (!$throwPointType->isSuperTypeOf($type)->yes()) {
-				continue;
-			}
+            $position++;
+        }
 
-			$position++;
-		}
+        return $position;
+    }
 
-		return $position;
-	}
+    private function findTryCatch(Node $node): ?Node\Stmt\TryCatch
+    {
+        if ($node instanceof Node\FunctionLike) {
+            return null;
+        }
 
-	private function findTryCatch(Node $node): ?Node\Stmt\TryCatch
-	{
-		if ($node instanceof Node\FunctionLike) {
-			return null;
-		}
+        if ($node instanceof Node\Stmt\TryCatch) {
+            return $node;
+        }
 
-		if ($node instanceof Node\Stmt\TryCatch) {
-			return $node;
-		}
+        $parent = $node->getAttribute('parent');
+        if ($parent === null) {
+            return null;
+        }
 
-		$parent = $node->getAttribute('parent');
-		if ($parent === null) {
-			return null;
-		}
-
-		return $this->findTryCatch($parent);
-	}
-
+        return $this->findTryCatch($parent);
+    }
 }

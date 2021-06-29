@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Properties;
 
@@ -11,26 +13,24 @@ use PHPStan\Rules\Rule;
  */
 class AccessPropertiesInAssignRule implements Rule
 {
+    private \PHPStan\Rules\Properties\AccessPropertiesRule $accessPropertiesRule;
 
-	private \PHPStan\Rules\Properties\AccessPropertiesRule $accessPropertiesRule;
+    public function __construct(AccessPropertiesRule $accessPropertiesRule)
+    {
+        $this->accessPropertiesRule = $accessPropertiesRule;
+    }
 
-	public function __construct(AccessPropertiesRule $accessPropertiesRule)
-	{
-		$this->accessPropertiesRule = $accessPropertiesRule;
-	}
+    public function getNodeType(): string
+    {
+        return Node\Expr\Assign::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Node\Expr\Assign::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if (!$node->var instanceof Node\Expr\PropertyFetch) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if (!$node->var instanceof Node\Expr\PropertyFetch) {
-			return [];
-		}
-
-		return $this->accessPropertiesRule->processNode($node->var, $scope);
-	}
-
+        return $this->accessPropertiesRule->processNode($node->var, $scope);
+    }
 }

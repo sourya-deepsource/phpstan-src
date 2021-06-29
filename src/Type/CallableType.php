@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type;
 
@@ -18,307 +20,304 @@ use PHPStan\Type\Traits\UndecidedComparisonCompoundTypeTrait;
 
 class CallableType implements CompoundType, ParametersAcceptor
 {
+    use MaybeIterableTypeTrait;
+    use MaybeObjectTypeTrait;
+    use MaybeOffsetAccessibleTypeTrait;
+    use TruthyBooleanTypeTrait;
+    use UndecidedComparisonCompoundTypeTrait;
 
-	use MaybeIterableTypeTrait;
-	use MaybeObjectTypeTrait;
-	use MaybeOffsetAccessibleTypeTrait;
-	use TruthyBooleanTypeTrait;
-	use UndecidedComparisonCompoundTypeTrait;
+    /** @var array<int, \PHPStan\Reflection\ParameterReflection> */
+    private array $parameters;
 
-	/** @var array<int, \PHPStan\Reflection\ParameterReflection> */
-	private array $parameters;
+    private Type $returnType;
 
-	private Type $returnType;
+    private bool $variadic;
 
-	private bool $variadic;
+    private bool $isCommonCallable;
 
-	private bool $isCommonCallable;
+    /**
+     * @param array<int, \PHPStan\Reflection\ParameterReflection> $parameters
+     * @param Type $returnType
+     * @param bool $variadic
+     */
+    public function __construct(
+        ?array $parameters = null,
+        ?Type $returnType = null,
+        bool $variadic = true
+    ) {
+        $this->parameters = $parameters ?? [];
+        $this->returnType = $returnType ?? new MixedType();
+        $this->variadic = $variadic;
+        $this->isCommonCallable = $parameters === null && $returnType === null;
+    }
 
-	/**
-	 * @param array<int, \PHPStan\Reflection\ParameterReflection> $parameters
-	 * @param Type $returnType
-	 * @param bool $variadic
-	 */
-	public function __construct(
-		?array $parameters = null,
-		?Type $returnType = null,
-		bool $variadic = true
-	)
-	{
-		$this->parameters = $parameters ?? [];
-		$this->returnType = $returnType ?? new MixedType();
-		$this->variadic = $variadic;
-		$this->isCommonCallable = $parameters === null && $returnType === null;
-	}
+    /**
+     * @return string[]
+     */
+    public function getReferencedClasses(): array
+    {
+        $classes = [];
+        foreach ($this->parameters as $parameter) {
+            $classes = array_merge($classes, $parameter->getType()->getReferencedClasses());
+        }
 
-	/**
-	 * @return string[]
-	 */
-	public function getReferencedClasses(): array
-	{
-		$classes = [];
-		foreach ($this->parameters as $parameter) {
-			$classes = array_merge($classes, $parameter->getType()->getReferencedClasses());
-		}
+        return array_merge($classes, $this->returnType->getReferencedClasses());
+    }
 
-		return array_merge($classes, $this->returnType->getReferencedClasses());
-	}
+    public function accepts(Type $type, bool $strictTypes): TrinaryLogic
+    {
+        if ($type instanceof CompoundType && !$type instanceof self) {
+            return CompoundTypeHelper::accepts($type, $this, $strictTypes);
+        }
 
-	public function accepts(Type $type, bool $strictTypes): TrinaryLogic
-	{
-		if ($type instanceof CompoundType && !$type instanceof self) {
-			return CompoundTypeHelper::accepts($type, $this, $strictTypes);
-		}
+        return $this->isSuperTypeOfInternal($type, true);
+    }
 
-		return $this->isSuperTypeOfInternal($type, true);
-	}
+    public function isSuperTypeOf(Type $type): TrinaryLogic
+    {
+        return $this->isSuperTypeOfInternal($type, false);
+    }
 
-	public function isSuperTypeOf(Type $type): TrinaryLogic
-	{
-		return $this->isSuperTypeOfInternal($type, false);
-	}
+    private function isSuperTypeOfInternal(Type $type, bool $treatMixedAsAny): TrinaryLogic
+    {
+        $isCallable = $type->isCallable();
+        if ($isCallable->no() || $this->isCommonCallable) {
+            return $isCallable;
+        }
 
-	private function isSuperTypeOfInternal(Type $type, bool $treatMixedAsAny): TrinaryLogic
-	{
-		$isCallable = $type->isCallable();
-		if ($isCallable->no() || $this->isCommonCallable) {
-			return $isCallable;
-		}
+        static $scope;
+        if ($scope === null) {
+            $scope = new OutOfClassScope();
+        }
 
-		static $scope;
-		if ($scope === null) {
-			$scope = new OutOfClassScope();
-		}
+        $variantsResult = null;
+        foreach ($type->getCallableParametersAcceptors($scope) as $variant) {
+            $isSuperType = CallableTypeHelper::isParametersAcceptorSuperTypeOf($this, $variant, $treatMixedAsAny);
+            if ($variantsResult === null) {
+                $variantsResult = $isSuperType;
+            } else {
+                $variantsResult = $variantsResult->or($isSuperType);
+            }
+        }
 
-		$variantsResult = null;
-		foreach ($type->getCallableParametersAcceptors($scope) as $variant) {
-			$isSuperType = CallableTypeHelper::isParametersAcceptorSuperTypeOf($this, $variant, $treatMixedAsAny);
-			if ($variantsResult === null) {
-				$variantsResult = $isSuperType;
-			} else {
-				$variantsResult = $variantsResult->or($isSuperType);
-			}
-		}
+        if ($variantsResult === null) {
+            throw new \PHPStan\ShouldNotHappenException();
+        }
 
-		if ($variantsResult === null) {
-			throw new \PHPStan\ShouldNotHappenException();
-		}
+        return $isCallable->and($variantsResult);
+    }
 
-		return $isCallable->and($variantsResult);
-	}
+    public function isSubTypeOf(Type $otherType): TrinaryLogic
+    {
+        if ($otherType instanceof IntersectionType || $otherType instanceof UnionType) {
+            return $otherType->isSuperTypeOf($this);
+        }
 
-	public function isSubTypeOf(Type $otherType): TrinaryLogic
-	{
-		if ($otherType instanceof IntersectionType || $otherType instanceof UnionType) {
-			return $otherType->isSuperTypeOf($this);
-		}
+        return $otherType->isCallable()
+            ->and($otherType instanceof self ? TrinaryLogic::createYes() : TrinaryLogic::createMaybe());
+    }
 
-		return $otherType->isCallable()
-			->and($otherType instanceof self ? TrinaryLogic::createYes() : TrinaryLogic::createMaybe());
-	}
+    public function isAcceptedBy(Type $acceptingType, bool $strictTypes): TrinaryLogic
+    {
+        return $this->isSubTypeOf($acceptingType);
+    }
 
-	public function isAcceptedBy(Type $acceptingType, bool $strictTypes): TrinaryLogic
-	{
-		return $this->isSubTypeOf($acceptingType);
-	}
+    public function equals(Type $type): bool
+    {
+        return $type instanceof self;
+    }
 
-	public function equals(Type $type): bool
-	{
-		return $type instanceof self;
-	}
+    public function describe(VerbosityLevel $level): string
+    {
+        return $level->handle(
+            static function (): string {
+                return 'callable';
+            },
+            function () use ($level): string {
+                return sprintf(
+                    'callable(%s): %s',
+                    implode(', ', array_map(
+                        static function (NativeParameterReflection $param) use ($level): string {
+                            return sprintf('%s%s', $param->isVariadic() ? '...' : '', $param->getType()->describe($level));
+                        },
+                        $this->getParameters()
+                    )),
+                    $this->returnType->describe($level)
+                );
+            }
+        );
+    }
 
-	public function describe(VerbosityLevel $level): string
-	{
-		return $level->handle(
-			static function (): string {
-				return 'callable';
-			},
-			function () use ($level): string {
-				return sprintf(
-					'callable(%s): %s',
-					implode(', ', array_map(
-						static function (NativeParameterReflection $param) use ($level): string {
-							return sprintf('%s%s', $param->isVariadic() ? '...' : '', $param->getType()->describe($level));
-						},
-						$this->getParameters()
-					)),
-					$this->returnType->describe($level)
-				);
-			}
-		);
-	}
+    public function isCallable(): TrinaryLogic
+    {
+        return TrinaryLogic::createYes();
+    }
 
-	public function isCallable(): TrinaryLogic
-	{
-		return TrinaryLogic::createYes();
-	}
+    /**
+     * @param \PHPStan\Reflection\ClassMemberAccessAnswerer $scope
+     * @return \PHPStan\Reflection\ParametersAcceptor[]
+     */
+    public function getCallableParametersAcceptors(ClassMemberAccessAnswerer $scope): array
+    {
+        return [$this];
+    }
 
-	/**
-	 * @param \PHPStan\Reflection\ClassMemberAccessAnswerer $scope
-	 * @return \PHPStan\Reflection\ParametersAcceptor[]
-	 */
-	public function getCallableParametersAcceptors(ClassMemberAccessAnswerer $scope): array
-	{
-		return [$this];
-	}
+    public function toNumber(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toNumber(): Type
-	{
-		return new ErrorType();
-	}
+    public function toString(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toString(): Type
-	{
-		return new ErrorType();
-	}
+    public function toInteger(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toInteger(): Type
-	{
-		return new ErrorType();
-	}
+    public function toFloat(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toFloat(): Type
-	{
-		return new ErrorType();
-	}
+    public function toArray(): Type
+    {
+        return new ArrayType(new MixedType(), new MixedType());
+    }
 
-	public function toArray(): Type
-	{
-		return new ArrayType(new MixedType(), new MixedType());
-	}
+    public function getTemplateTypeMap(): TemplateTypeMap
+    {
+        return TemplateTypeMap::createEmpty();
+    }
 
-	public function getTemplateTypeMap(): TemplateTypeMap
-	{
-		return TemplateTypeMap::createEmpty();
-	}
+    public function getResolvedTemplateTypeMap(): TemplateTypeMap
+    {
+        return TemplateTypeMap::createEmpty();
+    }
 
-	public function getResolvedTemplateTypeMap(): TemplateTypeMap
-	{
-		return TemplateTypeMap::createEmpty();
-	}
+    /**
+     * @return array<int, \PHPStan\Reflection\ParameterReflection>
+     */
+    public function getParameters(): array
+    {
+        return $this->parameters;
+    }
 
-	/**
-	 * @return array<int, \PHPStan\Reflection\ParameterReflection>
-	 */
-	public function getParameters(): array
-	{
-		return $this->parameters;
-	}
+    public function isVariadic(): bool
+    {
+        return $this->variadic;
+    }
 
-	public function isVariadic(): bool
-	{
-		return $this->variadic;
-	}
+    public function getReturnType(): Type
+    {
+        return $this->returnType;
+    }
 
-	public function getReturnType(): Type
-	{
-		return $this->returnType;
-	}
+    public function inferTemplateTypes(Type $receivedType): TemplateTypeMap
+    {
+        if ($receivedType instanceof UnionType || $receivedType instanceof IntersectionType) {
+            return $receivedType->inferTemplateTypesOn($this);
+        }
 
-	public function inferTemplateTypes(Type $receivedType): TemplateTypeMap
-	{
-		if ($receivedType instanceof UnionType || $receivedType instanceof IntersectionType) {
-			return $receivedType->inferTemplateTypesOn($this);
-		}
+        if ($receivedType->isCallable()->no()) {
+            return TemplateTypeMap::createEmpty();
+        }
 
-		if ($receivedType->isCallable()->no()) {
-			return TemplateTypeMap::createEmpty();
-		}
+        $parametersAcceptors = $receivedType->getCallableParametersAcceptors(new OutOfClassScope());
 
-		$parametersAcceptors = $receivedType->getCallableParametersAcceptors(new OutOfClassScope());
+        $typeMap = TemplateTypeMap::createEmpty();
 
-		$typeMap = TemplateTypeMap::createEmpty();
+        foreach ($parametersAcceptors as $parametersAcceptor) {
+            $typeMap = $typeMap->union($this->inferTemplateTypesOnParametersAcceptor($receivedType, $parametersAcceptor));
+        }
 
-		foreach ($parametersAcceptors as $parametersAcceptor) {
-			$typeMap = $typeMap->union($this->inferTemplateTypesOnParametersAcceptor($receivedType, $parametersAcceptor));
-		}
+        return $typeMap;
+    }
 
-		return $typeMap;
-	}
+    private function inferTemplateTypesOnParametersAcceptor(Type $receivedType, ParametersAcceptor $parametersAcceptor): TemplateTypeMap
+    {
+        $typeMap = TemplateTypeMap::createEmpty();
+        $args = $parametersAcceptor->getParameters();
+        $returnType = $parametersAcceptor->getReturnType();
 
-	private function inferTemplateTypesOnParametersAcceptor(Type $receivedType, ParametersAcceptor $parametersAcceptor): TemplateTypeMap
-	{
-		$typeMap = TemplateTypeMap::createEmpty();
-		$args = $parametersAcceptor->getParameters();
-		$returnType = $parametersAcceptor->getReturnType();
+        foreach ($this->getParameters() as $i => $param) {
+            $argType = isset($args[$i]) ? $args[$i]->getType() : new NeverType();
+            $paramType = $param->getType();
+            $typeMap = $typeMap->union($paramType->inferTemplateTypes($argType));
+        }
 
-		foreach ($this->getParameters() as $i => $param) {
-			$argType = isset($args[$i]) ? $args[$i]->getType() : new NeverType();
-			$paramType = $param->getType();
-			$typeMap = $typeMap->union($paramType->inferTemplateTypes($argType));
-		}
+        return $typeMap->union($this->getReturnType()->inferTemplateTypes($returnType));
+    }
 
-		return $typeMap->union($this->getReturnType()->inferTemplateTypes($returnType));
-	}
+    public function getReferencedTemplateTypes(TemplateTypeVariance $positionVariance): array
+    {
+        $references = $this->getReturnType()->getReferencedTemplateTypes(
+            $positionVariance->compose(TemplateTypeVariance::createCovariant())
+        );
 
-	public function getReferencedTemplateTypes(TemplateTypeVariance $positionVariance): array
-	{
-		$references = $this->getReturnType()->getReferencedTemplateTypes(
-			$positionVariance->compose(TemplateTypeVariance::createCovariant())
-		);
+        $paramVariance = $positionVariance->compose(TemplateTypeVariance::createContravariant());
 
-		$paramVariance = $positionVariance->compose(TemplateTypeVariance::createContravariant());
+        foreach ($this->getParameters() as $param) {
+            foreach ($param->getType()->getReferencedTemplateTypes($paramVariance) as $reference) {
+                $references[] = $reference;
+            }
+        }
 
-		foreach ($this->getParameters() as $param) {
-			foreach ($param->getType()->getReferencedTemplateTypes($paramVariance) as $reference) {
-				$references[] = $reference;
-			}
-		}
+        return $references;
+    }
 
-		return $references;
-	}
+    public function traverse(callable $cb): Type
+    {
+        if ($this->isCommonCallable) {
+            return $this;
+        }
 
-	public function traverse(callable $cb): Type
-	{
-		if ($this->isCommonCallable) {
-			return $this;
-		}
+        $parameters = array_map(static function (ParameterReflection $param) use ($cb): NativeParameterReflection {
+            $defaultValue = $param->getDefaultValue();
+            return new NativeParameterReflection(
+                $param->getName(),
+                $param->isOptional(),
+                $cb($param->getType()),
+                $param->passedByReference(),
+                $param->isVariadic(),
+                $defaultValue !== null ? $cb($defaultValue) : null
+            );
+        }, $this->getParameters());
 
-		$parameters = array_map(static function (ParameterReflection $param) use ($cb): NativeParameterReflection {
-			$defaultValue = $param->getDefaultValue();
-			return new NativeParameterReflection(
-				$param->getName(),
-				$param->isOptional(),
-				$cb($param->getType()),
-				$param->passedByReference(),
-				$param->isVariadic(),
-				$defaultValue !== null ? $cb($defaultValue) : null
-			);
-		}, $this->getParameters());
+        return new self(
+            $parameters,
+            $cb($this->getReturnType()),
+            $this->isVariadic()
+        );
+    }
 
-		return new self(
-			$parameters,
-			$cb($this->getReturnType()),
-			$this->isVariadic()
-		);
-	}
+    public function isArray(): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function isArray(): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
+    public function isNumericString(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function isNumericString(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function isCommonCallable(): bool
+    {
+        return $this->isCommonCallable;
+    }
 
-	public function isCommonCallable(): bool
-	{
-		return $this->isCommonCallable;
-	}
-
-	/**
-	 * @param mixed[] $properties
-	 * @return Type
-	 */
-	public static function __set_state(array $properties): Type
-	{
-		return new self(
-			(bool) $properties['isCommonCallable'] ? null : $properties['parameters'],
-			(bool) $properties['isCommonCallable'] ? null : $properties['returnType'],
-			$properties['variadic']
-		);
-	}
-
+    /**
+     * @param mixed[] $properties
+     * @return Type
+     */
+    public static function __set_state(array $properties): Type
+    {
+        return new self(
+            (bool) $properties['isCommonCallable'] ? null : $properties['parameters'],
+            (bool) $properties['isCommonCallable'] ? null : $properties['returnType'],
+            $properties['variadic']
+        );
+    }
 }

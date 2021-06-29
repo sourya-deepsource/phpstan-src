@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Exceptions;
 
@@ -13,28 +15,26 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class ThrowExpressionRule implements Rule
 {
+    private PhpVersion $phpVersion;
 
-	private PhpVersion $phpVersion;
+    public function __construct(PhpVersion $phpVersion)
+    {
+        $this->phpVersion = $phpVersion;
+    }
 
-	public function __construct(PhpVersion $phpVersion)
-	{
-		$this->phpVersion = $phpVersion;
-	}
+    public function getNodeType(): string
+    {
+        return Node\Expr\Throw_::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Node\Expr\Throw_::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if ($this->phpVersion->supportsThrowExpression()) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if ($this->phpVersion->supportsThrowExpression()) {
-			return [];
-		}
-
-		return [
-			RuleErrorBuilder::message('Throw expression is supported only on PHP 8.0 and later.')->nonIgnorable()->build(),
-		];
-	}
-
+        return [
+            RuleErrorBuilder::message('Throw expression is supported only on PHP 8.0 and later.')->nonIgnorable()->build(),
+        ];
+    }
 }

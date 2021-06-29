@@ -1,18 +1,18 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection;
 
 interface ClassMemberReflection
 {
+    public function getDeclaringClass(): ClassReflection;
 
-	public function getDeclaringClass(): ClassReflection;
+    public function isStatic(): bool;
 
-	public function isStatic(): bool;
+    public function isPrivate(): bool;
 
-	public function isPrivate(): bool;
+    public function isPublic(): bool;
 
-	public function isPublic(): bool;
-
-	public function getDocComment(): ?string;
-
+    public function getDocComment(): ?string;
 }

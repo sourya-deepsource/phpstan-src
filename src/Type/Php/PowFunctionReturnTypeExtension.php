@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -16,37 +18,35 @@ use PHPStan\Type\TypeCombinator;
 
 class PowFunctionReturnTypeExtension implements DynamicFunctionReturnTypeExtension
 {
+    public function isFunctionSupported(FunctionReflection $functionReflection): bool
+    {
+        return $functionReflection->getName() === 'pow';
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection): bool
-	{
-		return $functionReflection->getName() === 'pow';
-	}
+    public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
+    {
+        $defaultReturnType = new BenevolentUnionType([
+            new FloatType(),
+            new IntegerType(),
+        ]);
+        if (count($functionCall->args) < 2) {
+            return $defaultReturnType;
+        }
 
-	public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
-	{
-		$defaultReturnType = new BenevolentUnionType([
-			new FloatType(),
-			new IntegerType(),
-		]);
-		if (count($functionCall->args) < 2) {
-			return $defaultReturnType;
-		}
+        $firstArgType = $scope->getType($functionCall->args[0]->value);
+        $secondArgType = $scope->getType($functionCall->args[1]->value);
+        if ($firstArgType instanceof MixedType || $secondArgType instanceof MixedType) {
+            return $defaultReturnType;
+        }
 
-		$firstArgType = $scope->getType($functionCall->args[0]->value);
-		$secondArgType = $scope->getType($functionCall->args[1]->value);
-		if ($firstArgType instanceof MixedType || $secondArgType instanceof MixedType) {
-			return $defaultReturnType;
-		}
+        $object = new ObjectWithoutClassType();
+        if (
+            !$object->isSuperTypeOf($firstArgType)->no()
+            || !$object->isSuperTypeOf($secondArgType)->no()
+        ) {
+            return TypeCombinator::union($firstArgType, $secondArgType);
+        }
 
-		$object = new ObjectWithoutClassType();
-		if (
-			!$object->isSuperTypeOf($firstArgType)->no()
-			|| !$object->isSuperTypeOf($secondArgType)->no()
-		) {
-			return TypeCombinator::union($firstArgType, $secondArgType);
-		}
-
-		return $defaultReturnType;
-	}
-
+        return $defaultReturnType;
+    }
 }

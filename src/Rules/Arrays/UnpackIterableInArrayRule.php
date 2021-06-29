@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Arrays;
 
@@ -17,57 +19,54 @@ use PHPStan\Type\VerbosityLevel;
  */
 class UnpackIterableInArrayRule implements Rule
 {
+    private RuleLevelHelper $ruleLevelHelper;
 
-	private RuleLevelHelper $ruleLevelHelper;
+    public function __construct(
+        RuleLevelHelper $ruleLevelHelper
+    ) {
+        $this->ruleLevelHelper = $ruleLevelHelper;
+    }
 
-	public function __construct(
-		RuleLevelHelper $ruleLevelHelper
-	)
-	{
-		$this->ruleLevelHelper = $ruleLevelHelper;
-	}
+    public function getNodeType(): string
+    {
+        return LiteralArrayNode::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return LiteralArrayNode::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $errors = [];
+        foreach ($node->getItemNodes() as $itemNode) {
+            $item = $itemNode->getArrayItem();
+            if ($item === null) {
+                continue;
+            }
+            if (!$item->unpack) {
+                continue;
+            }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		$errors = [];
-		foreach ($node->getItemNodes() as $itemNode) {
-			$item = $itemNode->getArrayItem();
-			if ($item === null) {
-				continue;
-			}
-			if (!$item->unpack) {
-				continue;
-			}
+            $typeResult = $this->ruleLevelHelper->findTypeToCheck(
+                $scope,
+                $item->value,
+                '',
+                static function (Type $type): bool {
+                    return $type->isIterable()->yes();
+                }
+            );
+            $type = $typeResult->getType();
+            if ($type instanceof ErrorType) {
+                continue;
+            }
 
-			$typeResult = $this->ruleLevelHelper->findTypeToCheck(
-				$scope,
-				$item->value,
-				'',
-				static function (Type $type): bool {
-					return $type->isIterable()->yes();
-				}
-			);
-			$type = $typeResult->getType();
-			if ($type instanceof ErrorType) {
-				continue;
-			}
+            if ($type->isIterable()->yes()) {
+                continue;
+            }
 
-			if ($type->isIterable()->yes()) {
-				continue;
-			}
+            $errors[] = RuleErrorBuilder::message(sprintf(
+                'Only iterables can be unpacked, %s given.',
+                $type->describe(VerbosityLevel::typeOnly())
+            ))->line($item->getLine())->build();
+        }
 
-			$errors[] = RuleErrorBuilder::message(sprintf(
-				'Only iterables can be unpacked, %s given.',
-				$type->describe(VerbosityLevel::typeOnly())
-			))->line($item->getLine())->build();
-		}
-
-		return $errors;
-	}
-
+        return $errors;
+    }
 }

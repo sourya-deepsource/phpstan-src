@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules;
 
@@ -6,50 +8,47 @@ use PHPStan\Type\Type;
 
 class FoundTypeResult
 {
+    private \PHPStan\Type\Type $type;
 
-	private \PHPStan\Type\Type $type;
+    /** @var string[] */
+    private array $referencedClasses;
 
-	/** @var string[] */
-	private array $referencedClasses;
+    /** @var RuleError[] */
+    private array $unknownClassErrors;
 
-	/** @var RuleError[] */
-	private array $unknownClassErrors;
+    /**
+     * @param \PHPStan\Type\Type $type
+     * @param string[] $referencedClasses
+     * @param RuleError[] $unknownClassErrors
+     */
+    public function __construct(
+        Type $type,
+        array $referencedClasses,
+        array $unknownClassErrors
+    ) {
+        $this->type = $type;
+        $this->referencedClasses = $referencedClasses;
+        $this->unknownClassErrors = $unknownClassErrors;
+    }
 
-	/**
-	 * @param \PHPStan\Type\Type $type
-	 * @param string[] $referencedClasses
-	 * @param RuleError[] $unknownClassErrors
-	 */
-	public function __construct(
-		Type $type,
-		array $referencedClasses,
-		array $unknownClassErrors
-	)
-	{
-		$this->type = $type;
-		$this->referencedClasses = $referencedClasses;
-		$this->unknownClassErrors = $unknownClassErrors;
-	}
+    public function getType(): Type
+    {
+        return $this->type;
+    }
 
-	public function getType(): Type
-	{
-		return $this->type;
-	}
+    /**
+     * @return string[]
+     */
+    public function getReferencedClasses(): array
+    {
+        return $this->referencedClasses;
+    }
 
-	/**
-	 * @return string[]
-	 */
-	public function getReferencedClasses(): array
-	{
-		return $this->referencedClasses;
-	}
-
-	/**
-	 * @return RuleError[]
-	 */
-	public function getUnknownClassErrors(): array
-	{
-		return $this->unknownClassErrors;
-	}
-
+    /**
+     * @return RuleError[]
+     */
+    public function getUnknownClassErrors(): array
+    {
+        return $this->unknownClassErrors;
+    }
 }

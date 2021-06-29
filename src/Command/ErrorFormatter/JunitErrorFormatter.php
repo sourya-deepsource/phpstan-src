@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Command\ErrorFormatter;
 
@@ -9,84 +11,81 @@ use function sprintf;
 
 class JunitErrorFormatter implements ErrorFormatter
 {
+    private \PHPStan\File\RelativePathHelper $relativePathHelper;
 
-	private \PHPStan\File\RelativePathHelper $relativePathHelper;
+    public function __construct(RelativePathHelper $relativePathHelper)
+    {
+        $this->relativePathHelper = $relativePathHelper;
+    }
 
-	public function __construct(RelativePathHelper $relativePathHelper)
-	{
-		$this->relativePathHelper = $relativePathHelper;
-	}
+    public function formatErrors(
+        AnalysisResult $analysisResult,
+        Output $output
+    ): int {
+        $result = '<?xml version="1.0" encoding="UTF-8"?>';
+        $result .= sprintf(
+            '<testsuite failures="%d" name="phpstan" tests="%d" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/junit-team/junit5/r5.5.1/platform-tests/src/test/resources/jenkins-junit.xsd">',
+            $analysisResult->getTotalErrorsCount(),
+            $analysisResult->getTotalErrorsCount()
+        );
 
-	public function formatErrors(
-		AnalysisResult $analysisResult,
-		Output $output
-	): int
-	{
-		$result = '<?xml version="1.0" encoding="UTF-8"?>';
-		$result .= sprintf(
-			'<testsuite failures="%d" name="phpstan" tests="%d" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/junit-team/junit5/r5.5.1/platform-tests/src/test/resources/jenkins-junit.xsd">',
-			$analysisResult->getTotalErrorsCount(),
-			$analysisResult->getTotalErrorsCount()
-		);
+        foreach ($analysisResult->getFileSpecificErrors() as $fileSpecificError) {
+            $fileName = $this->relativePathHelper->getRelativePath($fileSpecificError->getFile());
+            $result .= $this->createTestCase(
+                sprintf('%s:%s', $fileName, (string) $fileSpecificError->getLine()),
+                'ERROR',
+                $this->escape($fileSpecificError->getMessage())
+            );
+        }
 
-		foreach ($analysisResult->getFileSpecificErrors() as $fileSpecificError) {
-			$fileName = $this->relativePathHelper->getRelativePath($fileSpecificError->getFile());
-			$result .= $this->createTestCase(
-				sprintf('%s:%s', $fileName, (string) $fileSpecificError->getLine()),
-				'ERROR',
-				$this->escape($fileSpecificError->getMessage())
-			);
-		}
+        foreach ($analysisResult->getNotFileSpecificErrors() as $notFileSpecificError) {
+            $result .= $this->createTestCase('General error', 'ERROR', $this->escape($notFileSpecificError));
+        }
 
-		foreach ($analysisResult->getNotFileSpecificErrors() as $notFileSpecificError) {
-			$result .= $this->createTestCase('General error', 'ERROR', $this->escape($notFileSpecificError));
-		}
+        foreach ($analysisResult->getWarnings() as $warning) {
+            $result .= $this->createTestCase('Warning', 'WARNING', $this->escape($warning));
+        }
 
-		foreach ($analysisResult->getWarnings() as $warning) {
-			$result .= $this->createTestCase('Warning', 'WARNING', $this->escape($warning));
-		}
+        if (!$analysisResult->hasErrors()) {
+            $result .= $this->createTestCase('phpstan', '');
+        }
 
-		if (!$analysisResult->hasErrors()) {
-			$result .= $this->createTestCase('phpstan', '');
-		}
+        $result .= '</testsuite>';
 
-		$result .= '</testsuite>';
+        $output->writeRaw($result);
 
-		$output->writeRaw($result);
+        return $analysisResult->hasErrors() ? 1 : 0;
+    }
 
-		return $analysisResult->hasErrors() ? 1 : 0;
-	}
+    /**
+     * Format a single test case
+     *
+     * @param string      $reference
+     * @param string|null $message
+     *
+     * @return string
+     */
+    private function createTestCase(string $reference, string $type, ?string $message = null): string
+    {
+        $result = sprintf('<testcase name="%s">', $this->escape($reference));
 
-	/**
-	 * Format a single test case
-	 *
-	 * @param string      $reference
-	 * @param string|null $message
-	 *
-	 * @return string
-	 */
-	private function createTestCase(string $reference, string $type, ?string $message = null): string
-	{
-		$result = sprintf('<testcase name="%s">', $this->escape($reference));
+        if ($message !== null) {
+            $result .= sprintf('<failure type="%s" message="%s" />', $this->escape($type), $this->escape($message));
+        }
 
-		if ($message !== null) {
-			$result .= sprintf('<failure type="%s" message="%s" />', $this->escape($type), $this->escape($message));
-		}
+        $result .= '</testcase>';
 
-		$result .= '</testcase>';
+        return $result;
+    }
 
-		return $result;
-	}
-
-	/**
-	 * Escapes values for using in XML
-	 *
-	 * @param string $string
-	 * @return string
-	 */
-	private function escape(string $string): string
-	{
-		return htmlspecialchars($string, ENT_XML1 | ENT_COMPAT, 'UTF-8');
-	}
-
+    /**
+     * Escapes values for using in XML
+     *
+     * @param string $string
+     * @return string
+     */
+    private function escape(string $string): string
+    {
+        return htmlspecialchars($string, ENT_XML1 | ENT_COMPAT, 'UTF-8');
+    }
 }

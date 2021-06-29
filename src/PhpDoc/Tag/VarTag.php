@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\PhpDoc\Tag;
 
@@ -6,26 +8,24 @@ use PHPStan\Type\Type;
 
 class VarTag implements TypedTag
 {
+    private \PHPStan\Type\Type $type;
 
-	private \PHPStan\Type\Type $type;
+    public function __construct(Type $type)
+    {
+        $this->type = $type;
+    }
 
-	public function __construct(Type $type)
-	{
-		$this->type = $type;
-	}
+    public function getType(): Type
+    {
+        return $this->type;
+    }
 
-	public function getType(): Type
-	{
-		return $this->type;
-	}
-
-	/**
-	 * @param Type $type
-	 * @return self
-	 */
-	public function withType(Type $type): TypedTag
-	{
-		return new self($type);
-	}
-
+    /**
+     * @param Type $type
+     * @return self
+     */
+    public function withType(Type $type): TypedTag
+    {
+        return new self($type);
+    }
 }

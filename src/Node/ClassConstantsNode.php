@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Node;
 
@@ -9,60 +11,58 @@ use PHPStan\Node\Constant\ClassConstantFetch;
 
 class ClassConstantsNode extends NodeAbstract implements VirtualNode
 {
+    private ClassLike $class;
 
-	private ClassLike $class;
+    /** @var ClassConst[] */
+    private array $constants;
 
-	/** @var ClassConst[] */
-	private array $constants;
+    /** @var ClassConstantFetch[] */
+    private array $fetches;
 
-	/** @var ClassConstantFetch[] */
-	private array $fetches;
+    /**
+     * @param ClassLike $class
+     * @param ClassConst[] $constants
+     * @param ClassConstantFetch[] $fetches
+     */
+    public function __construct(ClassLike $class, array $constants, array $fetches)
+    {
+        parent::__construct($class->getAttributes());
+        $this->class = $class;
+        $this->constants = $constants;
+        $this->fetches = $fetches;
+    }
 
-	/**
-	 * @param ClassLike $class
-	 * @param ClassConst[] $constants
-	 * @param ClassConstantFetch[] $fetches
-	 */
-	public function __construct(ClassLike $class, array $constants, array $fetches)
-	{
-		parent::__construct($class->getAttributes());
-		$this->class = $class;
-		$this->constants = $constants;
-		$this->fetches = $fetches;
-	}
+    public function getClass(): ClassLike
+    {
+        return $this->class;
+    }
 
-	public function getClass(): ClassLike
-	{
-		return $this->class;
-	}
+    /**
+     * @return ClassConst[]
+     */
+    public function getConstants(): array
+    {
+        return $this->constants;
+    }
 
-	/**
-	 * @return ClassConst[]
-	 */
-	public function getConstants(): array
-	{
-		return $this->constants;
-	}
+    /**
+     * @return ClassConstantFetch[]
+     */
+    public function getFetches(): array
+    {
+        return $this->fetches;
+    }
 
-	/**
-	 * @return ClassConstantFetch[]
-	 */
-	public function getFetches(): array
-	{
-		return $this->fetches;
-	}
+    public function getType(): string
+    {
+        return 'PHPStan_Node_ClassPropertiesNode';
+    }
 
-	public function getType(): string
-	{
-		return 'PHPStan_Node_ClassPropertiesNode';
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getSubNodeNames(): array
-	{
-		return [];
-	}
-
+    /**
+     * @return string[]
+     */
+    public function getSubNodeNames(): array
+    {
+        return [];
+    }
 }

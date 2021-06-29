@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\PhpDoc\Tag;
 
@@ -6,46 +8,43 @@ use PHPStan\Type\Type;
 
 class MethodTag
 {
+    private \PHPStan\Type\Type $returnType;
 
-	private \PHPStan\Type\Type $returnType;
+    private bool $isStatic;
 
-	private bool $isStatic;
+    /** @var array<string, \PHPStan\PhpDoc\Tag\MethodTagParameter> */
+    private array $parameters;
 
-	/** @var array<string, \PHPStan\PhpDoc\Tag\MethodTagParameter> */
-	private array $parameters;
+    /**
+     * @param \PHPStan\Type\Type $returnType
+     * @param bool $isStatic
+     * @param array<string, \PHPStan\PhpDoc\Tag\MethodTagParameter> $parameters
+     */
+    public function __construct(
+        Type $returnType,
+        bool $isStatic,
+        array $parameters
+    ) {
+        $this->returnType = $returnType;
+        $this->isStatic = $isStatic;
+        $this->parameters = $parameters;
+    }
 
-	/**
-	 * @param \PHPStan\Type\Type $returnType
-	 * @param bool $isStatic
-	 * @param array<string, \PHPStan\PhpDoc\Tag\MethodTagParameter> $parameters
-	 */
-	public function __construct(
-		Type $returnType,
-		bool $isStatic,
-		array $parameters
-	)
-	{
-		$this->returnType = $returnType;
-		$this->isStatic = $isStatic;
-		$this->parameters = $parameters;
-	}
+    public function getReturnType(): Type
+    {
+        return $this->returnType;
+    }
 
-	public function getReturnType(): Type
-	{
-		return $this->returnType;
-	}
+    public function isStatic(): bool
+    {
+        return $this->isStatic;
+    }
 
-	public function isStatic(): bool
-	{
-		return $this->isStatic;
-	}
-
-	/**
-	 * @return array<string, \PHPStan\PhpDoc\Tag\MethodTagParameter>
-	 */
-	public function getParameters(): array
-	{
-		return $this->parameters;
-	}
-
+    /**
+     * @return array<string, \PHPStan\PhpDoc\Tag\MethodTagParameter>
+     */
+    public function getParameters(): array
+    {
+        return $this->parameters;
+    }
 }

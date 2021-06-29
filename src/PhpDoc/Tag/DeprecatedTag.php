@@ -1,20 +1,20 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\PhpDoc\Tag;
 
 class DeprecatedTag
 {
+    private ?string $message;
 
-	private ?string $message;
+    public function __construct(?string $message)
+    {
+        $this->message = $message;
+    }
 
-	public function __construct(?string $message)
-	{
-		$this->message = $message;
-	}
-
-	public function getMessage(): ?string
-	{
-		return $this->message;
-	}
-
+    public function getMessage(): ?string
+    {
+        return $this->message;
+    }
 }

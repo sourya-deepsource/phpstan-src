@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Generic;
 
@@ -14,56 +16,54 @@ use PHPStan\Type\UnionType;
 
 final class TemplateTypeFactory
 {
+    public static function create(TemplateTypeScope $scope, string $name, ?Type $bound, TemplateTypeVariance $variance): TemplateType
+    {
+        $strategy = new TemplateTypeParameterStrategy();
 
-	public static function create(TemplateTypeScope $scope, string $name, ?Type $bound, TemplateTypeVariance $variance): TemplateType
-	{
-		$strategy = new TemplateTypeParameterStrategy();
+        if ($bound === null) {
+            return new TemplateMixedType($scope, $strategy, $variance, $name, new MixedType(true));
+        }
 
-		if ($bound === null) {
-			return new TemplateMixedType($scope, $strategy, $variance, $name, new MixedType(true));
-		}
+        $boundClass = get_class($bound);
+        if ($bound instanceof ObjectType && ($boundClass === ObjectType::class || $bound instanceof TemplateType)) {
+            return new TemplateObjectType($scope, $strategy, $variance, $name, $bound);
+        }
 
-		$boundClass = get_class($bound);
-		if ($bound instanceof ObjectType && ($boundClass === ObjectType::class || $bound instanceof TemplateType)) {
-			return new TemplateObjectType($scope, $strategy, $variance, $name, $bound);
-		}
+        if ($bound instanceof GenericObjectType && ($boundClass === GenericObjectType::class || $bound instanceof TemplateType)) {
+            return new TemplateGenericObjectType($scope, $strategy, $variance, $name, $bound);
+        }
 
-		if ($bound instanceof GenericObjectType && ($boundClass === GenericObjectType::class || $bound instanceof TemplateType)) {
-			return new TemplateGenericObjectType($scope, $strategy, $variance, $name, $bound);
-		}
+        if ($bound instanceof ObjectWithoutClassType && ($boundClass === ObjectWithoutClassType::class || $bound instanceof TemplateType)) {
+            return new TemplateObjectWithoutClassType($scope, $strategy, $variance, $name, $bound);
+        }
 
-		if ($bound instanceof ObjectWithoutClassType && ($boundClass === ObjectWithoutClassType::class || $bound instanceof TemplateType)) {
-			return new TemplateObjectWithoutClassType($scope, $strategy, $variance, $name, $bound);
-		}
+        if ($bound instanceof StringType && ($boundClass === StringType::class || $bound instanceof TemplateType)) {
+            return new TemplateStringType($scope, $strategy, $variance, $name, $bound);
+        }
 
-		if ($bound instanceof StringType && ($boundClass === StringType::class || $bound instanceof TemplateType)) {
-			return new TemplateStringType($scope, $strategy, $variance, $name, $bound);
-		}
+        if ($bound instanceof IntegerType && ($boundClass === IntegerType::class || $bound instanceof TemplateType)) {
+            return new TemplateIntegerType($scope, $strategy, $variance, $name, $bound);
+        }
 
-		if ($bound instanceof IntegerType && ($boundClass === IntegerType::class || $bound instanceof TemplateType)) {
-			return new TemplateIntegerType($scope, $strategy, $variance, $name, $bound);
-		}
+        if ($bound instanceof MixedType && ($boundClass === MixedType::class || $bound instanceof TemplateType)) {
+            return new TemplateMixedType($scope, $strategy, $variance, $name, $bound);
+        }
 
-		if ($bound instanceof MixedType && ($boundClass === MixedType::class || $bound instanceof TemplateType)) {
-			return new TemplateMixedType($scope, $strategy, $variance, $name, $bound);
-		}
+        if ($bound instanceof UnionType) {
+            if ($boundClass === UnionType::class || $bound instanceof TemplateUnionType) {
+                return new TemplateUnionType($scope, $strategy, $variance, $name, $bound);
+            }
 
-		if ($bound instanceof UnionType) {
-			if ($boundClass === UnionType::class || $bound instanceof TemplateUnionType) {
-				return new TemplateUnionType($scope, $strategy, $variance, $name, $bound);
-			}
+            if ($bound instanceof BenevolentUnionType) {
+                return new TemplateBenevolentUnionType($scope, $strategy, $variance, $name, $bound);
+            }
+        }
 
-			if ($bound instanceof BenevolentUnionType) {
-				return new TemplateBenevolentUnionType($scope, $strategy, $variance, $name, $bound);
-			}
-		}
+        return new TemplateMixedType($scope, $strategy, $variance, $name, new MixedType(true));
+    }
 
-		return new TemplateMixedType($scope, $strategy, $variance, $name, new MixedType(true));
-	}
-
-	public static function fromTemplateTag(TemplateTypeScope $scope, TemplateTag $tag): TemplateType
-	{
-		return self::create($scope, $tag->getName(), $tag->getBound(), $tag->getVariance());
-	}
-
+    public static function fromTemplateTag(TemplateTypeScope $scope, TemplateTag $tag): TemplateType
+    {
+        return self::create($scope, $tag->getName(), $tag->getBound(), $tag->getVariance());
+    }
 }

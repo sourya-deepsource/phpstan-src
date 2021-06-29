@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Traits;
 
@@ -7,17 +9,15 @@ use PHPStan\Type\Type;
 
 trait UndecidedComparisonCompoundTypeTrait
 {
+    use UndecidedComparisonTypeTrait;
 
-	use UndecidedComparisonTypeTrait;
+    public function isGreaterThan(Type $otherType): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function isGreaterThan(Type $otherType): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
-
-	public function isGreaterThanOrEqual(Type $otherType): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
-
+    public function isGreaterThanOrEqual(Type $otherType): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 }

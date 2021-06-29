@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -11,25 +13,23 @@ use PHPStan\Type\Type;
 
 class ClosureBindToDynamicReturnTypeExtension implements \PHPStan\Type\DynamicMethodReturnTypeExtension
 {
+    public function getClass(): string
+    {
+        return \Closure::class;
+    }
 
-	public function getClass(): string
-	{
-		return \Closure::class;
-	}
+    public function isMethodSupported(MethodReflection $methodReflection): bool
+    {
+        return $methodReflection->getName() === 'bindTo';
+    }
 
-	public function isMethodSupported(MethodReflection $methodReflection): bool
-	{
-		return $methodReflection->getName() === 'bindTo';
-	}
+    public function getTypeFromMethodCall(MethodReflection $methodReflection, MethodCall $methodCall, Scope $scope): Type
+    {
+        $closureType = $scope->getType($methodCall->var);
+        if (!($closureType instanceof ClosureType)) {
+            return ParametersAcceptorSelector::selectSingle($methodReflection->getVariants())->getReturnType();
+        }
 
-	public function getTypeFromMethodCall(MethodReflection $methodReflection, MethodCall $methodCall, Scope $scope): Type
-	{
-		$closureType = $scope->getType($methodCall->var);
-		if (!($closureType instanceof ClosureType)) {
-			return ParametersAcceptorSelector::selectSingle($methodReflection->getVariants())->getReturnType();
-		}
-
-		return $closureType;
-	}
-
+        return $closureType;
+    }
 }

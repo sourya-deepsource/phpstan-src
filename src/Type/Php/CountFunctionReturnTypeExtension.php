@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -14,44 +16,41 @@ use PHPStan\Type\TypeUtils;
 
 class CountFunctionReturnTypeExtension implements \PHPStan\Type\DynamicFunctionReturnTypeExtension
 {
+    public function isFunctionSupported(FunctionReflection $functionReflection): bool
+    {
+        return $functionReflection->getName() === 'count';
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection): bool
-	{
-		return $functionReflection->getName() === 'count';
-	}
+    public function getTypeFromFunctionCall(
+        FunctionReflection $functionReflection,
+        FuncCall $functionCall,
+        Scope $scope
+    ): Type {
+        if (count($functionCall->args) < 1) {
+            return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
+        }
 
-	public function getTypeFromFunctionCall(
-		FunctionReflection $functionReflection,
-		FuncCall $functionCall,
-		Scope $scope
-	): Type
-	{
-		if (count($functionCall->args) < 1) {
-			return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
-		}
+        if (count($functionCall->args) > 1) {
+            $mode = $scope->getType($functionCall->args[1]->value);
+            if ($mode->isSuperTypeOf(new ConstantIntegerType(\COUNT_RECURSIVE))->yes()) {
+                return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
+            }
+        }
 
-		if (count($functionCall->args) > 1) {
-			$mode = $scope->getType($functionCall->args[1]->value);
-			if ($mode->isSuperTypeOf(new ConstantIntegerType(\COUNT_RECURSIVE))->yes()) {
-				return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
-			}
-		}
+        $argType = $scope->getType($functionCall->args[0]->value);
+        $constantArrays = TypeUtils::getConstantArrays($scope->getType($functionCall->args[0]->value));
+        if (count($constantArrays) === 0) {
+            if ($argType->isIterableAtLeastOnce()->yes()) {
+                return IntegerRangeType::fromInterval(1, null);
+            }
 
-		$argType = $scope->getType($functionCall->args[0]->value);
-		$constantArrays = TypeUtils::getConstantArrays($scope->getType($functionCall->args[0]->value));
-		if (count($constantArrays) === 0) {
-			if ($argType->isIterableAtLeastOnce()->yes()) {
-				return IntegerRangeType::fromInterval(1, null);
-			}
+            return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
+        }
+        $countTypes = [];
+        foreach ($constantArrays as $array) {
+            $countTypes[] = $array->count();
+        }
 
-			return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
-		}
-		$countTypes = [];
-		foreach ($constantArrays as $array) {
-			$countTypes[] = $array->count();
-		}
-
-		return TypeCombinator::union(...$countTypes);
-	}
-
+        return TypeCombinator::union(...$countTypes);
+    }
 }

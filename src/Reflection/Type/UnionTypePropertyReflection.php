@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection\Type;
 
@@ -10,142 +12,140 @@ use PHPStan\Type\TypeCombinator;
 
 class UnionTypePropertyReflection implements PropertyReflection
 {
+    /** @var PropertyReflection[] */
+    private array $properties;
 
-	/** @var PropertyReflection[] */
-	private array $properties;
+    /**
+     * @param \PHPStan\Reflection\PropertyReflection[] $properties
+     */
+    public function __construct(array $properties)
+    {
+        $this->properties = $properties;
+    }
 
-	/**
-	 * @param \PHPStan\Reflection\PropertyReflection[] $properties
-	 */
-	public function __construct(array $properties)
-	{
-		$this->properties = $properties;
-	}
+    public function getDeclaringClass(): ClassReflection
+    {
+        return $this->properties[0]->getDeclaringClass();
+    }
 
-	public function getDeclaringClass(): ClassReflection
-	{
-		return $this->properties[0]->getDeclaringClass();
-	}
+    public function isStatic(): bool
+    {
+        foreach ($this->properties as $property) {
+            if (!$property->isStatic()) {
+                return false;
+            }
+        }
 
-	public function isStatic(): bool
-	{
-		foreach ($this->properties as $property) {
-			if (!$property->isStatic()) {
-				return false;
-			}
-		}
+        return true;
+    }
 
-		return true;
-	}
+    public function isPrivate(): bool
+    {
+        foreach ($this->properties as $property) {
+            if ($property->isPrivate()) {
+                return true;
+            }
+        }
 
-	public function isPrivate(): bool
-	{
-		foreach ($this->properties as $property) {
-			if ($property->isPrivate()) {
-				return true;
-			}
-		}
+        return false;
+    }
 
-		return false;
-	}
+    public function isPublic(): bool
+    {
+        foreach ($this->properties as $property) {
+            if (!$property->isPublic()) {
+                return false;
+            }
+        }
 
-	public function isPublic(): bool
-	{
-		foreach ($this->properties as $property) {
-			if (!$property->isPublic()) {
-				return false;
-			}
-		}
+        return true;
+    }
 
-		return true;
-	}
+    public function isDeprecated(): TrinaryLogic
+    {
+        return TrinaryLogic::extremeIdentity(...array_map(static function (PropertyReflection $property): TrinaryLogic {
+            return $property->isDeprecated();
+        }, $this->properties));
+    }
 
-	public function isDeprecated(): TrinaryLogic
-	{
-		return TrinaryLogic::extremeIdentity(...array_map(static function (PropertyReflection $property): TrinaryLogic {
-			return $property->isDeprecated();
-		}, $this->properties));
-	}
+    public function getDeprecatedDescription(): ?string
+    {
+        $descriptions = [];
+        foreach ($this->properties as $property) {
+            if (!$property->isDeprecated()->yes()) {
+                continue;
+            }
+            $description = $property->getDeprecatedDescription();
+            if ($description === null) {
+                continue;
+            }
 
-	public function getDeprecatedDescription(): ?string
-	{
-		$descriptions = [];
-		foreach ($this->properties as $property) {
-			if (!$property->isDeprecated()->yes()) {
-				continue;
-			}
-			$description = $property->getDeprecatedDescription();
-			if ($description === null) {
-				continue;
-			}
+            $descriptions[] = $description;
+        }
 
-			$descriptions[] = $description;
-		}
+        if (count($descriptions) === 0) {
+            return null;
+        }
 
-		if (count($descriptions) === 0) {
-			return null;
-		}
+        return implode(' ', $descriptions);
+    }
 
-		return implode(' ', $descriptions);
-	}
+    public function isInternal(): TrinaryLogic
+    {
+        return TrinaryLogic::extremeIdentity(...array_map(static function (PropertyReflection $property): TrinaryLogic {
+            return $property->isInternal();
+        }, $this->properties));
+    }
 
-	public function isInternal(): TrinaryLogic
-	{
-		return TrinaryLogic::extremeIdentity(...array_map(static function (PropertyReflection $property): TrinaryLogic {
-			return $property->isInternal();
-		}, $this->properties));
-	}
+    public function getDocComment(): ?string
+    {
+        return null;
+    }
 
-	public function getDocComment(): ?string
-	{
-		return null;
-	}
+    public function getReadableType(): Type
+    {
+        return TypeCombinator::union(...array_map(static function (PropertyReflection $property): Type {
+            return $property->getReadableType();
+        }, $this->properties));
+    }
 
-	public function getReadableType(): Type
-	{
-		return TypeCombinator::union(...array_map(static function (PropertyReflection $property): Type {
-			return $property->getReadableType();
-		}, $this->properties));
-	}
+    public function getWritableType(): Type
+    {
+        return TypeCombinator::union(...array_map(static function (PropertyReflection $property): Type {
+            return $property->getWritableType();
+        }, $this->properties));
+    }
 
-	public function getWritableType(): Type
-	{
-		return TypeCombinator::union(...array_map(static function (PropertyReflection $property): Type {
-			return $property->getWritableType();
-		}, $this->properties));
-	}
+    public function canChangeTypeAfterAssignment(): bool
+    {
+        foreach ($this->properties as $property) {
+            if (!$property->canChangeTypeAfterAssignment()) {
+                return false;
+            }
+        }
 
-	public function canChangeTypeAfterAssignment(): bool
-	{
-		foreach ($this->properties as $property) {
-			if (!$property->canChangeTypeAfterAssignment()) {
-				return false;
-			}
-		}
+        return true;
+    }
 
-		return true;
-	}
+    public function isReadable(): bool
+    {
+        foreach ($this->properties as $property) {
+            if (!$property->isReadable()) {
+                return false;
+            }
+        }
 
-	public function isReadable(): bool
-	{
-		foreach ($this->properties as $property) {
-			if (!$property->isReadable()) {
-				return false;
-			}
-		}
+        return true;
+    }
 
-		return true;
-	}
+    public function isWritable(): bool
+    {
+        foreach ($this->properties as $property) {
+            if (!$property->isWritable()) {
+                return false;
+            }
+        }
 
-	public function isWritable(): bool
-	{
-		foreach ($this->properties as $property) {
-			if (!$property->isWritable()) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
+        return true;
+    }
 }

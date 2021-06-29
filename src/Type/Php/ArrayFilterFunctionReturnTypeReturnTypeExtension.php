@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -24,104 +26,101 @@ use PHPStan\Type\TypeUtils;
 
 class ArrayFilterFunctionReturnTypeReturnTypeExtension implements \PHPStan\Type\DynamicFunctionReturnTypeExtension
 {
+    public function isFunctionSupported(FunctionReflection $functionReflection): bool
+    {
+        return $functionReflection->getName() === 'array_filter';
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection): bool
-	{
-		return $functionReflection->getName() === 'array_filter';
-	}
+    public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
+    {
+        $arrayArg = $functionCall->args[0]->value ?? null;
+        $callbackArg = $functionCall->args[1]->value ?? null;
+        $flagArg = $functionCall->args[2]->value ?? null;
 
-	public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
-	{
-		$arrayArg = $functionCall->args[0]->value ?? null;
-		$callbackArg = $functionCall->args[1]->value ?? null;
-		$flagArg = $functionCall->args[2]->value ?? null;
+        if ($arrayArg !== null) {
+            $arrayArgType = $scope->getType($arrayArg);
+            $keyType = $arrayArgType->getIterableKeyType();
+            $itemType = $arrayArgType->getIterableValueType();
 
-		if ($arrayArg !== null) {
-			$arrayArgType = $scope->getType($arrayArg);
-			$keyType = $arrayArgType->getIterableKeyType();
-			$itemType = $arrayArgType->getIterableValueType();
+            if ($arrayArgType instanceof MixedType) {
+                return new BenevolentUnionType([
+                    new ArrayType(new MixedType(), new MixedType()),
+                    new NullType(),
+                ]);
+            }
 
-			if ($arrayArgType instanceof MixedType) {
-				return new BenevolentUnionType([
-					new ArrayType(new MixedType(), new MixedType()),
-					new NullType(),
-				]);
-			}
+            if ($callbackArg === null) {
+                return TypeCombinator::union(
+                    ...array_map([$this, 'removeFalsey'], TypeUtils::getArrays($arrayArgType))
+                );
+            }
 
-			if ($callbackArg === null) {
-				return TypeCombinator::union(
-					...array_map([$this, 'removeFalsey'], TypeUtils::getArrays($arrayArgType))
-				);
-			}
+            if ($flagArg === null) {
+                $var = null;
+                $expr = null;
+                if ($callbackArg instanceof Closure && count($callbackArg->stmts) === 1 && count($callbackArg->params) > 0) {
+                    $statement = $callbackArg->stmts[0];
+                    if ($statement instanceof Return_ && $statement->expr !== null) {
+                        $var = $callbackArg->params[0]->var;
+                        $expr = $statement->expr;
+                    }
+                } elseif ($callbackArg instanceof ArrowFunction && count($callbackArg->params) > 0) {
+                    $var = $callbackArg->params[0]->var;
+                    $expr = $callbackArg->expr;
+                }
+                if ($var !== null && $expr !== null) {
+                    if (!$var instanceof Variable || !is_string($var->name)) {
+                        throw new \PHPStan\ShouldNotHappenException();
+                    }
+                    $itemVariableName = $var->name;
+                    if (!$scope instanceof MutatingScope) {
+                        throw new \PHPStan\ShouldNotHappenException();
+                    }
+                    $scope = $scope->assignVariable($itemVariableName, $itemType);
+                    $scope = $scope->filterByTruthyValue($expr);
+                    $itemType = $scope->getVariableType($itemVariableName);
+                }
+            }
+        } else {
+            $keyType = new MixedType();
+            $itemType = new MixedType();
+        }
 
-			if ($flagArg === null) {
-				$var = null;
-				$expr = null;
-				if ($callbackArg instanceof Closure && count($callbackArg->stmts) === 1 && count($callbackArg->params) > 0) {
-					$statement = $callbackArg->stmts[0];
-					if ($statement instanceof Return_ && $statement->expr !== null) {
-						$var = $callbackArg->params[0]->var;
-						$expr = $statement->expr;
-					}
-				} elseif ($callbackArg instanceof ArrowFunction && count($callbackArg->params) > 0) {
-					$var = $callbackArg->params[0]->var;
-					$expr = $callbackArg->expr;
-				}
-				if ($var !== null && $expr !== null) {
-					if (!$var instanceof Variable || !is_string($var->name)) {
-						throw new \PHPStan\ShouldNotHappenException();
-					}
-					$itemVariableName = $var->name;
-					if (!$scope instanceof MutatingScope) {
-						throw new \PHPStan\ShouldNotHappenException();
-					}
-					$scope = $scope->assignVariable($itemVariableName, $itemType);
-					$scope = $scope->filterByTruthyValue($expr);
-					$itemType = $scope->getVariableType($itemVariableName);
-				}
-			}
+        return new ArrayType($keyType, $itemType);
+    }
 
-		} else {
-			$keyType = new MixedType();
-			$itemType = new MixedType();
-		}
+    public function removeFalsey(Type $type): Type
+    {
+        $falseyTypes = StaticTypeFactory::falsey();
 
-		return new ArrayType($keyType, $itemType);
-	}
+        if ($type instanceof ConstantArrayType) {
+            $keys = $type->getKeyTypes();
+            $values = $type->getValueTypes();
 
-	public function removeFalsey(Type $type): Type
-	{
-		$falseyTypes = StaticTypeFactory::falsey();
+            $builder = ConstantArrayTypeBuilder::createEmpty();
 
-		if ($type instanceof ConstantArrayType) {
-			$keys = $type->getKeyTypes();
-			$values = $type->getValueTypes();
+            foreach ($values as $offset => $value) {
+                $isFalsey = $falseyTypes->isSuperTypeOf($value);
 
-			$builder = ConstantArrayTypeBuilder::createEmpty();
+                if ($isFalsey->maybe()) {
+                    $builder->setOffsetValueType($keys[$offset], TypeCombinator::remove($value, $falseyTypes), true);
+                } elseif ($isFalsey->no()) {
+                    $builder->setOffsetValueType($keys[$offset], $value);
+                }
+            }
 
-			foreach ($values as $offset => $value) {
-				$isFalsey = $falseyTypes->isSuperTypeOf($value);
+            return $builder->getArray();
+        }
 
-				if ($isFalsey->maybe()) {
-					$builder->setOffsetValueType($keys[$offset], TypeCombinator::remove($value, $falseyTypes), true);
-				} elseif ($isFalsey->no()) {
-					$builder->setOffsetValueType($keys[$offset], $value);
-				}
-			}
+        $keyType = $type->getIterableKeyType();
+        $valueType = $type->getIterableValueType();
 
-			return $builder->getArray();
-		}
+        $valueType = TypeCombinator::remove($valueType, $falseyTypes);
 
-		$keyType = $type->getIterableKeyType();
-		$valueType = $type->getIterableValueType();
+        if ($valueType instanceof NeverType) {
+            return new ConstantArrayType([], []);
+        }
 
-		$valueType = TypeCombinator::remove($valueType, $falseyTypes);
-
-		if ($valueType instanceof NeverType) {
-			return new ConstantArrayType([], []);
-		}
-
-		return new ArrayType($keyType, $valueType);
-	}
-
+        return new ArrayType($keyType, $valueType);
+    }
 }

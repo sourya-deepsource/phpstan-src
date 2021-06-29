@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Generics;
 
@@ -15,68 +17,65 @@ use PHPStan\Type\VerbosityLevel;
  */
 class MethodTemplateTypeRule implements Rule
 {
+    private \PHPStan\Type\FileTypeMapper $fileTypeMapper;
 
-	private \PHPStan\Type\FileTypeMapper $fileTypeMapper;
+    private \PHPStan\Rules\Generics\TemplateTypeCheck $templateTypeCheck;
 
-	private \PHPStan\Rules\Generics\TemplateTypeCheck $templateTypeCheck;
+    public function __construct(
+        FileTypeMapper $fileTypeMapper,
+        TemplateTypeCheck $templateTypeCheck
+    ) {
+        $this->fileTypeMapper = $fileTypeMapper;
+        $this->templateTypeCheck = $templateTypeCheck;
+    }
 
-	public function __construct(
-		FileTypeMapper $fileTypeMapper,
-		TemplateTypeCheck $templateTypeCheck
-	)
-	{
-		$this->fileTypeMapper = $fileTypeMapper;
-		$this->templateTypeCheck = $templateTypeCheck;
-	}
+    public function getNodeType(): string
+    {
+        return Node\Stmt\ClassMethod::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Node\Stmt\ClassMethod::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $docComment = $node->getDocComment();
+        if ($docComment === null) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		$docComment = $node->getDocComment();
-		if ($docComment === null) {
-			return [];
-		}
+        if (!$scope->isInClass()) {
+            throw new \PHPStan\ShouldNotHappenException();
+        }
 
-		if (!$scope->isInClass()) {
-			throw new \PHPStan\ShouldNotHappenException();
-		}
+        $classReflection = $scope->getClassReflection();
+        $className = $classReflection->getDisplayName();
+        $methodName = $node->name->toString();
+        $resolvedPhpDoc = $this->fileTypeMapper->getResolvedPhpDoc(
+            $scope->getFile(),
+            $className,
+            $scope->isInTrait() ? $scope->getTraitReflection()->getName() : null,
+            $methodName,
+            $docComment->getText()
+        );
 
-		$classReflection = $scope->getClassReflection();
-		$className = $classReflection->getDisplayName();
-		$methodName = $node->name->toString();
-		$resolvedPhpDoc = $this->fileTypeMapper->getResolvedPhpDoc(
-			$scope->getFile(),
-			$className,
-			$scope->isInTrait() ? $scope->getTraitReflection()->getName() : null,
-			$methodName,
-			$docComment->getText()
-		);
+        $methodTemplateTags = $resolvedPhpDoc->getTemplateTags();
+        $messages = $this->templateTypeCheck->check(
+            $node,
+            TemplateTypeScope::createWithMethod($className, $methodName),
+            $methodTemplateTags,
+            sprintf('PHPDoc tag @template for method %s::%s() cannot have existing class %%s as its name.', $className, $methodName),
+            sprintf('PHPDoc tag @template for method %s::%s() cannot have existing type alias %%s as its name.', $className, $methodName),
+            sprintf('PHPDoc tag @template %%s for method %s::%s() has invalid bound type %%s.', $className, $methodName),
+            sprintf('PHPDoc tag @template %%s for method %s::%s() with bound type %%s is not supported.', $className, $methodName)
+        );
 
-		$methodTemplateTags = $resolvedPhpDoc->getTemplateTags();
-		$messages = $this->templateTypeCheck->check(
-			$node,
-			TemplateTypeScope::createWithMethod($className, $methodName),
-			$methodTemplateTags,
-			sprintf('PHPDoc tag @template for method %s::%s() cannot have existing class %%s as its name.', $className, $methodName),
-			sprintf('PHPDoc tag @template for method %s::%s() cannot have existing type alias %%s as its name.', $className, $methodName),
-			sprintf('PHPDoc tag @template %%s for method %s::%s() has invalid bound type %%s.', $className, $methodName),
-			sprintf('PHPDoc tag @template %%s for method %s::%s() with bound type %%s is not supported.', $className, $methodName)
-		);
+        $classTemplateTypes = $classReflection->getTemplateTypeMap()->getTypes();
+        foreach (array_keys($methodTemplateTags) as $name) {
+            if (!isset($classTemplateTypes[$name])) {
+                continue;
+            }
 
-		$classTemplateTypes = $classReflection->getTemplateTypeMap()->getTypes();
-		foreach (array_keys($methodTemplateTags) as $name) {
-			if (!isset($classTemplateTypes[$name])) {
-				continue;
-			}
+            $messages[] = RuleErrorBuilder::message(sprintf('PHPDoc tag @template %s for method %s::%s() shadows @template %s for class %s.', $name, $className, $methodName, $classTemplateTypes[$name]->describe(VerbosityLevel::typeOnly()), $classReflection->getDisplayName(false)))->build();
+        }
 
-			$messages[] = RuleErrorBuilder::message(sprintf('PHPDoc tag @template %s for method %s::%s() shadows @template %s for class %s.', $name, $className, $methodName, $classTemplateTypes[$name]->describe(VerbosityLevel::typeOnly()), $classReflection->getDisplayName(false)))->build();
-		}
-
-		return $messages;
-	}
-
+        return $messages;
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Whitespace;
 
@@ -15,75 +17,71 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class FileWhitespaceRule implements Rule
 {
+    public function getNodeType(): string
+    {
+        return FileNode::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return FileNode::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $nodes = $node->getNodes();
+        if (count($nodes) === 0) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		$nodes = $node->getNodes();
-		if (count($nodes) === 0) {
-			return [];
-		}
+        $firstNode = $nodes[0];
+        $messages = [];
+        if ($firstNode instanceof Node\Stmt\InlineHTML && $firstNode->value === "\xef\xbb\xbf") {
+            $messages[] = RuleErrorBuilder::message('File begins with UTF-8 BOM character. This may cause problems when running the code in the web browser.')->build();
+        }
 
-		$firstNode = $nodes[0];
-		$messages = [];
-		if ($firstNode instanceof Node\Stmt\InlineHTML && $firstNode->value === "\xef\xbb\xbf") {
-			$messages[] = RuleErrorBuilder::message('File begins with UTF-8 BOM character. This may cause problems when running the code in the web browser.')->build();
-		}
+        $nodeTraverser = new NodeTraverser();
+        $visitor = new class() extends \PhpParser\NodeVisitorAbstract {
+            /** @var \PhpParser\Node[] */
+            private $lastNodes = [];
 
-		$nodeTraverser = new NodeTraverser();
-		$visitor = new class () extends \PhpParser\NodeVisitorAbstract {
+            /**
+             * @param Node $node
+             * @return int|Node|null
+             */
+            public function enterNode(Node $node)
+            {
+                if ($node instanceof Node\Stmt\Declare_) {
+                    if ($node->stmts !== null && count($node->stmts) > 0) {
+                        $this->lastNodes[] = $node->stmts[count($node->stmts) - 1];
+                    }
+                    return null;
+                }
+                if ($node instanceof Node\Stmt\Namespace_) {
+                    if (count($node->stmts) > 0) {
+                        $this->lastNodes[] = $node->stmts[count($node->stmts) - 1];
+                    }
+                    return null;
+                }
+                return NodeTraverser::DONT_TRAVERSE_CURRENT_AND_CHILDREN;
+            }
 
-			/** @var \PhpParser\Node[] */
-			private $lastNodes = [];
+            /**
+             * @return Node[]
+             */
+            public function getLastNodes(): array
+            {
+                return $this->lastNodes;
+            }
+        };
+        $nodeTraverser->addVisitor($visitor);
+        $nodeTraverser->traverse($nodes);
 
-			/**
-			 * @param Node $node
-			 * @return int|Node|null
-			 */
-			public function enterNode(Node $node)
-			{
-				if ($node instanceof Node\Stmt\Declare_) {
-					if ($node->stmts !== null && count($node->stmts) > 0) {
-						$this->lastNodes[] = $node->stmts[count($node->stmts) - 1];
-					}
-					return null;
-				}
-				if ($node instanceof Node\Stmt\Namespace_) {
-					if (count($node->stmts) > 0) {
-						$this->lastNodes[] = $node->stmts[count($node->stmts) - 1];
-					}
-					return null;
-				}
-				return NodeTraverser::DONT_TRAVERSE_CURRENT_AND_CHILDREN;
-			}
+        $lastNodes = $visitor->getLastNodes();
+        $lastNodes[] = $nodes[count($nodes) - 1];
+        foreach ($lastNodes as $lastNode) {
+            if (!$lastNode instanceof Node\Stmt\InlineHTML || Strings::match($lastNode->value, '#^(\s+)$#') === null) {
+                continue;
+            }
 
-			/**
-			 * @return Node[]
-			 */
-			public function getLastNodes(): array
-			{
-				return $this->lastNodes;
-			}
+            $messages[] = RuleErrorBuilder::message('File ends with a trailing whitespace. This may cause problems when running the code in the web browser. Remove the closing ?> mark or remove the whitespace.')->line($lastNode->getStartLine())->build();
+        }
 
-		};
-		$nodeTraverser->addVisitor($visitor);
-		$nodeTraverser->traverse($nodes);
-
-		$lastNodes = $visitor->getLastNodes();
-		$lastNodes[] = $nodes[count($nodes) - 1];
-		foreach ($lastNodes as $lastNode) {
-			if (!$lastNode instanceof Node\Stmt\InlineHTML || Strings::match($lastNode->value, '#^(\s+)$#') === null) {
-				continue;
-			}
-
-			$messages[] = RuleErrorBuilder::message('File ends with a trailing whitespace. This may cause problems when running the code in the web browser. Remove the closing ?> mark or remove the whitespace.')->line($lastNode->getStartLine())->build();
-		}
-
-		return $messages;
-	}
-
+        return $messages;
+    }
 }

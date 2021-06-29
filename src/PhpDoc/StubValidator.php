@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\PhpDoc;
 
@@ -47,120 +49,117 @@ use PHPStan\Type\FileTypeMapper;
 
 class StubValidator
 {
+    private \PHPStan\DependencyInjection\DerivativeContainerFactory $derivativeContainerFactory;
 
-	private \PHPStan\DependencyInjection\DerivativeContainerFactory $derivativeContainerFactory;
+    public function __construct(
+        DerivativeContainerFactory $derivativeContainerFactory
+    ) {
+        $this->derivativeContainerFactory = $derivativeContainerFactory;
+    }
 
-	public function __construct(
-		DerivativeContainerFactory $derivativeContainerFactory
-	)
-	{
-		$this->derivativeContainerFactory = $derivativeContainerFactory;
-	}
+    /**
+     * @param string[] $stubFiles
+     * @return \PHPStan\Analyser\Error[]
+     */
+    public function validate(array $stubFiles, bool $debug): array
+    {
+        if (count($stubFiles) === 0) {
+            return [];
+        }
 
-	/**
-	 * @param string[] $stubFiles
-	 * @return \PHPStan\Analyser\Error[]
-	 */
-	public function validate(array $stubFiles, bool $debug): array
-	{
-		if (count($stubFiles) === 0) {
-			return [];
-		}
+        $originalBroker = Broker::getInstance();
+        $container = $this->derivativeContainerFactory->create([
+            __DIR__ . '/../../conf/config.stubValidator.neon',
+        ]);
 
-		$originalBroker = Broker::getInstance();
-		$container = $this->derivativeContainerFactory->create([
-			__DIR__ . '/../../conf/config.stubValidator.neon',
-		]);
+        $ruleRegistry = $this->getRuleRegistry($container);
 
-		$ruleRegistry = $this->getRuleRegistry($container);
+        /** @var FileAnalyser $fileAnalyser */
+        $fileAnalyser = $container->getByType(FileAnalyser::class);
 
-		/** @var FileAnalyser $fileAnalyser */
-		$fileAnalyser = $container->getByType(FileAnalyser::class);
+        /** @var NodeScopeResolver $nodeScopeResolver */
+        $nodeScopeResolver = $container->getByType(NodeScopeResolver::class);
+        $nodeScopeResolver->setAnalysedFiles($stubFiles);
 
-		/** @var NodeScopeResolver $nodeScopeResolver */
-		$nodeScopeResolver = $container->getByType(NodeScopeResolver::class);
-		$nodeScopeResolver->setAnalysedFiles($stubFiles);
+        $analysedFiles = array_fill_keys($stubFiles, true);
 
-		$analysedFiles = array_fill_keys($stubFiles, true);
+        $errors = [];
+        foreach ($stubFiles as $stubFile) {
+            try {
+                $tmpErrors = $fileAnalyser->analyseFile(
+                    $stubFile,
+                    $analysedFiles,
+                    $ruleRegistry,
+                    static function (): void {
+                    }
+                )->getErrors();
+                foreach ($tmpErrors as $tmpError) {
+                    $errors[] = $tmpError->withoutTip();
+                }
+            } catch (\Throwable $e) {
+                if ($debug) {
+                    throw $e;
+                }
 
-		$errors = [];
-		foreach ($stubFiles as $stubFile) {
-			try {
-				$tmpErrors = $fileAnalyser->analyseFile(
-					$stubFile,
-					$analysedFiles,
-					$ruleRegistry,
-					static function (): void {
-					}
-				)->getErrors();
-				foreach ($tmpErrors as $tmpError) {
-					$errors[] = $tmpError->withoutTip();
-				}
-			} catch (\Throwable $e) {
-				if ($debug) {
-					throw $e;
-				}
+                $internalErrorMessage = sprintf('Internal error: %s', $e->getMessage());
+                $errors[] = new Error($internalErrorMessage, $stubFile, null, $e);
+            }
+        }
 
-				$internalErrorMessage = sprintf('Internal error: %s', $e->getMessage());
-				$errors[] = new Error($internalErrorMessage, $stubFile, null, $e);
-			}
-		}
+        Broker::registerInstance($originalBroker);
 
-		Broker::registerInstance($originalBroker);
+        return $errors;
+    }
 
-		return $errors;
-	}
+    private function getRuleRegistry(Container $container): Registry
+    {
+        $fileTypeMapper = $container->getByType(FileTypeMapper::class);
+        $genericObjectTypeCheck = $container->getByType(GenericObjectTypeCheck::class);
+        $genericAncestorsCheck = $container->getByType(GenericAncestorsCheck::class);
+        $templateTypeCheck = $container->getByType(TemplateTypeCheck::class);
+        $varianceCheck = $container->getByType(VarianceCheck::class);
+        $reflectionProvider = $container->getByType(ReflectionProvider::class);
+        $classCaseSensitivityCheck = $container->getByType(ClassCaseSensitivityCheck::class);
+        $functionDefinitionCheck = $container->getByType(FunctionDefinitionCheck::class);
+        $missingTypehintCheck = $container->getByType(MissingTypehintCheck::class);
 
-	private function getRuleRegistry(Container $container): Registry
-	{
-		$fileTypeMapper = $container->getByType(FileTypeMapper::class);
-		$genericObjectTypeCheck = $container->getByType(GenericObjectTypeCheck::class);
-		$genericAncestorsCheck = $container->getByType(GenericAncestorsCheck::class);
-		$templateTypeCheck = $container->getByType(TemplateTypeCheck::class);
-		$varianceCheck = $container->getByType(VarianceCheck::class);
-		$reflectionProvider = $container->getByType(ReflectionProvider::class);
-		$classCaseSensitivityCheck = $container->getByType(ClassCaseSensitivityCheck::class);
-		$functionDefinitionCheck = $container->getByType(FunctionDefinitionCheck::class);
-		$missingTypehintCheck = $container->getByType(MissingTypehintCheck::class);
+        return new Registry([
+            // level 0
+            new ExistingClassesInClassImplementsRule($classCaseSensitivityCheck, $reflectionProvider),
+            new ExistingClassesInInterfaceExtendsRule($classCaseSensitivityCheck, $reflectionProvider),
+            new ExistingClassInClassExtendsRule($classCaseSensitivityCheck, $reflectionProvider),
+            new ExistingClassInTraitUseRule($classCaseSensitivityCheck, $reflectionProvider),
+            new ExistingClassesInTypehintsRule($functionDefinitionCheck),
+            new \PHPStan\Rules\Functions\ExistingClassesInTypehintsRule($functionDefinitionCheck),
+            new ExistingClassesInPropertiesRule($reflectionProvider, $classCaseSensitivityCheck, true, false),
 
-		return new Registry([
-			// level 0
-			new ExistingClassesInClassImplementsRule($classCaseSensitivityCheck, $reflectionProvider),
-			new ExistingClassesInInterfaceExtendsRule($classCaseSensitivityCheck, $reflectionProvider),
-			new ExistingClassInClassExtendsRule($classCaseSensitivityCheck, $reflectionProvider),
-			new ExistingClassInTraitUseRule($classCaseSensitivityCheck, $reflectionProvider),
-			new ExistingClassesInTypehintsRule($functionDefinitionCheck),
-			new \PHPStan\Rules\Functions\ExistingClassesInTypehintsRule($functionDefinitionCheck),
-			new ExistingClassesInPropertiesRule($reflectionProvider, $classCaseSensitivityCheck, true, false),
+            // level 2
+            new ClassAncestorsRule($fileTypeMapper, $genericAncestorsCheck),
+            new ClassTemplateTypeRule($templateTypeCheck),
+            new FunctionTemplateTypeRule($fileTypeMapper, $templateTypeCheck),
+            new FunctionSignatureVarianceRule($varianceCheck),
+            new InterfaceAncestorsRule($fileTypeMapper, $genericAncestorsCheck),
+            new InterfaceTemplateTypeRule($fileTypeMapper, $templateTypeCheck),
+            new MethodTemplateTypeRule($fileTypeMapper, $templateTypeCheck),
+            new MethodSignatureVarianceRule($varianceCheck),
+            new TraitTemplateTypeRule($fileTypeMapper, $templateTypeCheck),
+            new IncompatiblePhpDocTypeRule(
+                $fileTypeMapper,
+                $genericObjectTypeCheck
+            ),
+            new IncompatiblePropertyPhpDocTypeRule($genericObjectTypeCheck),
+            new InvalidPhpDocTagValueRule(
+                $container->getByType(Lexer::class),
+                $container->getByType(PhpDocParser::class)
+            ),
+            new InvalidThrowsPhpDocValueRule($fileTypeMapper),
 
-			// level 2
-			new ClassAncestorsRule($fileTypeMapper, $genericAncestorsCheck),
-			new ClassTemplateTypeRule($templateTypeCheck),
-			new FunctionTemplateTypeRule($fileTypeMapper, $templateTypeCheck),
-			new FunctionSignatureVarianceRule($varianceCheck),
-			new InterfaceAncestorsRule($fileTypeMapper, $genericAncestorsCheck),
-			new InterfaceTemplateTypeRule($fileTypeMapper, $templateTypeCheck),
-			new MethodTemplateTypeRule($fileTypeMapper, $templateTypeCheck),
-			new MethodSignatureVarianceRule($varianceCheck),
-			new TraitTemplateTypeRule($fileTypeMapper, $templateTypeCheck),
-			new IncompatiblePhpDocTypeRule(
-				$fileTypeMapper,
-				$genericObjectTypeCheck
-			),
-			new IncompatiblePropertyPhpDocTypeRule($genericObjectTypeCheck),
-			new InvalidPhpDocTagValueRule(
-				$container->getByType(Lexer::class),
-				$container->getByType(PhpDocParser::class)
-			),
-			new InvalidThrowsPhpDocValueRule($fileTypeMapper),
-
-			// level 6
-			new MissingFunctionParameterTypehintRule($missingTypehintCheck),
-			new MissingFunctionReturnTypehintRule($missingTypehintCheck),
-			new MissingMethodParameterTypehintRule($missingTypehintCheck),
-			new MissingMethodReturnTypehintRule($missingTypehintCheck),
-			new MissingPropertyTypehintRule($missingTypehintCheck),
-		]);
-	}
-
+            // level 6
+            new MissingFunctionParameterTypehintRule($missingTypehintCheck),
+            new MissingFunctionReturnTypehintRule($missingTypehintCheck),
+            new MissingMethodParameterTypehintRule($missingTypehintCheck),
+            new MissingMethodReturnTypehintRule($missingTypehintCheck),
+            new MissingPropertyTypehintRule($missingTypehintCheck),
+        ]);
+    }
 }

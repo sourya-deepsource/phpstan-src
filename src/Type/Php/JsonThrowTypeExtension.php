@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -17,84 +19,80 @@ use PHPStan\Type\Type;
 
 class JsonThrowTypeExtension implements DynamicFunctionThrowTypeExtension
 {
+    /** @var array<string, int> */
+    private array $argumentPositions = [
+        'json_encode' => 1,
+        'json_decode' => 3,
+    ];
 
-	/** @var array<string, int> */
-	private array $argumentPositions = [
-		'json_encode' => 1,
-		'json_decode' => 3,
-	];
+    private ReflectionProvider $reflectionProvider;
 
-	private ReflectionProvider $reflectionProvider;
+    public function __construct(ReflectionProvider $reflectionProvider)
+    {
+        $this->reflectionProvider = $reflectionProvider;
+    }
 
-	public function __construct(ReflectionProvider $reflectionProvider)
-	{
-		$this->reflectionProvider = $reflectionProvider;
-	}
+    public function isFunctionSupported(
+        FunctionReflection $functionReflection
+    ): bool {
+        return $this->reflectionProvider->hasConstant(new Name\FullyQualified('JSON_THROW_ON_ERROR'), null) && in_array(
+            $functionReflection->getName(),
+            [
+                'json_encode',
+                'json_decode',
+            ],
+            true
+        );
+    }
 
-	public function isFunctionSupported(
-		FunctionReflection $functionReflection
-	): bool
-	{
-		return $this->reflectionProvider->hasConstant(new Name\FullyQualified('JSON_THROW_ON_ERROR'), null) && in_array(
-			$functionReflection->getName(),
-			[
-				'json_encode',
-				'json_decode',
-			],
-			true
-		);
-	}
+    public function getThrowTypeFromFunctionCall(
+        FunctionReflection $functionReflection,
+        FuncCall $functionCall,
+        Scope $scope
+    ): ?Type {
+        $argumentPosition = $this->argumentPositions[$functionReflection->getName()];
+        if (!isset($functionCall->args[$argumentPosition])) {
+            return null;
+        }
 
-	public function getThrowTypeFromFunctionCall(
-		FunctionReflection $functionReflection,
-		FuncCall $functionCall,
-		Scope $scope
-	): ?Type
-	{
-		$argumentPosition = $this->argumentPositions[$functionReflection->getName()];
-		if (!isset($functionCall->args[$argumentPosition])) {
-			return null;
-		}
+        $optionsExpr = $functionCall->args[$argumentPosition]->value;
+        if ($this->isBitwiseOrWithJsonThrowOnError($optionsExpr, $scope)) {
+            return new ObjectType('JsonException');
+        }
 
-		$optionsExpr = $functionCall->args[$argumentPosition]->value;
-		if ($this->isBitwiseOrWithJsonThrowOnError($optionsExpr, $scope)) {
-			return new ObjectType('JsonException');
-		}
+        $valueType = $scope->getType($optionsExpr);
+        if (!$valueType instanceof ConstantIntegerType) {
+            return null;
+        }
 
-		$valueType = $scope->getType($optionsExpr);
-		if (!$valueType instanceof ConstantIntegerType) {
-			return null;
-		}
+        $value = $valueType->getValue();
+        $throwOnErrorType = $this->reflectionProvider->getConstant(new Name\FullyQualified('JSON_THROW_ON_ERROR'), null)->getValueType();
+        if (!$throwOnErrorType instanceof ConstantIntegerType) {
+            return null;
+        }
 
-		$value = $valueType->getValue();
-		$throwOnErrorType = $this->reflectionProvider->getConstant(new Name\FullyQualified('JSON_THROW_ON_ERROR'), null)->getValueType();
-		if (!$throwOnErrorType instanceof ConstantIntegerType) {
-			return null;
-		}
+        $throwOnErrorValue = $throwOnErrorType->getValue();
+        if (($value & $throwOnErrorValue) !== $throwOnErrorValue) {
+            return null;
+        }
 
-		$throwOnErrorValue = $throwOnErrorType->getValue();
-		if (($value & $throwOnErrorValue) !== $throwOnErrorValue) {
-			return null;
-		}
+        return new ObjectType('JsonException');
+    }
 
-		return new ObjectType('JsonException');
-	}
+    private function isBitwiseOrWithJsonThrowOnError(Expr $expr, Scope $scope): bool
+    {
+        if ($expr instanceof ConstFetch) {
+            $constant = $this->reflectionProvider->resolveConstantName($expr->name, $scope);
+            if ($constant === 'JSON_THROW_ON_ERROR') {
+                return true;
+            }
+        }
 
-	private function isBitwiseOrWithJsonThrowOnError(Expr $expr, Scope $scope): bool
-	{
-		if ($expr instanceof ConstFetch) {
-			$constant = $this->reflectionProvider->resolveConstantName($expr->name, $scope);
-			if ($constant === 'JSON_THROW_ON_ERROR') {
-				return true;
-			}
-		}
+        if (!$expr instanceof BitwiseOr) {
+            return false;
+        }
 
-		if (!$expr instanceof BitwiseOr) {
-			return false;
-		}
-
-		return $this->isBitwiseOrWithJsonThrowOnError($expr->left, $scope) ||
-			$this->isBitwiseOrWithJsonThrowOnError($expr->right, $scope);
-	}
-
+        return $this->isBitwiseOrWithJsonThrowOnError($expr->left, $scope) ||
+            $this->isBitwiseOrWithJsonThrowOnError($expr->right, $scope);
+    }
 }

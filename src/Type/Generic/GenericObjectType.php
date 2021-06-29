@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Generic;
 
@@ -21,307 +23,304 @@ use PHPStan\Type\VerbosityLevel;
 
 class GenericObjectType extends ObjectType
 {
+    /** @var array<int, Type> */
+    private array $types;
 
-	/** @var array<int, Type> */
-	private array $types;
+    private ?ClassReflection $classReflection;
 
-	private ?ClassReflection $classReflection;
+    /**
+     * @param array<int, Type> $types
+     */
+    public function __construct(
+        string $mainType,
+        array $types,
+        ?Type $subtractedType = null,
+        ?ClassReflection $classReflection = null
+    ) {
+        parent::__construct($mainType, $subtractedType, $classReflection);
+        $this->types = $types;
+        $this->classReflection = $classReflection;
+    }
 
-	/**
-	 * @param array<int, Type> $types
-	 */
-	public function __construct(
-		string $mainType,
-		array $types,
-		?Type $subtractedType = null,
-		?ClassReflection $classReflection = null
-	)
-	{
-		parent::__construct($mainType, $subtractedType, $classReflection);
-		$this->types = $types;
-		$this->classReflection = $classReflection;
-	}
+    public function describe(VerbosityLevel $level): string
+    {
+        return sprintf(
+            '%s<%s>',
+            parent::describe($level),
+            implode(', ', array_map(static function (Type $type) use ($level): string {
+                return $type->describe($level);
+            }, $this->types))
+        );
+    }
 
-	public function describe(VerbosityLevel $level): string
-	{
-		return sprintf(
-			'%s<%s>',
-			parent::describe($level),
-			implode(', ', array_map(static function (Type $type) use ($level): string {
-				return $type->describe($level);
-			}, $this->types))
-		);
-	}
+    public function equals(Type $type): bool
+    {
+        if (!$type instanceof self) {
+            return false;
+        }
 
-	public function equals(Type $type): bool
-	{
-		if (!$type instanceof self) {
-			return false;
-		}
+        if (!parent::equals($type)) {
+            return false;
+        }
 
-		if (!parent::equals($type)) {
-			return false;
-		}
+        if (count($this->types) !== count($type->types)) {
+            return false;
+        }
 
-		if (count($this->types) !== count($type->types)) {
-			return false;
-		}
+        foreach ($this->types as $i => $genericType) {
+            $otherGenericType = $type->types[$i];
+            if (!$genericType->equals($otherGenericType)) {
+                return false;
+            }
+        }
 
-		foreach ($this->types as $i => $genericType) {
-			$otherGenericType = $type->types[$i];
-			if (!$genericType->equals($otherGenericType)) {
-				return false;
-			}
-		}
+        return true;
+    }
 
-		return true;
-	}
+    /**
+     * @return string[]
+     */
+    public function getReferencedClasses(): array
+    {
+        $classes = parent::getReferencedClasses();
+        foreach ($this->types as $type) {
+            foreach ($type->getReferencedClasses() as $referencedClass) {
+                $classes[] = $referencedClass;
+            }
+        }
 
-	/**
-	 * @return string[]
-	 */
-	public function getReferencedClasses(): array
-	{
-		$classes = parent::getReferencedClasses();
-		foreach ($this->types as $type) {
-			foreach ($type->getReferencedClasses() as $referencedClass) {
-				$classes[] = $referencedClass;
-			}
-		}
+        return $classes;
+    }
 
-		return $classes;
-	}
+    /** @return array<int, Type> */
+    public function getTypes(): array
+    {
+        return $this->types;
+    }
 
-	/** @return array<int, Type> */
-	public function getTypes(): array
-	{
-		return $this->types;
-	}
+    public function accepts(Type $type, bool $strictTypes): TrinaryLogic
+    {
+        if ($type instanceof CompoundType) {
+            return $type->isAcceptedBy($this, $strictTypes);
+        }
 
-	public function accepts(Type $type, bool $strictTypes): TrinaryLogic
-	{
-		if ($type instanceof CompoundType) {
-			return $type->isAcceptedBy($this, $strictTypes);
-		}
+        return $this->isSuperTypeOfInternal($type, true);
+    }
 
-		return $this->isSuperTypeOfInternal($type, true);
-	}
+    public function isSuperTypeOf(Type $type): TrinaryLogic
+    {
+        return $this->isSuperTypeOfInternal($type, false);
+    }
 
-	public function isSuperTypeOf(Type $type): TrinaryLogic
-	{
-		return $this->isSuperTypeOfInternal($type, false);
-	}
+    private function isSuperTypeOfInternal(Type $type, bool $acceptsContext): TrinaryLogic
+    {
+        if ($type instanceof CompoundType) {
+            return $type->isSubTypeOf($this);
+        }
 
-	private function isSuperTypeOfInternal(Type $type, bool $acceptsContext): TrinaryLogic
-	{
-		if ($type instanceof CompoundType) {
-			return $type->isSubTypeOf($this);
-		}
+        $nakedSuperTypeOf = parent::isSuperTypeOf($type);
+        if ($nakedSuperTypeOf->no()) {
+            return $nakedSuperTypeOf;
+        }
 
-		$nakedSuperTypeOf = parent::isSuperTypeOf($type);
-		if ($nakedSuperTypeOf->no()) {
-			return $nakedSuperTypeOf;
-		}
+        if (!$type instanceof ObjectType) {
+            return $nakedSuperTypeOf;
+        }
 
-		if (!$type instanceof ObjectType) {
-			return $nakedSuperTypeOf;
-		}
+        $ancestor = $type->getAncestorWithClassName($this->getClassName());
+        if ($ancestor === null) {
+            return $nakedSuperTypeOf;
+        }
+        if (!$ancestor instanceof self) {
+            if ($acceptsContext) {
+                return $nakedSuperTypeOf;
+            }
 
-		$ancestor = $type->getAncestorWithClassName($this->getClassName());
-		if ($ancestor === null) {
-			return $nakedSuperTypeOf;
-		}
-		if (!$ancestor instanceof self) {
-			if ($acceptsContext) {
-				return $nakedSuperTypeOf;
-			}
+            return $nakedSuperTypeOf->and(TrinaryLogic::createMaybe());
+        }
 
-			return $nakedSuperTypeOf->and(TrinaryLogic::createMaybe());
-		}
+        if (count($this->types) !== count($ancestor->types)) {
+            return TrinaryLogic::createNo();
+        }
 
-		if (count($this->types) !== count($ancestor->types)) {
-			return TrinaryLogic::createNo();
-		}
+        $classReflection = $this->getClassReflection();
+        if ($classReflection === null) {
+            return $nakedSuperTypeOf;
+        }
 
-		$classReflection = $this->getClassReflection();
-		if ($classReflection === null) {
-			return $nakedSuperTypeOf;
-		}
+        $typeList = $classReflection->typeMapToList($classReflection->getTemplateTypeMap());
+        $results = [];
+        foreach ($typeList as $i => $templateType) {
+            if (!isset($ancestor->types[$i])) {
+                continue;
+            }
+            if (!isset($this->types[$i])) {
+                continue;
+            }
+            if ($templateType instanceof ErrorType) {
+                continue;
+            }
+            if (!$templateType instanceof TemplateType) {
+                throw new \PHPStan\ShouldNotHappenException();
+            }
 
-		$typeList = $classReflection->typeMapToList($classReflection->getTemplateTypeMap());
-		$results = [];
-		foreach ($typeList as $i => $templateType) {
-			if (!isset($ancestor->types[$i])) {
-				continue;
-			}
-			if (!isset($this->types[$i])) {
-				continue;
-			}
-			if ($templateType instanceof ErrorType) {
-				continue;
-			}
-			if (!$templateType instanceof TemplateType) {
-				throw new \PHPStan\ShouldNotHappenException();
-			}
+            $results[] = $templateType->isValidVariance($this->types[$i], $ancestor->types[$i]);
+        }
 
-			$results[] = $templateType->isValidVariance($this->types[$i], $ancestor->types[$i]);
-		}
+        if (count($results) === 0) {
+            return $nakedSuperTypeOf;
+        }
 
-		if (count($results) === 0) {
-			return $nakedSuperTypeOf;
-		}
+        return $nakedSuperTypeOf->and(...$results);
+    }
 
-		return $nakedSuperTypeOf->and(...$results);
-	}
+    public function getClassReflection(): ?ClassReflection
+    {
+        if ($this->classReflection !== null) {
+            return $this->classReflection;
+        }
 
-	public function getClassReflection(): ?ClassReflection
-	{
-		if ($this->classReflection !== null) {
-			return $this->classReflection;
-		}
+        $broker = Broker::getInstance();
+        if (!$broker->hasClass($this->getClassName())) {
+            return null;
+        }
 
-		$broker = Broker::getInstance();
-		if (!$broker->hasClass($this->getClassName())) {
-			return null;
-		}
+        return $this->classReflection = $broker->getClass($this->getClassName())->withTypes($this->types);
+    }
 
-		return $this->classReflection = $broker->getClass($this->getClassName())->withTypes($this->types);
-	}
+    public function getProperty(string $propertyName, ClassMemberAccessAnswerer $scope): PropertyReflection
+    {
+        return $this->getUnresolvedPropertyPrototype($propertyName, $scope)->getTransformedProperty();
+    }
 
-	public function getProperty(string $propertyName, ClassMemberAccessAnswerer $scope): PropertyReflection
-	{
-		return $this->getUnresolvedPropertyPrototype($propertyName, $scope)->getTransformedProperty();
-	}
+    public function getUnresolvedPropertyPrototype(string $propertyName, ClassMemberAccessAnswerer $scope): UnresolvedPropertyPrototypeReflection
+    {
+        $prototype = parent::getUnresolvedPropertyPrototype($propertyName, $scope);
 
-	public function getUnresolvedPropertyPrototype(string $propertyName, ClassMemberAccessAnswerer $scope): UnresolvedPropertyPrototypeReflection
-	{
-		$prototype = parent::getUnresolvedPropertyPrototype($propertyName, $scope);
+        return $prototype->doNotResolveTemplateTypeMapToBounds();
+    }
 
-		return $prototype->doNotResolveTemplateTypeMapToBounds();
-	}
+    public function getMethod(string $methodName, ClassMemberAccessAnswerer $scope): MethodReflection
+    {
+        return $this->getUnresolvedMethodPrototype($methodName, $scope)->getTransformedMethod();
+    }
 
-	public function getMethod(string $methodName, ClassMemberAccessAnswerer $scope): MethodReflection
-	{
-		return $this->getUnresolvedMethodPrototype($methodName, $scope)->getTransformedMethod();
-	}
+    public function getUnresolvedMethodPrototype(string $methodName, ClassMemberAccessAnswerer $scope): UnresolvedMethodPrototypeReflection
+    {
+        $prototype = parent::getUnresolvedMethodPrototype($methodName, $scope);
 
-	public function getUnresolvedMethodPrototype(string $methodName, ClassMemberAccessAnswerer $scope): UnresolvedMethodPrototypeReflection
-	{
-		$prototype = parent::getUnresolvedMethodPrototype($methodName, $scope);
+        return $prototype->doNotResolveTemplateTypeMapToBounds();
+    }
 
-		return $prototype->doNotResolveTemplateTypeMapToBounds();
-	}
+    public function inferTemplateTypes(Type $receivedType): TemplateTypeMap
+    {
+        if ($receivedType instanceof UnionType || $receivedType instanceof IntersectionType) {
+            return $receivedType->inferTemplateTypesOn($this);
+        }
 
-	public function inferTemplateTypes(Type $receivedType): TemplateTypeMap
-	{
-		if ($receivedType instanceof UnionType || $receivedType instanceof IntersectionType) {
-			return $receivedType->inferTemplateTypesOn($this);
-		}
+        if (!$receivedType instanceof TypeWithClassName) {
+            return TemplateTypeMap::createEmpty();
+        }
 
-		if (!$receivedType instanceof TypeWithClassName) {
-			return TemplateTypeMap::createEmpty();
-		}
+        $ancestor = $receivedType->getAncestorWithClassName($this->getClassName());
 
-		$ancestor = $receivedType->getAncestorWithClassName($this->getClassName());
+        if ($ancestor === null) {
+            return TemplateTypeMap::createEmpty();
+        }
+        $ancestorClassReflection = $ancestor->getClassReflection();
+        if ($ancestorClassReflection === null) {
+            return TemplateTypeMap::createEmpty();
+        }
 
-		if ($ancestor === null) {
-			return TemplateTypeMap::createEmpty();
-		}
-		$ancestorClassReflection = $ancestor->getClassReflection();
-		if ($ancestorClassReflection === null) {
-			return TemplateTypeMap::createEmpty();
-		}
+        $otherTypes = $ancestorClassReflection->typeMapToList($ancestorClassReflection->getActiveTemplateTypeMap());
+        $typeMap = TemplateTypeMap::createEmpty();
 
-		$otherTypes = $ancestorClassReflection->typeMapToList($ancestorClassReflection->getActiveTemplateTypeMap());
-		$typeMap = TemplateTypeMap::createEmpty();
+        foreach ($this->getTypes() as $i => $type) {
+            $other = $otherTypes[$i] ?? new ErrorType();
+            $typeMap = $typeMap->union($type->inferTemplateTypes($other));
+        }
 
-		foreach ($this->getTypes() as $i => $type) {
-			$other = $otherTypes[$i] ?? new ErrorType();
-			$typeMap = $typeMap->union($type->inferTemplateTypes($other));
-		}
+        return $typeMap;
+    }
 
-		return $typeMap;
-	}
+    public function getReferencedTemplateTypes(TemplateTypeVariance $positionVariance): array
+    {
+        $classReflection = $this->getClassReflection();
+        if ($classReflection !== null) {
+            $typeList = $classReflection->typeMapToList($classReflection->getTemplateTypeMap());
+        } else {
+            $typeList = [];
+        }
 
-	public function getReferencedTemplateTypes(TemplateTypeVariance $positionVariance): array
-	{
-		$classReflection = $this->getClassReflection();
-		if ($classReflection !== null) {
-			$typeList = $classReflection->typeMapToList($classReflection->getTemplateTypeMap());
-		} else {
-			$typeList = [];
-		}
+        $references = [];
 
-		$references = [];
+        foreach ($this->types as $i => $type) {
+            $variance = $positionVariance->compose(
+                isset($typeList[$i]) && $typeList[$i] instanceof TemplateType
+                    ? $typeList[$i]->getVariance()
+                    : TemplateTypeVariance::createInvariant()
+            );
+            foreach ($type->getReferencedTemplateTypes($variance) as $reference) {
+                $references[] = $reference;
+            }
+        }
 
-		foreach ($this->types as $i => $type) {
-			$variance = $positionVariance->compose(
-				isset($typeList[$i]) && $typeList[$i] instanceof TemplateType
-					? $typeList[$i]->getVariance()
-					: TemplateTypeVariance::createInvariant()
-			);
-			foreach ($type->getReferencedTemplateTypes($variance) as $reference) {
-				$references[] = $reference;
-			}
-		}
+        return $references;
+    }
 
-		return $references;
-	}
+    public function traverse(callable $cb): Type
+    {
+        $subtractedType = $this->getSubtractedType() !== null ? $cb($this->getSubtractedType()) : null;
 
-	public function traverse(callable $cb): Type
-	{
-		$subtractedType = $this->getSubtractedType() !== null ? $cb($this->getSubtractedType()) : null;
+        $typesChanged = false;
+        $types = [];
+        foreach ($this->types as $type) {
+            $newType = $cb($type);
+            $types[] = $newType;
+            if ($newType === $type) {
+                continue;
+            }
 
-		$typesChanged = false;
-		$types = [];
-		foreach ($this->types as $type) {
-			$newType = $cb($type);
-			$types[] = $newType;
-			if ($newType === $type) {
-				continue;
-			}
+            $typesChanged = true;
+        }
 
-			$typesChanged = true;
-		}
+        if ($subtractedType !== $this->getSubtractedType() || $typesChanged) {
+            return $this->recreate($this->getClassName(), $types, $subtractedType);
+        }
 
-		if ($subtractedType !== $this->getSubtractedType() || $typesChanged) {
-			return $this->recreate($this->getClassName(), $types, $subtractedType);
-		}
+        return $this;
+    }
 
-		return $this;
-	}
+    /**
+     * @param string $className
+     * @param Type[] $types
+     * @param Type|null $subtractedType
+     * @return self
+     */
+    protected function recreate(string $className, array $types, ?Type $subtractedType): self
+    {
+        return new self(
+            $className,
+            $types,
+            $subtractedType
+        );
+    }
 
-	/**
-	 * @param string $className
-	 * @param Type[] $types
-	 * @param Type|null $subtractedType
-	 * @return self
-	 */
-	protected function recreate(string $className, array $types, ?Type $subtractedType): self
-	{
-		return new self(
-			$className,
-			$types,
-			$subtractedType
-		);
-	}
+    public function changeSubtractedType(?Type $subtractedType): Type
+    {
+        return new self($this->getClassName(), $this->types, $subtractedType);
+    }
 
-	public function changeSubtractedType(?Type $subtractedType): Type
-	{
-		return new self($this->getClassName(), $this->types, $subtractedType);
-	}
-
-	/**
-	 * @param mixed[] $properties
-	 * @return Type
-	 */
-	public static function __set_state(array $properties): Type
-	{
-		return new self(
-			$properties['className'],
-			$properties['types'],
-			$properties['subtractedType'] ?? null
-		);
-	}
-
+    /**
+     * @param mixed[] $properties
+     * @return Type
+     */
+    public static function __set_state(array $properties): Type
+    {
+        return new self(
+            $properties['className'],
+            $properties['types'],
+            $properties['subtractedType'] ?? null
+        );
+    }
 }

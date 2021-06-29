@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\RuleErrors;
 
@@ -7,12 +9,10 @@ namespace PHPStan\Rules\RuleErrors;
  */
 class RuleError1 implements \PHPStan\Rules\RuleError
 {
+    public string $message;
 
-	public string $message;
-
-	public function getMessage(): string
-	{
-		return $this->message;
-	}
-
+    public function getMessage(): string
+    {
+        return $this->message;
+    }
 }

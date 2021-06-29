@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -16,33 +18,31 @@ use PHPStan\Type\TypeUtils;
 
 class HrtimeFunctionReturnTypeExtension implements \PHPStan\Type\DynamicFunctionReturnTypeExtension
 {
+    public function isFunctionSupported(FunctionReflection $functionReflection): bool
+    {
+        return $functionReflection->getName() === 'hrtime';
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection): bool
-	{
-		return $functionReflection->getName() === 'hrtime';
-	}
+    public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
+    {
+        $arrayType = new ConstantArrayType([new ConstantIntegerType(0), new ConstantIntegerType(1)], [new IntegerType(), new IntegerType()], 2);
+        $numberType = TypeUtils::toBenevolentUnion(TypeCombinator::union(new IntegerType(), new FloatType()));
 
-	public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
-	{
-		$arrayType = new ConstantArrayType([new ConstantIntegerType(0), new ConstantIntegerType(1)], [new IntegerType(), new IntegerType()], 2);
-		$numberType = TypeUtils::toBenevolentUnion(TypeCombinator::union(new IntegerType(), new FloatType()));
+        if (count($functionCall->args) < 1) {
+            return $arrayType;
+        }
 
-		if (count($functionCall->args) < 1) {
-			return $arrayType;
-		}
+        $argType = $scope->getType($functionCall->args[0]->value);
+        $isTrueType = (new ConstantBooleanType(true))->isSuperTypeOf($argType);
+        $isFalseType = (new ConstantBooleanType(false))->isSuperTypeOf($argType);
+        $compareTypes = $isTrueType->compareTo($isFalseType);
+        if ($compareTypes === $isTrueType) {
+            return $numberType;
+        }
+        if ($compareTypes === $isFalseType) {
+            return $arrayType;
+        }
 
-		$argType = $scope->getType($functionCall->args[0]->value);
-		$isTrueType = (new ConstantBooleanType(true))->isSuperTypeOf($argType);
-		$isFalseType = (new ConstantBooleanType(false))->isSuperTypeOf($argType);
-		$compareTypes = $isTrueType->compareTo($isFalseType);
-		if ($compareTypes === $isTrueType) {
-			return $numberType;
-		}
-		if ($compareTypes === $isFalseType) {
-			return $arrayType;
-		}
-
-		return TypeCombinator::union($arrayType, $numberType);
-	}
-
+        return TypeCombinator::union($arrayType, $numberType);
+    }
 }

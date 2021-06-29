@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type;
 
@@ -15,136 +17,134 @@ use PHPStan\Type\Generic\TemplateTypeVariance;
 
 interface Type
 {
+    /**
+     * @return string[]
+     */
+    public function getReferencedClasses(): array;
 
-	/**
-	 * @return string[]
-	 */
-	public function getReferencedClasses(): array;
+    public function accepts(Type $type, bool $strictTypes): TrinaryLogic;
 
-	public function accepts(Type $type, bool $strictTypes): TrinaryLogic;
+    public function isSuperTypeOf(Type $type): TrinaryLogic;
 
-	public function isSuperTypeOf(Type $type): TrinaryLogic;
+    public function equals(Type $type): bool;
 
-	public function equals(Type $type): bool;
+    public function describe(VerbosityLevel $level): string;
 
-	public function describe(VerbosityLevel $level): string;
+    public function canAccessProperties(): TrinaryLogic;
 
-	public function canAccessProperties(): TrinaryLogic;
+    public function hasProperty(string $propertyName): TrinaryLogic;
 
-	public function hasProperty(string $propertyName): TrinaryLogic;
+    public function getProperty(string $propertyName, ClassMemberAccessAnswerer $scope): PropertyReflection;
 
-	public function getProperty(string $propertyName, ClassMemberAccessAnswerer $scope): PropertyReflection;
+    public function getUnresolvedPropertyPrototype(string $propertyName, ClassMemberAccessAnswerer $scope): UnresolvedPropertyPrototypeReflection;
 
-	public function getUnresolvedPropertyPrototype(string $propertyName, ClassMemberAccessAnswerer $scope): UnresolvedPropertyPrototypeReflection;
+    public function canCallMethods(): TrinaryLogic;
 
-	public function canCallMethods(): TrinaryLogic;
+    public function hasMethod(string $methodName): TrinaryLogic;
 
-	public function hasMethod(string $methodName): TrinaryLogic;
+    public function getMethod(string $methodName, ClassMemberAccessAnswerer $scope): MethodReflection;
 
-	public function getMethod(string $methodName, ClassMemberAccessAnswerer $scope): MethodReflection;
+    public function getUnresolvedMethodPrototype(string $methodName, ClassMemberAccessAnswerer $scope): UnresolvedMethodPrototypeReflection;
 
-	public function getUnresolvedMethodPrototype(string $methodName, ClassMemberAccessAnswerer $scope): UnresolvedMethodPrototypeReflection;
+    public function canAccessConstants(): TrinaryLogic;
 
-	public function canAccessConstants(): TrinaryLogic;
+    public function hasConstant(string $constantName): TrinaryLogic;
 
-	public function hasConstant(string $constantName): TrinaryLogic;
+    public function getConstant(string $constantName): ConstantReflection;
 
-	public function getConstant(string $constantName): ConstantReflection;
+    public function isIterable(): TrinaryLogic;
 
-	public function isIterable(): TrinaryLogic;
+    public function isIterableAtLeastOnce(): TrinaryLogic;
 
-	public function isIterableAtLeastOnce(): TrinaryLogic;
+    public function getIterableKeyType(): Type;
 
-	public function getIterableKeyType(): Type;
+    public function getIterableValueType(): Type;
 
-	public function getIterableValueType(): Type;
+    public function isArray(): TrinaryLogic;
 
-	public function isArray(): TrinaryLogic;
+    public function isOffsetAccessible(): TrinaryLogic;
 
-	public function isOffsetAccessible(): TrinaryLogic;
+    public function hasOffsetValueType(Type $offsetType): TrinaryLogic;
 
-	public function hasOffsetValueType(Type $offsetType): TrinaryLogic;
+    public function getOffsetValueType(Type $offsetType): Type;
 
-	public function getOffsetValueType(Type $offsetType): Type;
+    public function setOffsetValueType(?Type $offsetType, Type $valueType): Type;
 
-	public function setOffsetValueType(?Type $offsetType, Type $valueType): Type;
+    public function isCallable(): TrinaryLogic;
 
-	public function isCallable(): TrinaryLogic;
+    /**
+     * @param \PHPStan\Reflection\ClassMemberAccessAnswerer $scope
+     * @return \PHPStan\Reflection\ParametersAcceptor[]
+     */
+    public function getCallableParametersAcceptors(ClassMemberAccessAnswerer $scope): array;
 
-	/**
-	 * @param \PHPStan\Reflection\ClassMemberAccessAnswerer $scope
-	 * @return \PHPStan\Reflection\ParametersAcceptor[]
-	 */
-	public function getCallableParametersAcceptors(ClassMemberAccessAnswerer $scope): array;
+    public function isCloneable(): TrinaryLogic;
 
-	public function isCloneable(): TrinaryLogic;
+    public function toBoolean(): BooleanType;
 
-	public function toBoolean(): BooleanType;
+    public function toNumber(): Type;
 
-	public function toNumber(): Type;
+    public function toInteger(): Type;
 
-	public function toInteger(): Type;
+    public function toFloat(): Type;
 
-	public function toFloat(): Type;
+    public function toString(): Type;
 
-	public function toString(): Type;
+    public function toArray(): Type;
 
-	public function toArray(): Type;
+    public function isSmallerThan(Type $otherType): TrinaryLogic;
 
-	public function isSmallerThan(Type $otherType): TrinaryLogic;
+    public function isSmallerThanOrEqual(Type $otherType): TrinaryLogic;
 
-	public function isSmallerThanOrEqual(Type $otherType): TrinaryLogic;
+    public function isNumericString(): TrinaryLogic;
 
-	public function isNumericString(): TrinaryLogic;
+    public function getSmallerType(): Type;
 
-	public function getSmallerType(): Type;
+    public function getSmallerOrEqualType(): Type;
 
-	public function getSmallerOrEqualType(): Type;
+    public function getGreaterType(): Type;
 
-	public function getGreaterType(): Type;
+    public function getGreaterOrEqualType(): Type;
 
-	public function getGreaterOrEqualType(): Type;
+    /**
+     * Infers template types
+     *
+     * Infers the real Type of the TemplateTypes found in $this, based on
+     * the received Type.
+     */
+    public function inferTemplateTypes(Type $receivedType): TemplateTypeMap;
 
-	/**
-	 * Infers template types
-	 *
-	 * Infers the real Type of the TemplateTypes found in $this, based on
-	 * the received Type.
-	 */
-	public function inferTemplateTypes(Type $receivedType): TemplateTypeMap;
+    /**
+     * Returns the template types referenced by this Type, recursively
+     *
+     * The return value is a list of TemplateTypeReferences, who contain the
+     * referenced template type as well as the variance position in which it was
+     * found.
+     *
+     * For example, calling this on array<Foo<T>,Bar> (with T a template type)
+     * will return one TemplateTypeReference for the type T.
+     *
+     * @param TemplateTypeVariance $positionVariance The variance position in
+     *                                               which the receiver type was
+     *                                               found.
+     *
+     * @return TemplateTypeReference[]
+     */
+    public function getReferencedTemplateTypes(TemplateTypeVariance $positionVariance): array;
 
-	/**
-	 * Returns the template types referenced by this Type, recursively
-	 *
-	 * The return value is a list of TemplateTypeReferences, who contain the
-	 * referenced template type as well as the variance position in which it was
-	 * found.
-	 *
-	 * For example, calling this on array<Foo<T>,Bar> (with T a template type)
-	 * will return one TemplateTypeReference for the type T.
-	 *
-	 * @param TemplateTypeVariance $positionVariance The variance position in
-	 *                                               which the receiver type was
-	 *                                               found.
-	 *
-	 * @return TemplateTypeReference[]
-	 */
-	public function getReferencedTemplateTypes(TemplateTypeVariance $positionVariance): array;
+    /**
+     * Traverses inner types
+     *
+     * Returns a new instance with all inner types mapped through $cb. Might
+     * return the same instance if inner types did not change.
+     *
+     * @param callable(Type):Type $cb
+     */
+    public function traverse(callable $cb): Type;
 
-	/**
-	 * Traverses inner types
-	 *
-	 * Returns a new instance with all inner types mapped through $cb. Might
-	 * return the same instance if inner types did not change.
-	 *
-	 * @param callable(Type):Type $cb
-	 */
-	public function traverse(callable $cb): Type;
-
-	/**
-	 * @param mixed[] $properties
-	 * @return self
-	 */
-	public static function __set_state(array $properties): self;
-
+    /**
+     * @param mixed[] $properties
+     * @return self
+     */
+    public static function __set_state(array $properties): self;
 }

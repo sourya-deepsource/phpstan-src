@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Generic;
 
@@ -8,19 +10,17 @@ use PHPStan\Type\Type;
 
 interface TemplateType extends CompoundType
 {
+    public function getName(): string;
 
-	public function getName(): string;
+    public function getScope(): TemplateTypeScope;
 
-	public function getScope(): TemplateTypeScope;
+    public function getBound(): Type;
 
-	public function getBound(): Type;
+    public function toArgument(): TemplateType;
 
-	public function toArgument(): TemplateType;
+    public function isArgument(): bool;
 
-	public function isArgument(): bool;
+    public function isValidVariance(Type $a, Type $b): TrinaryLogic;
 
-	public function isValidVariance(Type $a, Type $b): TrinaryLogic;
-
-	public function getVariance(): TemplateTypeVariance;
-
+    public function getVariance(): TemplateTypeVariance;
 }

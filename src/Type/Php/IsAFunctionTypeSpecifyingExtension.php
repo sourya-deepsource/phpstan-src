@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -21,64 +23,62 @@ use PHPStan\Type\ObjectWithoutClassType;
 
 class IsAFunctionTypeSpecifyingExtension implements FunctionTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
+    private \PHPStan\Analyser\TypeSpecifier $typeSpecifier;
 
-	private \PHPStan\Analyser\TypeSpecifier $typeSpecifier;
+    public function isFunctionSupported(FunctionReflection $functionReflection, FuncCall $node, TypeSpecifierContext $context): bool
+    {
+        return strtolower($functionReflection->getName()) === 'is_a'
+            && isset($node->args[0])
+            && isset($node->args[1])
+            && !$context->null();
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection, FuncCall $node, TypeSpecifierContext $context): bool
-	{
-		return strtolower($functionReflection->getName()) === 'is_a'
-			&& isset($node->args[0])
-			&& isset($node->args[1])
-			&& !$context->null();
-	}
+    public function specifyTypes(FunctionReflection $functionReflection, FuncCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
+    {
+        if ($context->null()) {
+            throw new \PHPStan\ShouldNotHappenException();
+        }
 
-	public function specifyTypes(FunctionReflection $functionReflection, FuncCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
-	{
-		if ($context->null()) {
-			throw new \PHPStan\ShouldNotHappenException();
-		}
+        $classNameArgExpr = $node->args[1]->value;
+        $classNameArgExprType = $scope->getType($classNameArgExpr);
+        if (
+            $classNameArgExpr instanceof ClassConstFetch
+            && $classNameArgExpr->class instanceof Name
+            && $classNameArgExpr->name instanceof \PhpParser\Node\Identifier
+            && strtolower($classNameArgExpr->name->name) === 'class'
+        ) {
+            $objectType = $scope->resolveTypeByName($classNameArgExpr->class);
+            $types = $this->typeSpecifier->create($node->args[0]->value, $objectType, $context, false, $scope);
+        } elseif ($classNameArgExprType instanceof ConstantStringType) {
+            $objectType = new ObjectType($classNameArgExprType->getValue());
+            $types = $this->typeSpecifier->create($node->args[0]->value, $objectType, $context, false, $scope);
+        } elseif ($classNameArgExprType instanceof GenericClassStringType) {
+            $objectType = $classNameArgExprType->getGenericType();
+            $types = $this->typeSpecifier->create($node->args[0]->value, $objectType, $context, false, $scope);
+        } elseif ($context->true()) {
+            $objectType = new ObjectWithoutClassType();
+            $types = $this->typeSpecifier->create($node->args[0]->value, $objectType, $context, false, $scope);
+        } else {
+            $types = new SpecifiedTypes();
+        }
 
-		$classNameArgExpr = $node->args[1]->value;
-		$classNameArgExprType = $scope->getType($classNameArgExpr);
-		if (
-			$classNameArgExpr instanceof ClassConstFetch
-			&& $classNameArgExpr->class instanceof Name
-			&& $classNameArgExpr->name instanceof \PhpParser\Node\Identifier
-			&& strtolower($classNameArgExpr->name->name) === 'class'
-		) {
-			$objectType = $scope->resolveTypeByName($classNameArgExpr->class);
-			$types = $this->typeSpecifier->create($node->args[0]->value, $objectType, $context, false, $scope);
-		} elseif ($classNameArgExprType instanceof ConstantStringType) {
-			$objectType = new ObjectType($classNameArgExprType->getValue());
-			$types = $this->typeSpecifier->create($node->args[0]->value, $objectType, $context, false, $scope);
-		} elseif ($classNameArgExprType instanceof GenericClassStringType) {
-			$objectType = $classNameArgExprType->getGenericType();
-			$types = $this->typeSpecifier->create($node->args[0]->value, $objectType, $context, false, $scope);
-		} elseif ($context->true()) {
-			$objectType = new ObjectWithoutClassType();
-			$types = $this->typeSpecifier->create($node->args[0]->value, $objectType, $context, false, $scope);
-		} else {
-			$types = new SpecifiedTypes();
-		}
+        if (isset($node->args[2]) && $context->true()) {
+            if (!$scope->getType($node->args[2]->value)->isSuperTypeOf(new ConstantBooleanType(true))->no()) {
+                $types = $types->intersectWith($this->typeSpecifier->create(
+                    $node->args[0]->value,
+                    isset($objectType) ? new GenericClassStringType($objectType) : new ClassStringType(),
+                    $context,
+                    false,
+                    $scope
+                ));
+            }
+        }
 
-		if (isset($node->args[2]) && $context->true()) {
-			if (!$scope->getType($node->args[2]->value)->isSuperTypeOf(new ConstantBooleanType(true))->no()) {
-				$types = $types->intersectWith($this->typeSpecifier->create(
-					$node->args[0]->value,
-					isset($objectType) ? new GenericClassStringType($objectType) : new ClassStringType(),
-					$context,
-					false,
-					$scope
-				));
-			}
-		}
+        return $types;
+    }
 
-		return $types;
-	}
-
-	public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
-	{
-		$this->typeSpecifier = $typeSpecifier;
-	}
-
+    public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
+    {
+        $this->typeSpecifier = $typeSpecifier;
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -16,40 +18,38 @@ use PHPStan\Type\UnionType;
 
 final class ArraySumFunctionDynamicReturnTypeExtension implements DynamicFunctionReturnTypeExtension
 {
+    public function isFunctionSupported(FunctionReflection $functionReflection): bool
+    {
+        return $functionReflection->getName() === 'array_sum';
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection): bool
-	{
-		return $functionReflection->getName() === 'array_sum';
-	}
+    public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
+    {
+        if (!isset($functionCall->args[0])) {
+            return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
+        }
 
-	public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
-	{
-		if (!isset($functionCall->args[0])) {
-			return ParametersAcceptorSelector::selectSingle($functionReflection->getVariants())->getReturnType();
-		}
+        $arrayType = $scope->getType($functionCall->args[0]->value);
+        $itemType = $arrayType->getIterableValueType();
 
-		$arrayType = $scope->getType($functionCall->args[0]->value);
-		$itemType = $arrayType->getIterableValueType();
+        if ($arrayType->isIterableAtLeastOnce()->no()) {
+            return new ConstantIntegerType(0);
+        }
 
-		if ($arrayType->isIterableAtLeastOnce()->no()) {
-			return new ConstantIntegerType(0);
-		}
+        $intUnionFloat = new UnionType([new IntegerType(), new FloatType()]);
 
-		$intUnionFloat = new UnionType([new IntegerType(), new FloatType()]);
+        if ($arrayType->isIterableAtLeastOnce()->yes()) {
+            if ($intUnionFloat->isSuperTypeOf($itemType)->yes()) {
+                return $itemType;
+            }
 
-		if ($arrayType->isIterableAtLeastOnce()->yes()) {
-			if ($intUnionFloat->isSuperTypeOf($itemType)->yes()) {
-				return $itemType;
-			}
+            return $intUnionFloat;
+        }
 
-			return $intUnionFloat;
-		}
+        if ($intUnionFloat->isSuperTypeOf($itemType)->yes()) {
+            return TypeCombinator::union(new ConstantIntegerType(0), $itemType);
+        }
 
-		if ($intUnionFloat->isSuperTypeOf($itemType)->yes()) {
-			return TypeCombinator::union(new ConstantIntegerType(0), $itemType);
-		}
-
-		return TypeCombinator::union(new ConstantIntegerType(0), $intUnionFloat);
-	}
-
+        return TypeCombinator::union(new ConstantIntegerType(0), $intUnionFloat);
+    }
 }

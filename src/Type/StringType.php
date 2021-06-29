@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type;
 
@@ -15,123 +17,121 @@ use PHPStan\Type\Traits\UndecidedComparisonTypeTrait;
 
 class StringType implements Type
 {
+    use JustNullableTypeTrait;
+    use MaybeCallableTypeTrait;
+    use NonIterableTypeTrait;
+    use NonObjectTypeTrait;
+    use UndecidedBooleanTypeTrait;
+    use UndecidedComparisonTypeTrait;
+    use NonGenericTypeTrait;
 
-	use JustNullableTypeTrait;
-	use MaybeCallableTypeTrait;
-	use NonIterableTypeTrait;
-	use NonObjectTypeTrait;
-	use UndecidedBooleanTypeTrait;
-	use UndecidedComparisonTypeTrait;
-	use NonGenericTypeTrait;
+    public function describe(VerbosityLevel $level): string
+    {
+        return 'string';
+    }
 
-	public function describe(VerbosityLevel $level): string
-	{
-		return 'string';
-	}
+    public function isOffsetAccessible(): TrinaryLogic
+    {
+        return TrinaryLogic::createYes();
+    }
 
-	public function isOffsetAccessible(): TrinaryLogic
-	{
-		return TrinaryLogic::createYes();
-	}
+    public function hasOffsetValueType(Type $offsetType): TrinaryLogic
+    {
+        return (new IntegerType())->isSuperTypeOf($offsetType)->and(TrinaryLogic::createMaybe());
+    }
 
-	public function hasOffsetValueType(Type $offsetType): TrinaryLogic
-	{
-		return (new IntegerType())->isSuperTypeOf($offsetType)->and(TrinaryLogic::createMaybe());
-	}
+    public function getOffsetValueType(Type $offsetType): Type
+    {
+        if ($this->hasOffsetValueType($offsetType)->no()) {
+            return new ErrorType();
+        }
 
-	public function getOffsetValueType(Type $offsetType): Type
-	{
-		if ($this->hasOffsetValueType($offsetType)->no()) {
-			return new ErrorType();
-		}
+        return new StringType();
+    }
 
-		return new StringType();
-	}
+    public function setOffsetValueType(?Type $offsetType, Type $valueType): Type
+    {
+        if ($offsetType === null) {
+            return new ErrorType();
+        }
 
-	public function setOffsetValueType(?Type $offsetType, Type $valueType): Type
-	{
-		if ($offsetType === null) {
-			return new ErrorType();
-		}
+        $valueStringType = $valueType->toString();
+        if ($valueStringType instanceof ErrorType) {
+            return new ErrorType();
+        }
 
-		$valueStringType = $valueType->toString();
-		if ($valueStringType instanceof ErrorType) {
-			return new ErrorType();
-		}
+        if ((new IntegerType())->isSuperTypeOf($offsetType)->yes() || $offsetType instanceof MixedType) {
+            return new StringType();
+        }
 
-		if ((new IntegerType())->isSuperTypeOf($offsetType)->yes() || $offsetType instanceof MixedType) {
-			return new StringType();
-		}
+        return new ErrorType();
+    }
 
-		return new ErrorType();
-	}
+    public function accepts(Type $type, bool $strictTypes): TrinaryLogic
+    {
+        if ($type instanceof self) {
+            return TrinaryLogic::createYes();
+        }
 
-	public function accepts(Type $type, bool $strictTypes): TrinaryLogic
-	{
-		if ($type instanceof self) {
-			return TrinaryLogic::createYes();
-		}
+        if ($type instanceof CompoundType) {
+            return CompoundTypeHelper::accepts($type, $this, $strictTypes);
+        }
 
-		if ($type instanceof CompoundType) {
-			return CompoundTypeHelper::accepts($type, $this, $strictTypes);
-		}
+        if ($type instanceof TypeWithClassName && !$strictTypes) {
+            $broker = Broker::getInstance();
+            if (!$broker->hasClass($type->getClassName())) {
+                return TrinaryLogic::createNo();
+            }
 
-		if ($type instanceof TypeWithClassName && !$strictTypes) {
-			$broker = Broker::getInstance();
-			if (!$broker->hasClass($type->getClassName())) {
-				return TrinaryLogic::createNo();
-			}
+            $typeClass = $broker->getClass($type->getClassName());
+            return TrinaryLogic::createFromBoolean(
+                $typeClass->hasNativeMethod('__toString')
+            );
+        }
 
-			$typeClass = $broker->getClass($type->getClassName());
-			return TrinaryLogic::createFromBoolean(
-				$typeClass->hasNativeMethod('__toString')
-			);
-		}
+        return TrinaryLogic::createNo();
+    }
 
-		return TrinaryLogic::createNo();
-	}
+    public function toNumber(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toNumber(): Type
-	{
-		return new ErrorType();
-	}
+    public function toInteger(): Type
+    {
+        return new IntegerType();
+    }
 
-	public function toInteger(): Type
-	{
-		return new IntegerType();
-	}
+    public function toFloat(): Type
+    {
+        return new FloatType();
+    }
 
-	public function toFloat(): Type
-	{
-		return new FloatType();
-	}
+    public function toString(): Type
+    {
+        return $this;
+    }
 
-	public function toString(): Type
-	{
-		return $this;
-	}
+    public function toArray(): Type
+    {
+        return new ConstantArrayType(
+            [new ConstantIntegerType(0)],
+            [$this],
+            1
+        );
+    }
 
-	public function toArray(): Type
-	{
-		return new ConstantArrayType(
-			[new ConstantIntegerType(0)],
-			[$this],
-			1
-		);
-	}
+    public function isNumericString(): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function isNumericString(): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
-
-	/**
-	 * @param mixed[] $properties
-	 * @return Type
-	 */
-	public static function __set_state(array $properties): Type
-	{
-		return new self();
-	}
-
+    /**
+     * @param mixed[] $properties
+     * @return Type
+     */
+    public static function __set_state(array $properties): Type
+    {
+        return new self();
+    }
 }

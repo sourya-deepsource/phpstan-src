@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection\BetterReflection\SourceLocator;
 
@@ -11,40 +13,37 @@ use PHPStan\BetterReflection\SourceLocator\Type\SourceLocator;
 
 class PhpVersionBlacklistSourceLocator implements SourceLocator
 {
+    private SourceLocator $sourceLocator;
 
-	private SourceLocator $sourceLocator;
+    private PhpStormStubsSourceStubber $phpStormStubsSourceStubber;
 
-	private PhpStormStubsSourceStubber $phpStormStubsSourceStubber;
+    public function __construct(
+        SourceLocator $sourceLocator,
+        PhpStormStubsSourceStubber $phpStormStubsSourceStubber
+    ) {
+        $this->sourceLocator = $sourceLocator;
+        $this->phpStormStubsSourceStubber = $phpStormStubsSourceStubber;
+    }
 
-	public function __construct(
-		SourceLocator $sourceLocator,
-		PhpStormStubsSourceStubber $phpStormStubsSourceStubber
-	)
-	{
-		$this->sourceLocator = $sourceLocator;
-		$this->phpStormStubsSourceStubber = $phpStormStubsSourceStubber;
-	}
+    public function locateIdentifier(Reflector $reflector, Identifier $identifier): ?Reflection
+    {
+        if ($identifier->isClass()) {
+            if ($this->phpStormStubsSourceStubber->isPresentClass($identifier->getName()) === false) {
+                return null;
+            }
+        }
 
-	public function locateIdentifier(Reflector $reflector, Identifier $identifier): ?Reflection
-	{
-		if ($identifier->isClass()) {
-			if ($this->phpStormStubsSourceStubber->isPresentClass($identifier->getName()) === false) {
-				return null;
-			}
-		}
+        if ($identifier->isFunction()) {
+            if ($this->phpStormStubsSourceStubber->isPresentFunction($identifier->getName()) === false) {
+                return null;
+            }
+        }
 
-		if ($identifier->isFunction()) {
-			if ($this->phpStormStubsSourceStubber->isPresentFunction($identifier->getName()) === false) {
-				return null;
-			}
-		}
+        return $this->sourceLocator->locateIdentifier($reflector, $identifier);
+    }
 
-		return $this->sourceLocator->locateIdentifier($reflector, $identifier);
-	}
-
-	public function locateIdentifiersByType(Reflector $reflector, IdentifierType $identifierType): array
-	{
-		return $this->sourceLocator->locateIdentifiersByType($reflector, $identifierType);
-	}
-
+    public function locateIdentifiersByType(Reflector $reflector, IdentifierType $identifierType): array
+    {
+        return $this->sourceLocator->locateIdentifiersByType($reflector, $identifierType);
+    }
 }

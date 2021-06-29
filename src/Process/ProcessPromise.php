@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Process;
 
@@ -11,94 +13,92 @@ use React\Promise\ExtendedPromiseInterface;
 
 class ProcessPromise implements Runnable
 {
+    /** @var LoopInterface */
+    private $loop;
 
-	/** @var LoopInterface */
-	private $loop;
+    /** @var string */
+    private $name;
 
-	/** @var string */
-	private $name;
+    /** @var string */
+    private $command;
 
-	/** @var string */
-	private $command;
+    private Deferred $deferred;
 
-	private Deferred $deferred;
+    private ?Process $process = null;
 
-	private ?Process $process = null;
+    private bool $canceled = false;
 
-	private bool $canceled = false;
+    public function __construct(LoopInterface $loop, string $name, string $command)
+    {
+        $this->loop = $loop;
+        $this->name = $name;
+        $this->command = $command;
+        $this->deferred = new Deferred();
+    }
 
-	public function __construct(LoopInterface $loop, string $name, string $command)
-	{
-		$this->loop = $loop;
-		$this->name = $name;
-		$this->command = $command;
-		$this->deferred = new Deferred();
-	}
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
-	public function getName(): string
-	{
-		return $this->name;
-	}
+    /**
+     * @return ExtendedPromiseInterface&CancellablePromiseInterface
+     */
+    public function run(): CancellablePromiseInterface
+    {
+        $tmpStdOutResource = tmpfile();
+        if ($tmpStdOutResource === false) {
+            throw new \PHPStan\ShouldNotHappenException('Failed creating temp file for stdout.');
+        }
+        $tmpStdErrResource = tmpfile();
+        if ($tmpStdErrResource === false) {
+            throw new \PHPStan\ShouldNotHappenException('Failed creating temp file for stderr.');
+        }
 
-	/**
-	 * @return ExtendedPromiseInterface&CancellablePromiseInterface
-	 */
-	public function run(): CancellablePromiseInterface
-	{
-		$tmpStdOutResource = tmpfile();
-		if ($tmpStdOutResource === false) {
-			throw new \PHPStan\ShouldNotHappenException('Failed creating temp file for stdout.');
-		}
-		$tmpStdErrResource = tmpfile();
-		if ($tmpStdErrResource === false) {
-			throw new \PHPStan\ShouldNotHappenException('Failed creating temp file for stderr.');
-		}
+        $this->process = new Process($this->command, null, null, [
+            1 => $tmpStdOutResource,
+            2 => $tmpStdErrResource,
+        ]);
+        $this->process->start($this->loop);
 
-		$this->process = new Process($this->command, null, null, [
-			1 => $tmpStdOutResource,
-			2 => $tmpStdErrResource,
-		]);
-		$this->process->start($this->loop);
+        $this->process->on('exit', function ($exitCode) use ($tmpStdOutResource, $tmpStdErrResource): void {
+            if ($this->canceled) {
+                fclose($tmpStdOutResource);
+                fclose($tmpStdErrResource);
+                return;
+            }
+            rewind($tmpStdOutResource);
+            $stdOut = stream_get_contents($tmpStdOutResource);
+            fclose($tmpStdOutResource);
 
-		$this->process->on('exit', function ($exitCode) use ($tmpStdOutResource, $tmpStdErrResource): void {
-			if ($this->canceled) {
-				fclose($tmpStdOutResource);
-				fclose($tmpStdErrResource);
-				return;
-			}
-			rewind($tmpStdOutResource);
-			$stdOut = stream_get_contents($tmpStdOutResource);
-			fclose($tmpStdOutResource);
+            rewind($tmpStdErrResource);
+            $stdErr = stream_get_contents($tmpStdErrResource);
+            fclose($tmpStdErrResource);
 
-			rewind($tmpStdErrResource);
-			$stdErr = stream_get_contents($tmpStdErrResource);
-			fclose($tmpStdErrResource);
+            if ($exitCode === null) {
+                $this->deferred->reject(new \PHPStan\Process\ProcessCrashedException($stdOut . $stdErr));
+                return;
+            }
 
-			if ($exitCode === null) {
-				$this->deferred->reject(new \PHPStan\Process\ProcessCrashedException($stdOut . $stdErr));
-				return;
-			}
+            if ($exitCode === 0) {
+                $this->deferred->resolve($stdOut);
+                return;
+            }
 
-			if ($exitCode === 0) {
-				$this->deferred->resolve($stdOut);
-				return;
-			}
+            $this->deferred->reject(new \PHPStan\Process\ProcessCrashedException($stdOut . $stdErr));
+        });
 
-			$this->deferred->reject(new \PHPStan\Process\ProcessCrashedException($stdOut . $stdErr));
-		});
+        /** @var ExtendedPromiseInterface&CancellablePromiseInterface */
+        return $this->deferred->promise();
+    }
 
-		/** @var ExtendedPromiseInterface&CancellablePromiseInterface */
-		return $this->deferred->promise();
-	}
-
-	public function cancel(): void
-	{
-		if ($this->process === null) {
-			throw new \PHPStan\ShouldNotHappenException('Cancelling process before running');
-		}
-		$this->canceled = true;
-		$this->process->terminate();
-		$this->deferred->reject(new \PHPStan\Process\ProcessCanceledException());
-	}
-
+    public function cancel(): void
+    {
+        if ($this->process === null) {
+            throw new \PHPStan\ShouldNotHappenException('Cancelling process before running');
+        }
+        $this->canceled = true;
+        $this->process->terminate();
+        $this->deferred->reject(new \PHPStan\Process\ProcessCanceledException());
+    }
 }

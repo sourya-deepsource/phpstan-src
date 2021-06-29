@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\TooWideTypehints;
 
@@ -17,66 +19,64 @@ use PHPStan\Type\VerbosityLevel;
  */
 class TooWideClosureReturnTypehintRule implements Rule
 {
+    public function getNodeType(): string
+    {
+        return ClosureReturnStatementsNode::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return ClosureReturnStatementsNode::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $closureReturnType = $scope->getAnonymousFunctionReturnType();
+        if ($closureReturnType === null || !$closureReturnType instanceof UnionType) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		$closureReturnType = $scope->getAnonymousFunctionReturnType();
-		if ($closureReturnType === null || !$closureReturnType instanceof UnionType) {
-			return [];
-		}
+        $closureExpr = $node->getClosureExpr();
+        if ($closureExpr->returnType === null) {
+            return [];
+        }
 
-		$closureExpr = $node->getClosureExpr();
-		if ($closureExpr->returnType === null) {
-			return [];
-		}
+        $statementResult = $node->getStatementResult();
+        if ($statementResult->hasYield()) {
+            return [];
+        }
 
-		$statementResult = $node->getStatementResult();
-		if ($statementResult->hasYield()) {
-			return [];
-		}
+        $returnStatements = $node->getReturnStatements();
+        if (count($returnStatements) === 0) {
+            return [];
+        }
 
-		$returnStatements = $node->getReturnStatements();
-		if (count($returnStatements) === 0) {
-			return [];
-		}
+        $returnTypes = [];
+        foreach ($returnStatements as $returnStatement) {
+            $returnNode = $returnStatement->getReturnNode();
+            if ($returnNode->expr === null) {
+                continue;
+            }
 
-		$returnTypes = [];
-		foreach ($returnStatements as $returnStatement) {
-			$returnNode = $returnStatement->getReturnNode();
-			if ($returnNode->expr === null) {
-				continue;
-			}
+            $returnTypes[] = $returnStatement->getScope()->getType($returnNode->expr);
+        }
 
-			$returnTypes[] = $returnStatement->getScope()->getType($returnNode->expr);
-		}
+        if (count($returnTypes) === 0) {
+            return [];
+        }
 
-		if (count($returnTypes) === 0) {
-			return [];
-		}
+        $returnType = TypeCombinator::union(...$returnTypes);
+        if ($returnType instanceof NullType) {
+            return [];
+        }
 
-		$returnType = TypeCombinator::union(...$returnTypes);
-		if ($returnType instanceof NullType) {
-			return [];
-		}
+        $messages = [];
+        foreach ($closureReturnType->getTypes() as $type) {
+            if (!$type->isSuperTypeOf($returnType)->no()) {
+                continue;
+            }
 
-		$messages = [];
-		foreach ($closureReturnType->getTypes() as $type) {
-			if (!$type->isSuperTypeOf($returnType)->no()) {
-				continue;
-			}
+            $messages[] = RuleErrorBuilder::message(sprintf(
+                'Anonymous function never returns %s so it can be removed from the return typehint.',
+                $type->describe(VerbosityLevel::typeOnly())
+            ))->build();
+        }
 
-			$messages[] = RuleErrorBuilder::message(sprintf(
-				'Anonymous function never returns %s so it can be removed from the return typehint.',
-				$type->describe(VerbosityLevel::typeOnly())
-			))->build();
-		}
-
-		return $messages;
-	}
-
+        return $messages;
+    }
 }

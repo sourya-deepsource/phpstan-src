@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Php;
 
@@ -12,19 +14,17 @@ use PHPStan\Type\Type;
 
 class GetCalledClassDynamicReturnTypeExtension implements DynamicFunctionReturnTypeExtension
 {
+    public function isFunctionSupported(FunctionReflection $functionReflection): bool
+    {
+        return $functionReflection->getName() === 'get_called_class';
+    }
 
-	public function isFunctionSupported(FunctionReflection $functionReflection): bool
-	{
-		return $functionReflection->getName() === 'get_called_class';
-	}
-
-	public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
-	{
-		$classContext = $scope->getClassReflection();
-		if ($classContext !== null) {
-			return new ConstantStringType($classContext->getName(), true);
-		}
-		return new ConstantBooleanType(false);
-	}
-
+    public function getTypeFromFunctionCall(FunctionReflection $functionReflection, FuncCall $functionCall, Scope $scope): Type
+    {
+        $classContext = $scope->getClassReflection();
+        if ($classContext !== null) {
+            return new ConstantStringType($classContext->getName(), true);
+        }
+        return new ConstantBooleanType(false);
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type;
 
@@ -18,112 +20,110 @@ use PHPStan\Type\Traits\UndecidedComparisonTypeTrait;
 
 class NonexistentParentClassType implements Type
 {
+    use JustNullableTypeTrait;
+    use NonCallableTypeTrait;
+    use NonIterableTypeTrait;
+    use NonOffsetAccessibleTypeTrait;
+    use TruthyBooleanTypeTrait;
+    use NonGenericTypeTrait;
+    use UndecidedComparisonTypeTrait;
 
-	use JustNullableTypeTrait;
-	use NonCallableTypeTrait;
-	use NonIterableTypeTrait;
-	use NonOffsetAccessibleTypeTrait;
-	use TruthyBooleanTypeTrait;
-	use NonGenericTypeTrait;
-	use UndecidedComparisonTypeTrait;
+    public function describe(VerbosityLevel $level): string
+    {
+        return 'parent';
+    }
 
-	public function describe(VerbosityLevel $level): string
-	{
-		return 'parent';
-	}
+    public function canAccessProperties(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function canAccessProperties(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function hasProperty(string $propertyName): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function hasProperty(string $propertyName): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function getProperty(string $propertyName, ClassMemberAccessAnswerer $scope): PropertyReflection
+    {
+        throw new \PHPStan\ShouldNotHappenException();
+    }
 
-	public function getProperty(string $propertyName, ClassMemberAccessAnswerer $scope): PropertyReflection
-	{
-		throw new \PHPStan\ShouldNotHappenException();
-	}
+    public function getUnresolvedPropertyPrototype(string $propertyName, ClassMemberAccessAnswerer $scope): UnresolvedPropertyPrototypeReflection
+    {
+        throw new \PHPStan\ShouldNotHappenException();
+    }
 
-	public function getUnresolvedPropertyPrototype(string $propertyName, ClassMemberAccessAnswerer $scope): UnresolvedPropertyPrototypeReflection
-	{
-		throw new \PHPStan\ShouldNotHappenException();
-	}
+    public function canCallMethods(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function canCallMethods(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function hasMethod(string $methodName): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function hasMethod(string $methodName): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function getMethod(string $methodName, ClassMemberAccessAnswerer $scope): MethodReflection
+    {
+        throw new \PHPStan\ShouldNotHappenException();
+    }
 
-	public function getMethod(string $methodName, ClassMemberAccessAnswerer $scope): MethodReflection
-	{
-		throw new \PHPStan\ShouldNotHappenException();
-	}
+    public function getUnresolvedMethodPrototype(string $methodName, ClassMemberAccessAnswerer $scope): UnresolvedMethodPrototypeReflection
+    {
+        throw new \PHPStan\ShouldNotHappenException();
+    }
 
-	public function getUnresolvedMethodPrototype(string $methodName, ClassMemberAccessAnswerer $scope): UnresolvedMethodPrototypeReflection
-	{
-		throw new \PHPStan\ShouldNotHappenException();
-	}
+    public function canAccessConstants(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function canAccessConstants(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function hasConstant(string $constantName): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function hasConstant(string $constantName): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function getConstant(string $constantName): ConstantReflection
+    {
+        throw new \PHPStan\ShouldNotHappenException();
+    }
 
-	public function getConstant(string $constantName): ConstantReflection
-	{
-		throw new \PHPStan\ShouldNotHappenException();
-	}
+    public function isCloneable(): TrinaryLogic
+    {
+        return TrinaryLogic::createNo();
+    }
 
-	public function isCloneable(): TrinaryLogic
-	{
-		return TrinaryLogic::createNo();
-	}
+    public function toNumber(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toNumber(): Type
-	{
-		return new ErrorType();
-	}
+    public function toString(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toString(): Type
-	{
-		return new ErrorType();
-	}
+    public function toInteger(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toInteger(): Type
-	{
-		return new ErrorType();
-	}
+    public function toFloat(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toFloat(): Type
-	{
-		return new ErrorType();
-	}
+    public function toArray(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toArray(): Type
-	{
-		return new ErrorType();
-	}
-
-	/**
-	 * @param mixed[] $properties
-	 * @return Type
-	 */
-	public static function __set_state(array $properties): Type
-	{
-		return new self();
-	}
-
+    /**
+     * @param mixed[] $properties
+     * @return Type
+     */
+    public static function __set_state(array $properties): Type
+    {
+        return new self();
+    }
 }

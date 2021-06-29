@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Operators;
 
@@ -17,85 +19,83 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class InvalidAssignVarRule implements Rule
 {
+    private NullsafeCheck $nullsafeCheck;
 
-	private NullsafeCheck $nullsafeCheck;
+    public function __construct(NullsafeCheck $nullsafeCheck)
+    {
+        $this->nullsafeCheck = $nullsafeCheck;
+    }
 
-	public function __construct(NullsafeCheck $nullsafeCheck)
-	{
-		$this->nullsafeCheck = $nullsafeCheck;
-	}
+    public function getNodeType(): string
+    {
+        return Expr::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Expr::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if (
+            !$node instanceof Assign
+            && !$node instanceof AssignOp
+            && !$node instanceof AssignRef
+        ) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		if (
-			!$node instanceof Assign
-			&& !$node instanceof AssignOp
-			&& !$node instanceof AssignRef
-		) {
-			return [];
-		}
+        if ($this->nullsafeCheck->containsNullSafe($node->var)) {
+            return [
+                RuleErrorBuilder::message('Nullsafe operator cannot be on left side of assignment.')->nonIgnorable()->build(),
+            ];
+        }
 
-		if ($this->nullsafeCheck->containsNullSafe($node->var)) {
-			return [
-				RuleErrorBuilder::message('Nullsafe operator cannot be on left side of assignment.')->nonIgnorable()->build(),
-			];
-		}
+        if ($node instanceof AssignRef && $this->nullsafeCheck->containsNullSafe($node->expr)) {
+            return [
+                RuleErrorBuilder::message('Nullsafe operator cannot be on right side of assignment by reference.')->nonIgnorable()->build(),
+            ];
+        }
 
-		if ($node instanceof AssignRef && $this->nullsafeCheck->containsNullSafe($node->expr)) {
-			return [
-				RuleErrorBuilder::message('Nullsafe operator cannot be on right side of assignment by reference.')->nonIgnorable()->build(),
-			];
-		}
+        if ($this->containsNonAssignableExpression($node->var)) {
+            return [
+                RuleErrorBuilder::message('Expression on left side of assignment is not assignable.')->nonIgnorable()->build(),
+            ];
+        }
 
-		if ($this->containsNonAssignableExpression($node->var)) {
-			return [
-				RuleErrorBuilder::message('Expression on left side of assignment is not assignable.')->nonIgnorable()->build(),
-			];
-		}
-
-		return [];
-	}
+        return [];
+    }
 
 
-	private function containsNonAssignableExpression(Expr $expr): bool
-	{
-		if ($expr instanceof Expr\Variable) {
-			return false;
-		}
+    private function containsNonAssignableExpression(Expr $expr): bool
+    {
+        if ($expr instanceof Expr\Variable) {
+            return false;
+        }
 
-		if ($expr instanceof Expr\PropertyFetch) {
-			return false;
-		}
+        if ($expr instanceof Expr\PropertyFetch) {
+            return false;
+        }
 
-		if ($expr instanceof Expr\ArrayDimFetch) {
-			return false;
-		}
+        if ($expr instanceof Expr\ArrayDimFetch) {
+            return false;
+        }
 
-		if ($expr instanceof Expr\StaticPropertyFetch) {
-			return false;
-		}
+        if ($expr instanceof Expr\StaticPropertyFetch) {
+            return false;
+        }
 
-		if ($expr instanceof Expr\List_ || $expr instanceof Expr\Array_) {
-			foreach ($expr->items as $item) {
-				if ($item === null) {
-					continue;
-				}
-				if (!$this->containsNonAssignableExpression($item->value)) {
-					continue;
-				}
+        if ($expr instanceof Expr\List_ || $expr instanceof Expr\Array_) {
+            foreach ($expr->items as $item) {
+                if ($item === null) {
+                    continue;
+                }
+                if (!$this->containsNonAssignableExpression($item->value)) {
+                    continue;
+                }
 
-				return true;
-			}
+                return true;
+            }
 
-			return false;
-		}
+            return false;
+        }
 
-		return true;
-	}
-
+        return true;
+    }
 }

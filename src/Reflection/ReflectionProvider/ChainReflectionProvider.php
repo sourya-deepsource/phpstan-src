@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection\ReflectionProvider;
 
@@ -10,163 +12,160 @@ use PHPStan\Reflection\ReflectionProvider;
 
 class ChainReflectionProvider implements ReflectionProvider
 {
+    /** @var \PHPStan\Reflection\ReflectionProvider[] */
+    private array $providers;
 
-	/** @var \PHPStan\Reflection\ReflectionProvider[] */
-	private array $providers;
+    /**
+     * @param \PHPStan\Reflection\ReflectionProvider[] $providers
+     */
+    public function __construct(
+        array $providers
+    ) {
+        $this->providers = $providers;
+    }
 
-	/**
-	 * @param \PHPStan\Reflection\ReflectionProvider[] $providers
-	 */
-	public function __construct(
-		array $providers
-	)
-	{
-		$this->providers = $providers;
-	}
+    public function hasClass(string $className): bool
+    {
+        foreach ($this->providers as $provider) {
+            if (!$provider->hasClass($className)) {
+                continue;
+            }
 
-	public function hasClass(string $className): bool
-	{
-		foreach ($this->providers as $provider) {
-			if (!$provider->hasClass($className)) {
-				continue;
-			}
+            return true;
+        }
 
-			return true;
-		}
+        return false;
+    }
 
-		return false;
-	}
+    public function getClass(string $className): ClassReflection
+    {
+        foreach ($this->providers as $provider) {
+            if (!$provider->hasClass($className)) {
+                continue;
+            }
 
-	public function getClass(string $className): ClassReflection
-	{
-		foreach ($this->providers as $provider) {
-			if (!$provider->hasClass($className)) {
-				continue;
-			}
+            return $provider->getClass($className);
+        }
 
-			return $provider->getClass($className);
-		}
+        throw new \PHPStan\Broker\ClassNotFoundException($className);
+    }
 
-		throw new \PHPStan\Broker\ClassNotFoundException($className);
-	}
+    public function getClassName(string $className): string
+    {
+        foreach ($this->providers as $provider) {
+            if (!$provider->hasClass($className)) {
+                continue;
+            }
 
-	public function getClassName(string $className): string
-	{
-		foreach ($this->providers as $provider) {
-			if (!$provider->hasClass($className)) {
-				continue;
-			}
+            return $provider->getClassName($className);
+        }
 
-			return $provider->getClassName($className);
-		}
+        throw new \PHPStan\Broker\ClassNotFoundException($className);
+    }
 
-		throw new \PHPStan\Broker\ClassNotFoundException($className);
-	}
+    public function supportsAnonymousClasses(): bool
+    {
+        foreach ($this->providers as $provider) {
+            if (!$provider->supportsAnonymousClasses()) {
+                continue;
+            }
 
-	public function supportsAnonymousClasses(): bool
-	{
-		foreach ($this->providers as $provider) {
-			if (!$provider->supportsAnonymousClasses()) {
-				continue;
-			}
+            return true;
+        }
 
-			return true;
-		}
+        return false;
+    }
 
-		return false;
-	}
+    public function getAnonymousClassReflection(\PhpParser\Node\Stmt\Class_ $classNode, Scope $scope): ClassReflection
+    {
+        foreach ($this->providers as $provider) {
+            if (!$provider->supportsAnonymousClasses()) {
+                continue;
+            }
 
-	public function getAnonymousClassReflection(\PhpParser\Node\Stmt\Class_ $classNode, Scope $scope): ClassReflection
-	{
-		foreach ($this->providers as $provider) {
-			if (!$provider->supportsAnonymousClasses()) {
-				continue;
-			}
+            return $provider->getAnonymousClassReflection($classNode, $scope);
+        }
 
-			return $provider->getAnonymousClassReflection($classNode, $scope);
-		}
+        throw new \PHPStan\ShouldNotHappenException();
+    }
 
-		throw new \PHPStan\ShouldNotHappenException();
-	}
+    public function hasFunction(\PhpParser\Node\Name $nameNode, ?Scope $scope): bool
+    {
+        foreach ($this->providers as $provider) {
+            if (!$provider->hasFunction($nameNode, $scope)) {
+                continue;
+            }
 
-	public function hasFunction(\PhpParser\Node\Name $nameNode, ?Scope $scope): bool
-	{
-		foreach ($this->providers as $provider) {
-			if (!$provider->hasFunction($nameNode, $scope)) {
-				continue;
-			}
+            return true;
+        }
 
-			return true;
-		}
+        return false;
+    }
 
-		return false;
-	}
+    public function getFunction(\PhpParser\Node\Name $nameNode, ?Scope $scope): FunctionReflection
+    {
+        foreach ($this->providers as $provider) {
+            if (!$provider->hasFunction($nameNode, $scope)) {
+                continue;
+            }
 
-	public function getFunction(\PhpParser\Node\Name $nameNode, ?Scope $scope): FunctionReflection
-	{
-		foreach ($this->providers as $provider) {
-			if (!$provider->hasFunction($nameNode, $scope)) {
-				continue;
-			}
+            return $provider->getFunction($nameNode, $scope);
+        }
 
-			return $provider->getFunction($nameNode, $scope);
-		}
+        throw new \PHPStan\Broker\FunctionNotFoundException((string) $nameNode);
+    }
 
-		throw new \PHPStan\Broker\FunctionNotFoundException((string) $nameNode);
-	}
+    public function resolveFunctionName(\PhpParser\Node\Name $nameNode, ?Scope $scope): ?string
+    {
+        foreach ($this->providers as $provider) {
+            $resolvedName = $provider->resolveFunctionName($nameNode, $scope);
+            if ($resolvedName === null) {
+                continue;
+            }
 
-	public function resolveFunctionName(\PhpParser\Node\Name $nameNode, ?Scope $scope): ?string
-	{
-		foreach ($this->providers as $provider) {
-			$resolvedName = $provider->resolveFunctionName($nameNode, $scope);
-			if ($resolvedName === null) {
-				continue;
-			}
+            return $resolvedName;
+        }
 
-			return $resolvedName;
-		}
+        return null;
+    }
 
-		return null;
-	}
+    public function hasConstant(\PhpParser\Node\Name $nameNode, ?Scope $scope): bool
+    {
+        foreach ($this->providers as $provider) {
+            if (!$provider->hasConstant($nameNode, $scope)) {
+                continue;
+            }
 
-	public function hasConstant(\PhpParser\Node\Name $nameNode, ?Scope $scope): bool
-	{
-		foreach ($this->providers as $provider) {
-			if (!$provider->hasConstant($nameNode, $scope)) {
-				continue;
-			}
+            return true;
+        }
 
-			return true;
-		}
+        return false;
+    }
 
-		return false;
-	}
+    public function getConstant(\PhpParser\Node\Name $nameNode, ?Scope $scope): GlobalConstantReflection
+    {
+        foreach ($this->providers as $provider) {
+            if (!$provider->hasConstant($nameNode, $scope)) {
+                continue;
+            }
 
-	public function getConstant(\PhpParser\Node\Name $nameNode, ?Scope $scope): GlobalConstantReflection
-	{
-		foreach ($this->providers as $provider) {
-			if (!$provider->hasConstant($nameNode, $scope)) {
-				continue;
-			}
+            return $provider->getConstant($nameNode, $scope);
+        }
 
-			return $provider->getConstant($nameNode, $scope);
-		}
+        throw new \PHPStan\Broker\ConstantNotFoundException((string) $nameNode);
+    }
 
-		throw new \PHPStan\Broker\ConstantNotFoundException((string) $nameNode);
-	}
+    public function resolveConstantName(\PhpParser\Node\Name $nameNode, ?Scope $scope): ?string
+    {
+        foreach ($this->providers as $provider) {
+            $resolvedName = $provider->resolveConstantName($nameNode, $scope);
+            if ($resolvedName === null) {
+                continue;
+            }
 
-	public function resolveConstantName(\PhpParser\Node\Name $nameNode, ?Scope $scope): ?string
-	{
-		foreach ($this->providers as $provider) {
-			$resolvedName = $provider->resolveConstantName($nameNode, $scope);
-			if ($resolvedName === null) {
-				continue;
-			}
+            return $resolvedName;
+        }
 
-			return $resolvedName;
-		}
-
-		return null;
-	}
-
+        return null;
+    }
 }

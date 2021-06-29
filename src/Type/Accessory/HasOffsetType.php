@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Accessory;
 
@@ -20,149 +22,147 @@ use PHPStan\Type\UnionType;
 
 class HasOffsetType implements CompoundType, AccessoryType
 {
+    use MaybeCallableTypeTrait;
+    use MaybeIterableTypeTrait;
+    use MaybeObjectTypeTrait;
+    use TruthyBooleanTypeTrait;
+    use NonGenericTypeTrait;
+    use UndecidedComparisonCompoundTypeTrait;
 
-	use MaybeCallableTypeTrait;
-	use MaybeIterableTypeTrait;
-	use MaybeObjectTypeTrait;
-	use TruthyBooleanTypeTrait;
-	use NonGenericTypeTrait;
-	use UndecidedComparisonCompoundTypeTrait;
+    private \PHPStan\Type\Type $offsetType;
 
-	private \PHPStan\Type\Type $offsetType;
+    public function __construct(Type $offsetType)
+    {
+        $this->offsetType = $offsetType;
+    }
 
-	public function __construct(Type $offsetType)
-	{
-		$this->offsetType = $offsetType;
-	}
+    public function getOffsetType(): Type
+    {
+        return $this->offsetType;
+    }
 
-	public function getOffsetType(): Type
-	{
-		return $this->offsetType;
-	}
+    public function getReferencedClasses(): array
+    {
+        return [];
+    }
 
-	public function getReferencedClasses(): array
-	{
-		return [];
-	}
+    public function accepts(Type $type, bool $strictTypes): TrinaryLogic
+    {
+        if ($type instanceof CompoundType) {
+            return CompoundTypeHelper::accepts($type, $this, $strictTypes);
+        }
 
-	public function accepts(Type $type, bool $strictTypes): TrinaryLogic
-	{
-		if ($type instanceof CompoundType) {
-			return CompoundTypeHelper::accepts($type, $this, $strictTypes);
-		}
+        return $type->isOffsetAccessible()
+            ->and($type->hasOffsetValueType($this->offsetType));
+    }
 
-		return $type->isOffsetAccessible()
-			->and($type->hasOffsetValueType($this->offsetType));
-	}
+    public function isSuperTypeOf(Type $type): TrinaryLogic
+    {
+        if ($this->equals($type)) {
+            return TrinaryLogic::createYes();
+        }
+        return $type->isOffsetAccessible()
+            ->and($type->hasOffsetValueType($this->offsetType));
+    }
 
-	public function isSuperTypeOf(Type $type): TrinaryLogic
-	{
-		if ($this->equals($type)) {
-			return TrinaryLogic::createYes();
-		}
-		return $type->isOffsetAccessible()
-			->and($type->hasOffsetValueType($this->offsetType));
-	}
+    public function isSubTypeOf(Type $otherType): TrinaryLogic
+    {
+        if ($otherType instanceof UnionType || $otherType instanceof IntersectionType) {
+            return $otherType->isSuperTypeOf($this);
+        }
 
-	public function isSubTypeOf(Type $otherType): TrinaryLogic
-	{
-		if ($otherType instanceof UnionType || $otherType instanceof IntersectionType) {
-			return $otherType->isSuperTypeOf($this);
-		}
+        return $otherType->isOffsetAccessible()
+            ->and($otherType->hasOffsetValueType($this->offsetType))
+            ->and($otherType instanceof self ? TrinaryLogic::createYes() : TrinaryLogic::createMaybe());
+    }
 
-		return $otherType->isOffsetAccessible()
-			->and($otherType->hasOffsetValueType($this->offsetType))
-			->and($otherType instanceof self ? TrinaryLogic::createYes() : TrinaryLogic::createMaybe());
-	}
+    public function isAcceptedBy(Type $acceptingType, bool $strictTypes): TrinaryLogic
+    {
+        return $this->isSubTypeOf($acceptingType);
+    }
 
-	public function isAcceptedBy(Type $acceptingType, bool $strictTypes): TrinaryLogic
-	{
-		return $this->isSubTypeOf($acceptingType);
-	}
+    public function equals(Type $type): bool
+    {
+        return $type instanceof self
+            && $this->offsetType->equals($type->offsetType);
+    }
 
-	public function equals(Type $type): bool
-	{
-		return $type instanceof self
-			&& $this->offsetType->equals($type->offsetType);
-	}
+    public function describe(\PHPStan\Type\VerbosityLevel $level): string
+    {
+        return sprintf('hasOffset(%s)', $this->offsetType->describe($level));
+    }
 
-	public function describe(\PHPStan\Type\VerbosityLevel $level): string
-	{
-		return sprintf('hasOffset(%s)', $this->offsetType->describe($level));
-	}
+    public function isOffsetAccessible(): TrinaryLogic
+    {
+        return TrinaryLogic::createYes();
+    }
 
-	public function isOffsetAccessible(): TrinaryLogic
-	{
-		return TrinaryLogic::createYes();
-	}
+    public function hasOffsetValueType(Type $offsetType): TrinaryLogic
+    {
+        if ($offsetType instanceof ConstantScalarType && $offsetType->equals($this->offsetType)) {
+            return TrinaryLogic::createYes();
+        }
 
-	public function hasOffsetValueType(Type $offsetType): TrinaryLogic
-	{
-		if ($offsetType instanceof ConstantScalarType && $offsetType->equals($this->offsetType)) {
-			return TrinaryLogic::createYes();
-		}
+        return TrinaryLogic::createMaybe();
+    }
 
-		return TrinaryLogic::createMaybe();
-	}
+    public function getOffsetValueType(Type $offsetType): Type
+    {
+        return new MixedType();
+    }
 
-	public function getOffsetValueType(Type $offsetType): Type
-	{
-		return new MixedType();
-	}
+    public function setOffsetValueType(?Type $offsetType, Type $valueType): Type
+    {
+        return $this;
+    }
 
-	public function setOffsetValueType(?Type $offsetType, Type $valueType): Type
-	{
-		return $this;
-	}
+    public function isIterableAtLeastOnce(): TrinaryLogic
+    {
+        return TrinaryLogic::createYes();
+    }
 
-	public function isIterableAtLeastOnce(): TrinaryLogic
-	{
-		return TrinaryLogic::createYes();
-	}
+    public function isArray(): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function isArray(): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
+    public function isNumericString(): TrinaryLogic
+    {
+        return TrinaryLogic::createMaybe();
+    }
 
-	public function isNumericString(): TrinaryLogic
-	{
-		return TrinaryLogic::createMaybe();
-	}
+    public function toNumber(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toNumber(): Type
-	{
-		return new ErrorType();
-	}
+    public function toInteger(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toInteger(): Type
-	{
-		return new ErrorType();
-	}
+    public function toFloat(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toFloat(): Type
-	{
-		return new ErrorType();
-	}
+    public function toString(): Type
+    {
+        return new ErrorType();
+    }
 
-	public function toString(): Type
-	{
-		return new ErrorType();
-	}
+    public function toArray(): Type
+    {
+        return new MixedType();
+    }
 
-	public function toArray(): Type
-	{
-		return new MixedType();
-	}
+    public function traverse(callable $cb): Type
+    {
+        return $this;
+    }
 
-	public function traverse(callable $cb): Type
-	{
-		return $this;
-	}
-
-	public static function __set_state(array $properties): Type
-	{
-		return new self($properties['offsetType']);
-	}
-
+    public static function __set_state(array $properties): Type
+    {
+        return new self($properties['offsetType']);
+    }
 }

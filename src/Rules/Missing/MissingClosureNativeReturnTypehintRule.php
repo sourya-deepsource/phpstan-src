@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Missing;
 
@@ -23,114 +25,112 @@ use PHPStan\Type\VerbosityLevel;
  */
 class MissingClosureNativeReturnTypehintRule implements Rule
 {
+    private bool $checkObjectTypehint;
 
-	private bool $checkObjectTypehint;
+    public function __construct(bool $checkObjectTypehint)
+    {
+        $this->checkObjectTypehint = $checkObjectTypehint;
+    }
 
-	public function __construct(bool $checkObjectTypehint)
-	{
-		$this->checkObjectTypehint = $checkObjectTypehint;
-	}
+    public function getNodeType(): string
+    {
+        return ClosureReturnStatementsNode::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return ClosureReturnStatementsNode::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $closure = $node->getClosureExpr();
+        if ($closure->returnType !== null) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		$closure = $node->getClosureExpr();
-		if ($closure->returnType !== null) {
-			return [];
-		}
+        $messagePattern = 'Anonymous function should have native return typehint "%s".';
+        $statementResult = $node->getStatementResult();
+        if ($statementResult->hasYield()) {
+            return [
+                RuleErrorBuilder::message(sprintf($messagePattern, 'Generator'))->build(),
+            ];
+        }
 
-		$messagePattern = 'Anonymous function should have native return typehint "%s".';
-		$statementResult = $node->getStatementResult();
-		if ($statementResult->hasYield()) {
-			return [
-				RuleErrorBuilder::message(sprintf($messagePattern, 'Generator'))->build(),
-			];
-		}
+        $returnStatements = $node->getReturnStatements();
+        if (count($returnStatements) === 0) {
+            return [
+                RuleErrorBuilder::message(sprintf($messagePattern, 'void'))->build(),
+            ];
+        }
 
-		$returnStatements = $node->getReturnStatements();
-		if (count($returnStatements) === 0) {
-			return [
-				RuleErrorBuilder::message(sprintf($messagePattern, 'void'))->build(),
-			];
-		}
+        $returnTypes = [];
+        $voidReturnNodes = [];
+        $hasNull = false;
+        foreach ($returnStatements as $returnStatement) {
+            $returnNode = $returnStatement->getReturnNode();
+            if ($returnNode->expr === null) {
+                $voidReturnNodes[] = $returnNode;
+                $hasNull = true;
+                continue;
+            }
 
-		$returnTypes = [];
-		$voidReturnNodes = [];
-		$hasNull = false;
-		foreach ($returnStatements as $returnStatement) {
-			$returnNode = $returnStatement->getReturnNode();
-			if ($returnNode->expr === null) {
-				$voidReturnNodes[] = $returnNode;
-				$hasNull = true;
-				continue;
-			}
+            $returnTypes[] = $returnStatement->getScope()->getType($returnNode->expr);
+        }
 
-			$returnTypes[] = $returnStatement->getScope()->getType($returnNode->expr);
-		}
+        if (count($returnTypes) === 0) {
+            return [
+                RuleErrorBuilder::message(sprintf($messagePattern, 'void'))->build(),
+            ];
+        }
 
-		if (count($returnTypes) === 0) {
-			return [
-				RuleErrorBuilder::message(sprintf($messagePattern, 'void'))->build(),
-			];
-		}
+        $messages = [];
+        foreach ($voidReturnNodes as $voidReturnStatement) {
+            $messages[] = RuleErrorBuilder::message('Mixing returning values with empty return statements - return null should be used here.')
+                ->line($voidReturnStatement->getLine())
+                ->build();
+        }
 
-		$messages = [];
-		foreach ($voidReturnNodes as $voidReturnStatement) {
-			$messages[] = RuleErrorBuilder::message('Mixing returning values with empty return statements - return null should be used here.')
-				->line($voidReturnStatement->getLine())
-				->build();
-		}
+        $returnType = TypeCombinator::union(...$returnTypes);
+        if (
+            $returnType instanceof MixedType
+            || $returnType instanceof NeverType
+            || $returnType instanceof IntersectionType
+            || $returnType instanceof NullType
+        ) {
+            return $messages;
+        }
 
-		$returnType = TypeCombinator::union(...$returnTypes);
-		if (
-			$returnType instanceof MixedType
-			|| $returnType instanceof NeverType
-			|| $returnType instanceof IntersectionType
-			|| $returnType instanceof NullType
-		) {
-			return $messages;
-		}
+        if (TypeCombinator::containsNull($returnType)) {
+            $hasNull = true;
+            $returnType = TypeCombinator::removeNull($returnType);
+        }
 
-		if (TypeCombinator::containsNull($returnType)) {
-			$hasNull = true;
-			$returnType = TypeCombinator::removeNull($returnType);
-		}
+        if (
+            $returnType instanceof UnionType
+            || $returnType instanceof ResourceType
+        ) {
+            return $messages;
+        }
 
-		if (
-			$returnType instanceof UnionType
-			|| $returnType instanceof ResourceType
-		) {
-			return $messages;
-		}
+        if (!$statementResult->isAlwaysTerminating()) {
+            $messages[] = RuleErrorBuilder::message('Anonymous function sometimes return something but return statement at the end is missing.')->build();
+            return $messages;
+        }
 
-		if (!$statementResult->isAlwaysTerminating()) {
-			$messages[] = RuleErrorBuilder::message('Anonymous function sometimes return something but return statement at the end is missing.')->build();
-			return $messages;
-		}
+        $returnType = TypeUtils::generalizeType($returnType);
+        $description = $returnType->describe(VerbosityLevel::typeOnly());
+        if ($returnType->isArray()->yes()) {
+            $description = 'array';
+        }
+        if ($hasNull) {
+            $description = '?' . $description;
+        }
 
-		$returnType = TypeUtils::generalizeType($returnType);
-		$description = $returnType->describe(VerbosityLevel::typeOnly());
-		if ($returnType->isArray()->yes()) {
-			$description = 'array';
-		}
-		if ($hasNull) {
-			$description = '?' . $description;
-		}
+        if (
+            !$this->checkObjectTypehint
+            && $returnType instanceof ObjectWithoutClassType
+        ) {
+            return $messages;
+        }
 
-		if (
-			!$this->checkObjectTypehint
-			&& $returnType instanceof ObjectWithoutClassType
-		) {
-			return $messages;
-		}
+        $messages[] = RuleErrorBuilder::message(sprintf($messagePattern, $description))->build();
 
-		$messages[] = RuleErrorBuilder::message(sprintf($messagePattern, $description))->build();
-
-		return $messages;
-	}
-
+        return $messages;
+    }
 }

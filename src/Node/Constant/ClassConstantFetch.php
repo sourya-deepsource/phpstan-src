@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Node\Constant;
 
@@ -7,25 +9,23 @@ use PHPStan\Analyser\Scope;
 
 class ClassConstantFetch
 {
+    private ClassConstFetch $node;
 
-	private ClassConstFetch $node;
+    private Scope $scope;
 
-	private Scope $scope;
+    public function __construct(ClassConstFetch $node, Scope $scope)
+    {
+        $this->node = $node;
+        $this->scope = $scope;
+    }
 
-	public function __construct(ClassConstFetch $node, Scope $scope)
-	{
-		$this->node = $node;
-		$this->scope = $scope;
-	}
+    public function getNode(): ClassConstFetch
+    {
+        return $this->node;
+    }
 
-	public function getNode(): ClassConstFetch
-	{
-		return $this->node;
-	}
-
-	public function getScope(): Scope
-	{
-		return $this->scope;
-	}
-
+    public function getScope(): Scope
+    {
+        return $this->scope;
+    }
 }

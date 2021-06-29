@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type;
 
@@ -8,9 +10,7 @@ use PHPStan\Reflection\MethodReflection;
 
 interface DynamicStaticMethodThrowTypeExtension
 {
+    public function isStaticMethodSupported(MethodReflection $methodReflection): bool;
 
-	public function isStaticMethodSupported(MethodReflection $methodReflection): bool;
-
-	public function getThrowTypeFromStaticMethodCall(MethodReflection $methodReflection, StaticCall $methodCall, Scope $scope): ?Type;
-
+    public function getThrowTypeFromStaticMethodCall(MethodReflection $methodReflection, StaticCall $methodCall, Scope $scope): ?Type;
 }
