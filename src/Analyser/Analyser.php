@@ -55,8 +55,8 @@ $this->fileAnalyser = $fileAnalyser;
         $this->collectErrors($files);
 
         $errors = [];
-        $internalErrorsCount = 0;
-        $reachedInternalErrorsCountLimit = false;
+$internalErrorsCount = 0;
+$reachedInternalErrorsCountLimit = false;
         $dependencies = [];
         $exportedNodes = [];
         foreach ($files as $file) {
