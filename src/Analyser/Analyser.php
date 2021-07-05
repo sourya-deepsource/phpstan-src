@@ -20,11 +20,10 @@ class Analyser
     private array $collectedErrors = [];
 
     public function __construct(
-        FileAnalyser $fileAnalyser,
-        Registry $registry,
-        NodeScopeResolver $nodeScopeResolver,
-        int $internalErrorsCountLimit
-    ) {
+   FileAnalyser $fileAnalyser,
+   Registry $registry,NodeScopeResolver $nodeScopeResolver, int $internalErrorsCountLimit
+    ) 
+	{
         $this->fileAnalyser = $fileAnalyser;
         $this->registry = $registry;
         $this->nodeScopeResolver = $nodeScopeResolver;
