@@ -4,17 +4,13 @@ namespace ParallelAnalyserIntegrationTest;
 
 class Foo
 {
-
-	use FooTrait;
-
+    use FooTrait;
 }
 
 class Bar
 {
+    use FooTrait;
 
-	use FooTrait;
-
-	/** @var int */
-	private $test;
-
+    /** @var int */
+    private $test;
 }

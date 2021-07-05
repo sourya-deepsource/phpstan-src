@@ -1,41 +1,33 @@
-<?php // lint >= 8.0
+<?php
+
+// lint >= 8.0
 
 namespace UninitializedPropertyPromoted;
 
 class Foo
 {
+    private int $x;
 
-	private int $x;
-
-	public function __construct(
-		private int $y
-	)
-	{
-		$this->x = $this->y;
-	}
-
+    public function __construct(
+        private int $y
+    ) {
+        $this->x = $this->y;
+    }
 }
 
 class Bar
 {
-
-	public function __construct(
-		private int $x
-	)
-	{
-
-	}
-
+    public function __construct(
+        private int $x
+    ) {
+    }
 }
 
 class Baz
 {
-
-	public function __construct(
-		private int $x
-	)
-	{
-		 assert($this->x >= 0.0);
-	}
-
+    public function __construct(
+        private int $x
+    ) {
+        assert($this->x >= 0.0);
+    }
 }

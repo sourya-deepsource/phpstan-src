@@ -2,27 +2,33 @@
 
 namespace Bug3546;
 
-interface MyInterface{}
-class MyClass implements MyInterface{}
+interface MyInterface
+{
+}
+class MyClass implements MyInterface
+{
+}
 
 /** @phpstan-template T of MyInterface */
-interface SomeInterface{}
+interface SomeInterface
+{
+}
 
 /**
  * @phpstan-template T of MyInterface
  */
 abstract class MyAbstractService
 {
-	/** @phpstan-var SomeInterface<T> */
-	private $someInterface;
+    /** @phpstan-var SomeInterface<T> */
+    private $someInterface;
 
-	/**
-	 * @phpstan-param SomeInterface<T> $someInterface
-	 */
-	public function __construct(SomeInterface $someInterface)
-	{
-		$this->someInterface = $someInterface;
-	}
+    /**
+     * @phpstan-param SomeInterface<T> $someInterface
+     */
+    public function __construct(SomeInterface $someInterface)
+    {
+        $this->someInterface = $someInterface;
+    }
 }
 
 /**
@@ -30,11 +36,11 @@ abstract class MyAbstractService
  */
 class MyService extends MyAbstractService
 {
-	/**
-	 * @phpstan-param SomeInterface<MyClass> $someInterface
-	 */
-	public function __construct(SomeInterface $someInterface)
-	{
-		parent::__construct($someInterface);
-	}
+    /**
+     * @phpstan-param SomeInterface<MyClass> $someInterface
+     */
+    public function __construct(SomeInterface $someInterface)
+    {
+        parent::__construct($someInterface);
+    }
 }

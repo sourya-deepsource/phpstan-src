@@ -8,7 +8,6 @@ namespace ClassAncestorsExtends;
  */
 class FooGeneric
 {
-
 }
 
 /**
@@ -17,7 +16,6 @@ class FooGeneric
  */
 class FooGeneric2
 {
-
 }
 
 /**
@@ -25,7 +23,6 @@ class FooGeneric2
  */
 class FooDoesNotExtendAnything
 {
-
 }
 
 /**
@@ -34,7 +31,6 @@ class FooDoesNotExtendAnything
  */
 class FooDuplicateExtendsTags extends FooGeneric
 {
-
 }
 
 /**
@@ -42,7 +38,6 @@ class FooDuplicateExtendsTags extends FooGeneric
  */
 class FooWrongClassExtended extends FooGeneric
 {
-
 }
 
 /**
@@ -50,7 +45,6 @@ class FooWrongClassExtended extends FooGeneric
  */
 class FooWrongTypeInExtendsTag extends FooGeneric
 {
-
 }
 
 /**
@@ -58,7 +52,6 @@ class FooWrongTypeInExtendsTag extends FooGeneric
  */
 class FooCorrect extends FooGeneric
 {
-
 }
 
 /**
@@ -66,7 +59,6 @@ class FooCorrect extends FooGeneric
  */
 class FooNotEnough extends FooGeneric
 {
-
 }
 
 /**
@@ -74,7 +66,6 @@ class FooNotEnough extends FooGeneric
  */
 class FooExtraTypes extends FooGeneric
 {
-
 }
 
 /**
@@ -82,7 +73,6 @@ class FooExtraTypes extends FooGeneric
  */
 class FooNotSubtype extends FooGeneric
 {
-
 }
 
 /**
@@ -90,7 +80,6 @@ class FooNotSubtype extends FooGeneric
  */
 class FooAlsoNotSubtype extends FooGeneric
 {
-
 }
 
 /**
@@ -98,7 +87,6 @@ class FooAlsoNotSubtype extends FooGeneric
  */
 class FooUnknownClass extends FooGeneric
 {
-
 }
 
 /**
@@ -107,7 +95,6 @@ class FooUnknownClass extends FooGeneric
  */
 class FooGenericGeneric extends FooGeneric
 {
-
 }
 
 /**
@@ -116,7 +103,6 @@ class FooGenericGeneric extends FooGeneric
  */
 class FooGenericGeneric2 extends FooGeneric
 {
-
 }
 
 
@@ -126,7 +112,6 @@ class FooGenericGeneric2 extends FooGeneric
  */
 class FooGenericGeneric3 extends FooGeneric
 {
-
 }
 
 /**
@@ -135,7 +120,6 @@ class FooGenericGeneric3 extends FooGeneric
  */
 class FooGenericGeneric4 extends FooGeneric
 {
-
 }
 
 /**
@@ -144,7 +128,6 @@ class FooGenericGeneric4 extends FooGeneric
  */
 class FooGenericGeneric5 extends FooGeneric
 {
-
 }
 
 /**
@@ -153,7 +136,6 @@ class FooGenericGeneric5 extends FooGeneric
  */
 class FooGenericGeneric6 extends FooGeneric
 {
-
 }
 
 /**
@@ -162,18 +144,15 @@ class FooGenericGeneric6 extends FooGeneric
  */
 class FooGenericGeneric7 extends FooGeneric
 {
-
 }
 
 class FooExtendsNonGenericClass extends FooDoesNotExtendAnything
 {
-
 }
 
 
 class FooExtendsGenericClass extends FooGeneric
 {
-
 }
 
 /**
@@ -182,7 +161,6 @@ class FooExtendsGenericClass extends FooGeneric
  */
 class FooGeneric8
 {
-
 }
 
 /**
@@ -191,5 +169,4 @@ class FooGeneric8
  */
 class FooGeneric9 extends FooGeneric8
 {
-
 }

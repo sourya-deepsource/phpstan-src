@@ -9,17 +9,14 @@ use function PHPStan\Testing\assertType;
  */
 class Foo implements \IteratorAggregate
 {
-
-	public function getIterator(): \Iterator
-	{
-
-	}
-
+    public function getIterator(): \Iterator
+    {
+    }
 }
 
 function (Foo $foo): void {
-	foreach ($foo as $k => $v) {
-		assertType('int', $k);
-		assertType('string', $v);
-	}
+    foreach ($foo as $k => $v) {
+        assertType('int', $k);
+        assertType('string', $v);
+    }
 };

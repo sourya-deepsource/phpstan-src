@@ -11,7 +11,6 @@ namespace InvalidPhpDoc;
  */
 function paramTest(int $a, string $b, iterable $c, int $d)
 {
-
 }
 
 
@@ -20,7 +19,6 @@ function paramTest(int $a, string $b, iterable $c, int $d)
  */
 function variadicNumbers(int ...$numbers)
 {
-
 }
 
 
@@ -29,7 +27,6 @@ function variadicNumbers(int ...$numbers)
  */
 function variadicStrings(string ...$strings)
 {
-
 }
 
 
@@ -38,7 +35,6 @@ function variadicStrings(string ...$strings)
  */
 function testReturnIntOk(): int
 {
-
 }
 
 
@@ -47,7 +43,6 @@ function testReturnIntOk(): int
  */
 function testReturnBoolOk(): bool
 {
-
 }
 
 
@@ -56,7 +51,6 @@ function testReturnBoolOk(): bool
  */
 function testReturnTrueOk(): bool
 {
-
 }
 
 
@@ -65,7 +59,6 @@ function testReturnTrueOk(): bool
  */
 function testReturnIntInvalid(): int
 {
-
 }
 
 
@@ -74,7 +67,6 @@ function testReturnIntInvalid(): int
  */
 function testReturnIntNotSubType(): int
 {
-
 }
 
 /**
@@ -82,7 +74,6 @@ function testReturnIntNotSubType(): int
  */
 function anotherVariadicStrings(string ...$strings)
 {
-
 }
 
 /**
@@ -90,7 +81,6 @@ function anotherVariadicStrings(string ...$strings)
  */
 function incompatibleVariadicStrings(string ...$strings)
 {
-
 }
 
 /**
@@ -98,7 +88,6 @@ function incompatibleVariadicStrings(string ...$strings)
  */
 function incompatibleVariadicNumbers(int ...$numbers)
 {
-
 }
 
 /**
@@ -106,7 +95,6 @@ function incompatibleVariadicNumbers(int ...$numbers)
  */
 function variadicStringArrays(array ...$strings)
 {
-
 }
 
 /**
@@ -116,7 +104,6 @@ function variadicStringArrays(array ...$strings)
  */
 function unresolvableTypes(array $arr): bool
 {
-
 }
 
 /**
@@ -125,7 +112,6 @@ function unresolvableTypes(array $arr): bool
  */
 function neverTypes($foo)
 {
-
 }
 
 /**
@@ -170,7 +156,7 @@ function genericWithTypeHintsSupertype(\DateTimeInterface $a): \DateTimeInterfac
  */
 function explicitNever($foo)
 {
-	throw new \Exception();
+    throw new \Exception();
 }
 
 /**
@@ -184,7 +170,6 @@ function explicitNever($foo)
  */
 function generics($foo, $bar, $baz, $lorem, $ipsum, $dolor)
 {
-
 }
 
 /**
@@ -192,7 +177,6 @@ function generics($foo, $bar, $baz, $lorem, $ipsum, $dolor)
  */
 function genericsBar()
 {
-
 }
 
 /**
@@ -200,7 +184,6 @@ function genericsBar()
  */
 function genericsBaz()
 {
-
 }
 
 /**
@@ -208,7 +191,6 @@ function genericsBaz()
  */
 function genericsLorem()
 {
-
 }
 
 /**
@@ -216,7 +198,6 @@ function genericsLorem()
  */
 function genericsIpsum()
 {
-
 }
 
 /**
@@ -224,7 +205,6 @@ function genericsIpsum()
  */
 function genericsDolor()
 {
-
 }
 
 /**
@@ -241,7 +221,6 @@ function genericsDolor()
  */
 function genericGenerics($t, $u, $v, $w, $x)
 {
-
 }
 
 /**
@@ -249,7 +228,6 @@ function genericGenerics($t, $u, $v, $w, $x)
  */
 function genericNestedWrongTemplateArgs()
 {
-
 }
 
 /**
@@ -257,7 +235,6 @@ function genericNestedWrongTemplateArgs()
  */
 function genericNestedOkTemplateArgs()
 {
-
 }
 
 /**
@@ -265,7 +242,6 @@ function genericNestedOkTemplateArgs()
  */
 function genericNestedWrongArgCount()
 {
-
 }
 
 /**
@@ -273,5 +249,4 @@ function genericNestedWrongArgCount()
  */
 function genericNestedNonTemplateArgs()
 {
-
 }

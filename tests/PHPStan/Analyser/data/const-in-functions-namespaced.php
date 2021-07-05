@@ -16,29 +16,29 @@ assertType('\'resized_images\'', \ConstInFunctions\TABLE_NAME);
 assertType('\'bar\'', \ConstInFunctions\ANOTHER_NAME);
 
 if (rand(0, 1)) {
-	define('CONDITIONAL', true);
+    define('CONDITIONAL', true);
 } else {
-	define('CONDITIONAL', false);
+    define('CONDITIONAL', false);
 }
 
 assertType('bool', CONDITIONAL);
 assertType('bool', \CONDITIONAL);
 
 function () {
-	assertType('\'resized_images\'', TABLE_NAME);
-	assertType('\'foo\'', \ANOTHER_NAME);
-	assertType('\'bar\'', ANOTHER_NAME);
-	assertType('\'resized_images\'', \ConstInFunctions\TABLE_NAME);
-	assertType('\'bar\'', \ConstInFunctions\ANOTHER_NAME);
+    assertType('\'resized_images\'', TABLE_NAME);
+    assertType('\'foo\'', \ANOTHER_NAME);
+    assertType('\'bar\'', ANOTHER_NAME);
+    assertType('\'resized_images\'', \ConstInFunctions\TABLE_NAME);
+    assertType('\'bar\'', \ConstInFunctions\ANOTHER_NAME);
 
-	if (CONDITIONAL) {
-		assertType('true', CONDITIONAL);
-		assertType('true', \CONDITIONAL);
-	} else {
-		assertType('false', CONDITIONAL);
-		assertType('false', \CONDITIONAL);
-	}
+    if (CONDITIONAL) {
+        assertType('true', CONDITIONAL);
+        assertType('true', \CONDITIONAL);
+    } else {
+        assertType('false', CONDITIONAL);
+        assertType('false', \CONDITIONAL);
+    }
 
-	assertType('bool', CONDITIONAL);
-	assertType('bool', \CONDITIONAL);
+    assertType('bool', CONDITIONAL);
+    assertType('bool', \CONDITIONAL);
 };

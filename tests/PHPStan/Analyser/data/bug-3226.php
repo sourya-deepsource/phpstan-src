@@ -6,31 +6,31 @@ use function PHPStan\Testing\assertType;
 
 class Foo
 {
-	/**
-	 * @var class-string
-	 */
-	private $class;
+    /**
+     * @var class-string
+     */
+    private $class;
 
-	/**
-	 * @param class-string $class
-	 */
-	public function __construct(string $class)
-	{
-		$this->class = $class;
-	}
+    /**
+     * @param class-string $class
+     */
+    public function __construct(string $class)
+    {
+        $this->class = $class;
+    }
 
-	/**
-	 * @return class-string
-	 */
-	public function __toString(): string
-	{
-		return $this->class;
-	}
+    /**
+     * @return class-string
+     */
+    public function __toString(): string
+    {
+        return $this->class;
+    }
 }
 
 function (Foo $foo): void {
-	assertType('class-string', $foo->__toString());
-	assertType('class-string', (string) $foo);
+    assertType('class-string', $foo->__toString());
+    assertType('class-string', (string) $foo);
 };
 
 /**
@@ -38,35 +38,35 @@ function (Foo $foo): void {
  */
 class Bar
 {
-	/**
-	 * @var class-string<T>
-	 */
-	private $class;
+    /**
+     * @var class-string<T>
+     */
+    private $class;
 
-	/**
-	 * @param class-string<T> $class
-	 */
-	public function __construct(string $class)
-	{
-		$this->class = $class;
-	}
+    /**
+     * @param class-string<T> $class
+     */
+    public function __construct(string $class)
+    {
+        $this->class = $class;
+    }
 
-	/**
-	 * @return class-string<T>
-	 */
-	public function __toString(): string
-	{
-		return $this->class;
-	}
+    /**
+     * @return class-string<T>
+     */
+    public function __toString(): string
+    {
+        return $this->class;
+    }
 }
 
 function (Bar $bar): void {
-	assertType('class-string<mixed>', $bar->__toString());
-	assertType('class-string<mixed>', (string) $bar);
+    assertType('class-string<mixed>', $bar->__toString());
+    assertType('class-string<mixed>', (string) $bar);
 };
 
 function (): void {
-	$bar = new Bar(\Exception::class);
-	assertType('class-string<Exception>', $bar->__toString());
-	assertType('class-string<Exception>', (string) $bar);
+    $bar = new Bar(\Exception::class);
+    assertType('class-string<Exception>', $bar->__toString());
+    assertType('class-string<Exception>', (string) $bar);
 };

@@ -2,10 +2,12 @@
 
 namespace Bug4214;
 
-trait AbstractTrait {
-	abstract public function getMessage();
+trait AbstractTrait
+{
+    abstract public function getMessage();
 }
 
-class Test extends \Exception {
-	use AbstractTrait;
+class Test extends \Exception
+{
+    use AbstractTrait;
 }

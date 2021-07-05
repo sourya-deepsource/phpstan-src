@@ -4,44 +4,39 @@ namespace ThisVariable;
 
 class Foo
 {
+    public function doFoo()
+    {
+        $this->test;
+    }
 
-	public function doFoo()
-	{
-		$this->test;
-
-	}
-
-	public static function doBar()
-	{
-		$this->test;
+    public static function doBar()
+    {
+        $this->test;
 
 
 
-		$this->blabla = 'fooo';
-	}
-
+        $this->blabla = 'fooo';
+    }
 }
 
 function () {
-	$this->foo;
+    $this->foo;
 };
 
-new class () {
+new class() {
+    public function doFoo()
+    {
+        $this->foo;
+    }
 
-	public function doFoo()
-	{
-		$this->foo;
-	}
-
-	public static function doBar()
-	{
-		$this->foo;
-	}
-
+    public static function doBar()
+    {
+        $this->foo;
+    }
 };
 
 function () {
-	\Closure::bind(function (int $time) {
-		$this->setTimestamp($time);
-	}, new \DateTime());
+    \Closure::bind(function (int $time) {
+        $this->setTimestamp($time);
+    }, new \DateTime());
 };

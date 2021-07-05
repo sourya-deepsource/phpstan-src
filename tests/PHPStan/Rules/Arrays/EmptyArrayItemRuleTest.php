@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Arrays;
 
@@ -10,20 +12,18 @@ use PHPStan\Testing\RuleTestCase;
  */
 class EmptyArrayItemRuleTest extends RuleTestCase
 {
+    protected function getRule(): Rule
+    {
+        return new EmptyArrayItemRule();
+    }
 
-	protected function getRule(): Rule
-	{
-		return new EmptyArrayItemRule();
-	}
-
-	public function testRule(): void
-	{
-		$this->analyse([__DIR__ . '/data/empty-array-item.php'], [
-			[
-				'Literal array contains empty item.',
-				5,
-			],
-		]);
-	}
-
+    public function testRule(): void
+    {
+        $this->analyse([__DIR__ . '/data/empty-array-item.php'], [
+            [
+                'Literal array contains empty item.',
+                5,
+            ],
+        ]);
+    }
 }

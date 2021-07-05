@@ -2,9 +2,15 @@
 
 namespace PHPStan\Generics\Pick;
 
-class A {}
-class B {}
-class C {}
+class A
+{
+}
+class B
+{
+}
+class C
+{
+}
 
 /**
  * @template T
@@ -12,14 +18,18 @@ class C {}
  * @param T $t2
  * @return T
  */
-function pick($t1, $t2) {
-  return rand(0, 1) ? $t1 : $t2;
+function pick($t1, $t2)
+{
+    return rand(0, 1) ? $t1 : $t2;
 }
 
 /** @param A|B $c */
-function foo($c) : void {}
+function foo($c): void
+{
+}
 
-function test() {
-	foo(pick(new A, new B));
-	foo(pick(new A, new C));
+function test()
+{
+    foo(pick(new A(), new B()));
+    foo(pick(new A(), new C()));
 }

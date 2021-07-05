@@ -1,15 +1,15 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace TraitErrors;
 
 class ClassImplementingTraitWithAbstractMethod
 {
+    use TraitWithAbstractMethod;
 
-	use TraitWithAbstractMethod;
-
-	public function getTitle(): string
-	{
-		return 'foo';
-	}
-
+    public function getTitle(): string
+    {
+        return 'foo';
+    }
 }

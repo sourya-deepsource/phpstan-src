@@ -6,7 +6,5 @@ use TraitPhpDocsThree\LoremTrait;
 
 class Bar
 {
-
-	use LoremTrait;
-
+    use LoremTrait;
 }

@@ -6,7 +6,6 @@ use DoctrineIntersectionTypeIsSupertypeOf\Collection;
 
 class BankAccount
 {
-
 }
 
 /**
@@ -15,19 +14,19 @@ class BankAccount
  */
 class Wallet
 {
-	/**
-	 * @var Collection<BankAccount>
-	 *
-	 * @ORM\OneToMany(targetEntity=BankAccount::class, mappedBy="wallet")
-	 * @ORM\OrderBy({"id" = "ASC"})
-	 */
-	private $bankAccountList;
+    /**
+     * @var Collection<BankAccount>
+     *
+     * @ORM\OneToMany(targetEntity=BankAccount::class, mappedBy="wallet")
+     * @ORM\OrderBy({"id" = "ASC"})
+     */
+    private $bankAccountList;
 
-	/**
-	 * @return Collection<BankAccount>
-	 */
-	public function getBankAccountList(): Collection
-	{
-		return $this->bankAccountList;
-	}
+    /**
+     * @return Collection<BankAccount>
+     */
+    public function getBankAccountList(): Collection
+    {
+        return $this->bankAccountList;
+    }
 }

@@ -2,150 +2,140 @@
 
 namespace
 {
-	function globalFunction1($a, $b, $c)
-	{
-		return false;
-	}
+    function globalFunction1($a, $b, $c)
+    {
+        return false;
+    }
 
-	function globalFunction2($a, $b, $c): bool
-	{
-		$closure = function($a, $b, $c) {
+    function globalFunction2($a, $b, $c): bool
+    {
+        $closure = function ($a, $b, $c) {
+        };
 
-		};
+        return false;
+    }
 
-		return false;
-	}
-
-	/**
-	 * @return bool
-	 */
-	function globalFunction3($a, $b, $c)
-	{
-		return false;
-	}
+    /**
+     * @return bool
+     */
+    function globalFunction3($a, $b, $c)
+    {
+        return false;
+    }
 }
 
 namespace MissingFunctionReturnTypehint
 {
-	function namespacedFunction1($d, $e)
-	{
-		return 9;
-	};
+    function namespacedFunction1($d, $e)
+    {
+        return 9;
+    };
 
-	function namespacedFunction2($d, $e): int
-	{
-		return 9;
-	};
+    function namespacedFunction2($d, $e): int
+    {
+        return 9;
+    };
 
-	/**
-	 * @return int
-	 */
-	function namespacedFunction3($d, $e)
-	{
-		return 9;
-	};
+    /**
+     * @return int
+     */
+    function namespacedFunction3($d, $e)
+    {
+        return 9;
+    };
 
-	/**
-	 * @return \stdClass|array|int|null
-	 */
-	function unionTypeWithUnknownArrayValueTypehint()
-	{
+    /**
+     * @return \stdClass|array|int|null
+     */
+    function unionTypeWithUnknownArrayValueTypehint()
+    {
+    }
 
-	}
+    /**
+     * @template T
+     * @template U
+     */
+    interface GenericInterface
+    {
+    }
 
-	/**
-	 * @template T
-	 * @template U
-	 */
-	interface GenericInterface
-	{
+    class NonGenericClass
+    {
+    }
 
-	}
+    function returnsGenericInterface(): GenericInterface
+    {
+    }
 
-	class NonGenericClass
-	{
+    function returnsNonGenericClass(): NonGenericClass
+    {
+    }
 
-	}
+    /**
+     * @template A
+     * @template B
+     */
+    class GenericClass
+    {
+    }
 
-	function returnsGenericInterface(): GenericInterface
-	{
+    function returnsGenericClass(): GenericClass
+    {
+    }
 
-	}
+    /**
+     * @return GenericClass<GenericClass<int, int>, GenericClass<int, int>>
+     */
+    function genericGenericValidArgs(): GenericClass
+    {
+    }
 
-	function returnsNonGenericClass(): NonGenericClass
-	{
+    /**
+     * @return GenericClass<GenericClass, int>
+     */
+    function genericGenericMissingTemplateArgs(): GenericClass
+    {
+    }
 
-	}
+    /**
+     * @return \Closure
+     */
+    function closureWithNoPrototype(): \Closure
+    {
+    }
 
-	/**
-	 * @template A
-	 * @template B
-	 */
-	class GenericClass
-	{
+    /**
+     * @return \Closure(int) : void
+     */
+    function closureWithPrototype(): \Closure
+    {
+    }
 
-	}
+    /**
+     * @return callable
+     */
+    function callableWithNoPrototype(): callable
+    {
+    }
 
-	function returnsGenericClass(): GenericClass
-	{
+    /**
+     * @return callable(int) : void
+     */
+    function callableWithPrototype(): callable
+    {
+    }
 
-	}
+    /**
+     * @return callable(callable) : void
+     */
+    function callableNestedNoPrototype(): callable
+    {
+    }
 
-	/**
-	 * @return GenericClass<GenericClass<int, int>, GenericClass<int, int>>
-	 */
-	function genericGenericValidArgs(): GenericClass
-	{
-
-	}
-
-	/**
-	 * @return GenericClass<GenericClass, int>
-	 */
-	function genericGenericMissingTemplateArgs(): GenericClass
-	{
-
-	}
-
-	/**
-	 * @return \Closure
-	 */
-	function closureWithNoPrototype() : \Closure{
-
-	}
-
-	/**
-	 * @return \Closure(int) : void
-	 */
-	function closureWithPrototype() : \Closure{
-
-	}
-
-	/**
-	 * @return callable
-	 */
-	function callableWithNoPrototype() : callable{
-
-	}
-
-	/**
-	 * @return callable(int) : void
-	 */
-	function callableWithPrototype() : callable{
-
-	}
-
-	/**
-	 * @return callable(callable) : void
-	 */
-	function callableNestedNoPrototype() : callable{
-
-	}
-
-	/**
-	 * @return callable(callable(int) : void) : void
-	 */
-	function callableNestedWithPrototype() : callable{
-
-	}
+    /**
+     * @return callable(callable(int) : void) : void
+     */
+    function callableNestedWithPrototype(): callable
+    {
+    }
 }

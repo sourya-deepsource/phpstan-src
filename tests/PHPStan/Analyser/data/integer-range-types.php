@@ -5,154 +5,153 @@ namespace PHPStan\Generics\GenericClassStringType;
 use function PHPStan\Testing\assertType;
 
 function (int $i) {
-	if ($i < 3) {
-		assertType('int<min, 2>', $i);
+    if ($i < 3) {
+        assertType('int<min, 2>', $i);
 
-		$i++;
-		assertType('int<min, 3>', $i);
-	} else {
-		assertType('int<3, max>', $i);
-	}
+        $i++;
+        assertType('int<min, 3>', $i);
+    } else {
+        assertType('int<3, max>', $i);
+    }
 
-	if ($i < 3) {
-		assertType('int<min, 2>', $i);
+    if ($i < 3) {
+        assertType('int<min, 2>', $i);
 
-		$i--;
-		assertType('int<min, 1>', $i);
-	}
+        $i--;
+        assertType('int<min, 1>', $i);
+    }
 
-	assertType('int<min, 1>|int<3, max>', $i);
+    assertType('int<min, 1>|int<3, max>', $i);
 
-	if ($i < 3 && $i > 5) {
-		assertType('*NEVER*', $i);
-	} else {
-		assertType('int<min, 1>|int<3, max>', $i);
-	}
+    if ($i < 3 && $i > 5) {
+        assertType('*NEVER*', $i);
+    } else {
+        assertType('int<min, 1>|int<3, max>', $i);
+    }
 
-	if ($i > 3 && $i < 5) {
-		assertType('4', $i);
-	} else {
-		assertType('3|int<min, 1>|int<5, max>', $i);
-	}
+    if ($i > 3 && $i < 5) {
+        assertType('4', $i);
+    } else {
+        assertType('3|int<min, 1>|int<5, max>', $i);
+    }
 
-	if ($i >= 3 && $i <= 5) {
-		assertType('int<3, 5>', $i);
+    if ($i >= 3 && $i <= 5) {
+        assertType('int<3, 5>', $i);
 
-		if ($i === 2) {
-			assertType('*NEVER*', $i);
-		} else {
-			assertType('int<3, 5>', $i);
-		}
+        if ($i === 2) {
+            assertType('*NEVER*', $i);
+        } else {
+            assertType('int<3, 5>', $i);
+        }
 
-		if ($i !== 3) {
-			assertType('int<4, 5>', $i);
-		} else {
-			assertType('3', $i);
-		}
-	}
+        if ($i !== 3) {
+            assertType('int<4, 5>', $i);
+        } else {
+            assertType('3', $i);
+        }
+    }
 };
 
 
 function () {
-	for ($i = 0; $i < 5; $i++) {
-		assertType('int<min, 4>', $i); // should improved to be int<0, 4>
-	}
+    for ($i = 0; $i < 5; $i++) {
+        assertType('int<min, 4>', $i); // should improved to be int<0, 4>
+    }
 
-	$i = 0;
-	while ($i < 5) {
-		assertType('int<min, 4>', $i); // should improved to be int<0, 4>
-		$i++;
-	}
+    $i = 0;
+    while ($i < 5) {
+        assertType('int<min, 4>', $i); // should improved to be int<0, 4>
+        $i++;
+    }
 
-	$i = 0;
-	while ($i++ < 5) {
-		assertType('int<min, 5>', $i); // should improved to be int<1, 5>
-	}
+    $i = 0;
+    while ($i++ < 5) {
+        assertType('int<min, 5>', $i); // should improved to be int<1, 5>
+    }
 
-	$i = 0;
-	while (++$i < 5) {
-		assertType('int<min, 4>', $i); // should improved to be int<1, 4>
-	}
+    $i = 0;
+    while (++$i < 5) {
+        assertType('int<min, 4>', $i); // should improved to be int<1, 4>
+    }
 
-	$i = 5;
-	while ($i-- > 0) {
-		assertType('int<0, max>', $i); // should improved to be int<0, 4>
-	}
+    $i = 5;
+    while ($i-- > 0) {
+        assertType('int<0, max>', $i); // should improved to be int<0, 4>
+    }
 
-	$i = 5;
-	while (--$i > 0) {
-		assertType('int<1, max>', $i); // should improved to be int<1, 4>
-	}
+    $i = 5;
+    while (--$i > 0) {
+        assertType('int<1, max>', $i); // should improved to be int<1, 4>
+    }
 };
 
 
 function (int $j) {
-	$i = 1;
+    $i = 1;
 
-	assertType('true', $i > 0);
-	assertType('true', $i >= 1);
-	assertType('true', $i <= 1);
-	assertType('true', $i < 2);
+    assertType('true', $i > 0);
+    assertType('true', $i >= 1);
+    assertType('true', $i <= 1);
+    assertType('true', $i < 2);
 
-	assertType('false', $i < 1);
-	assertType('false', $i <= 0);
-	assertType('false', $i >= 2);
-	assertType('false', $i > 1);
+    assertType('false', $i < 1);
+    assertType('false', $i <= 0);
+    assertType('false', $i >= 2);
+    assertType('false', $i > 1);
 
-	assertType('true', 0 < $i);
-	assertType('true', 1 <= $i);
-	assertType('true', 1 >= $i);
-	assertType('true', 2 > $i);
+    assertType('true', 0 < $i);
+    assertType('true', 1 <= $i);
+    assertType('true', 1 >= $i);
+    assertType('true', 2 > $i);
 
-	assertType('bool', $j > 0);
-	assertType('bool', $j >= 0);
-	assertType('bool', $j <= 0);
-	assertType('bool', $j < 0);
+    assertType('bool', $j > 0);
+    assertType('bool', $j >= 0);
+    assertType('bool', $j <= 0);
+    assertType('bool', $j < 0);
 
-	if ($j < 5) {
-		assertType('bool', $j > 0);
-		assertType('false', $j > 4);
-		assertType('bool', 0 < $j);
-		assertType('false', 4 < $j);
+    if ($j < 5) {
+        assertType('bool', $j > 0);
+        assertType('false', $j > 4);
+        assertType('bool', 0 < $j);
+        assertType('false', 4 < $j);
 
-		assertType('bool', $j >= 0);
-		assertType('false', $j >= 5);
-		assertType('bool', 0 <= $j);
-		assertType('false', 5 <= $j);
+        assertType('bool', $j >= 0);
+        assertType('false', $j >= 5);
+        assertType('bool', 0 <= $j);
+        assertType('false', 5 <= $j);
 
-		assertType('true', $j <= 4);
-		assertType('bool', $j <= 3);
-		assertType('true', 4 >= $j);
-		assertType('bool', 3 >= $j);
+        assertType('true', $j <= 4);
+        assertType('bool', $j <= 3);
+        assertType('true', 4 >= $j);
+        assertType('bool', 3 >= $j);
 
-		assertType('true', $j < 5);
-		assertType('bool', $j < 4);
-		assertType('true', 5 > $j);
-		assertType('bool', 4 > $j);
-	}
+        assertType('true', $j < 5);
+        assertType('bool', $j < 4);
+        assertType('true', 5 > $j);
+        assertType('bool', 4 > $j);
+    }
 };
 
 function (int $a, int $b, int $c): void {
+    if ($a <= 11) {
+        return;
+    }
 
-	if ($a <= 11) {
-		return;
-	}
+    assertType('int<12, max>', $a);
 
-	assertType('int<12, max>', $a);
+    if ($b <= 12) {
+        return;
+    }
 
-	if ($b <= 12) {
-		return;
-	}
+    assertType('int<13, max>', $b);
 
-	assertType('int<13, max>', $b);
+    if ($c <= 13) {
+        return;
+    }
 
-	if ($c <= 13) {
-		return;
-	}
+    assertType('int<14, max>', $c);
 
-	assertType('int<14, max>', $c);
-
-	assertType('int', $a * $b);
-	assertType('int', $b * $c);
-	assertType('int', $a * $b * $c);
+    assertType('int', $a * $b);
+    assertType('int', $b * $c);
+    assertType('int', $a * $b * $c);
 };

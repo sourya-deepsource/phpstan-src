@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Arrays;
 
@@ -10,31 +12,29 @@ use PHPStan\Rules\RuleLevelHelper;
  */
 class OffsetAccessAssignOpRuleTest extends \PHPStan\Testing\RuleTestCase
 {
+    /** @var bool */
+    private $checkUnions;
 
-	/** @var bool */
-	private $checkUnions;
+    protected function getRule(): Rule
+    {
+        $ruleLevelHelper = new RuleLevelHelper($this->createReflectionProvider(), true, false, $this->checkUnions, false);
+        return new OffsetAccessAssignOpRule($ruleLevelHelper);
+    }
 
-	protected function getRule(): Rule
-	{
-		$ruleLevelHelper = new RuleLevelHelper($this->createReflectionProvider(), true, false, $this->checkUnions, false);
-		return new OffsetAccessAssignOpRule($ruleLevelHelper);
-	}
+    public function testRule(): void
+    {
+        $this->checkUnions = true;
+        $this->analyse([__DIR__ . '/data/offset-access-assignop.php'], [
+            [
+                'Cannot assign offset \'foo\' to array|int.',
+                30,
+            ],
+        ]);
+    }
 
-	public function testRule(): void
-	{
-		$this->checkUnions = true;
-		$this->analyse([__DIR__ . '/data/offset-access-assignop.php'], [
-			[
-				'Cannot assign offset \'foo\' to array|int.',
-				30,
-			],
-		]);
-	}
-
-	public function testRuleWithoutUnions(): void
-	{
-		$this->checkUnions = false;
-		$this->analyse([__DIR__ . '/data/offset-access-assignop.php'], []);
-	}
-
+    public function testRuleWithoutUnions(): void
+    {
+        $this->checkUnions = false;
+        $this->analyse([__DIR__ . '/data/offset-access-assignop.php'], []);
+    }
 }

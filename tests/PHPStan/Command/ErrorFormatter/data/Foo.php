@@ -4,12 +4,10 @@ namespace BaselineIntegration;
 
 class Foo
 {
+    use FooTrait;
 
-	use FooTrait;
-
-	public function doFoo(): int
-	{
-		return 'string';
-	}
-
+    public function doFoo(): int
+    {
+        return 'string';
+    }
 }

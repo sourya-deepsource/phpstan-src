@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Exceptions;
 
@@ -11,47 +13,45 @@ use PHPStan\Testing\RuleTestCase;
  */
 class ThrowExpressionRuleTest extends RuleTestCase
 {
+    /** @var PhpVersion */
+    private $phpVersion;
 
-	/** @var PhpVersion */
-	private $phpVersion;
+    protected function getRule(): Rule
+    {
+        return new ThrowExpressionRule($this->phpVersion);
+    }
 
-	protected function getRule(): Rule
-	{
-		return new ThrowExpressionRule($this->phpVersion);
-	}
+    public function dataRule(): array
+    {
+        return [
+            [
+                70400,
+                [
+                    [
+                        'Throw expression is supported only on PHP 8.0 and later.',
+                        10,
+                    ],
+                ],
+            ],
+            [
+                80000,
+                [],
+            ],
+        ];
+    }
 
-	public function dataRule(): array
-	{
-		return [
-			[
-				70400,
-				[
-					[
-						'Throw expression is supported only on PHP 8.0 and later.',
-						10,
-					],
-				],
-			],
-			[
-				80000,
-				[],
-			],
-		];
-	}
+    /**
+     * @dataProvider dataRule
+     * @param int $phpVersion
+     * @param mixed[] $expectedErrors
+     */
+    public function testRule(int $phpVersion, array $expectedErrors): void
+    {
+        if (PHP_VERSION_ID < 80000 && !self::$useStaticReflectionProvider) {
+            $this->markTestSkipped('Test requires PHP 8.0');
+        }
 
-	/**
-	 * @dataProvider dataRule
-	 * @param int $phpVersion
-	 * @param mixed[] $expectedErrors
-	 */
-	public function testRule(int $phpVersion, array $expectedErrors): void
-	{
-		if (PHP_VERSION_ID < 80000 && !self::$useStaticReflectionProvider) {
-			$this->markTestSkipped('Test requires PHP 8.0');
-		}
-
-		$this->phpVersion = new PhpVersion($phpVersion);
-		$this->analyse([__DIR__ . '/data/throw-expr.php'], $expectedErrors);
-	}
-
+        $this->phpVersion = new PhpVersion($phpVersion);
+        $this->analyse([__DIR__ . '/data/throw-expr.php'], $expectedErrors);
+    }
 }

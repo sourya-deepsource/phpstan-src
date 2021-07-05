@@ -1,30 +1,33 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PropertiesFromVariableIntoStaticObject;
 
 class Foo
 {
-	/**
-	 * @var string
-	 */
-	public $foo = '';
+    /**
+     * @var string
+     */
+    public $foo = '';
 
-	/**
-	 * @var int
-	 */
-	public $lall = 0;
+    /**
+     * @var int
+     */
+    public $lall = 0;
 
-	public function create(): self {
-		$self = new self();
+    public function create(): self
+    {
+        $self = new self();
 
-		$data = 'foo';
-		$property = 'lall';
-		$self->{$property} = $data;
+        $data = 'foo';
+        $property = 'lall';
+        $self->{$property} = $data;
 
-		$data = 'foo';
-		$property = 'noop';
-		$self->{$property} = $data;
+        $data = 'foo';
+        $property = 'noop';
+        $self->{$property} = $data;
 
-		return $self;
-	}
+        return $self;
+    }
 }

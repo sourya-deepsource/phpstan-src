@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\DeadCode;
 
@@ -10,110 +12,108 @@ use PHPStan\Testing\RuleTestCase;
  */
 class UnreachableStatementRuleTest extends RuleTestCase
 {
+    /** @var bool */
+    private $treatPhpDocTypesAsCertain;
 
-	/** @var bool */
-	private $treatPhpDocTypesAsCertain;
+    protected function getRule(): Rule
+    {
+        return new UnreachableStatementRule();
+    }
 
-	protected function getRule(): Rule
-	{
-		return new UnreachableStatementRule();
-	}
+    protected function shouldTreatPhpDocTypesAsCertain(): bool
+    {
+        return $this->treatPhpDocTypesAsCertain;
+    }
 
-	protected function shouldTreatPhpDocTypesAsCertain(): bool
-	{
-		return $this->treatPhpDocTypesAsCertain;
-	}
+    public function testRule(): void
+    {
+        $this->treatPhpDocTypesAsCertain = true;
+        $this->analyse([__DIR__ . '/data/unreachable.php'], [
+            [
+                'Unreachable statement - code above always terminates.',
+                12,
+            ],
+            [
+                'Unreachable statement - code above always terminates.',
+                19,
+            ],
+            [
+                'Unreachable statement - code above always terminates.',
+                30,
+            ],
+            [
+                'Unreachable statement - code above always terminates.',
+                71,
+            ],
+        ]);
+    }
 
-	public function testRule(): void
-	{
-		$this->treatPhpDocTypesAsCertain = true;
-		$this->analyse([__DIR__ . '/data/unreachable.php'], [
-			[
-				'Unreachable statement - code above always terminates.',
-				12,
-			],
-			[
-				'Unreachable statement - code above always terminates.',
-				19,
-			],
-			[
-				'Unreachable statement - code above always terminates.',
-				30,
-			],
-			[
-				'Unreachable statement - code above always terminates.',
-				71,
-			],
-		]);
-	}
+    public function testRuleTopLevel(): void
+    {
+        $this->treatPhpDocTypesAsCertain = true;
+        $this->analyse([__DIR__ . '/data/unreachable-top-level.php'], [
+            [
+                'Unreachable statement - code above always terminates.',
+                5,
+            ],
+        ]);
+    }
 
-	public function testRuleTopLevel(): void
-	{
-		$this->treatPhpDocTypesAsCertain = true;
-		$this->analyse([__DIR__ . '/data/unreachable-top-level.php'], [
-			[
-				'Unreachable statement - code above always terminates.',
-				5,
-			],
-		]);
-	}
+    public function dataBugWithoutGitHubIssue1(): array
+    {
+        return [
+            [
+                true,
+            ],
+            [
+                false,
+            ],
+        ];
+    }
 
-	public function dataBugWithoutGitHubIssue1(): array
-	{
-		return [
-			[
-				true,
-			],
-			[
-				false,
-			],
-		];
-	}
+    /**
+     * @dataProvider dataBugWithoutGitHubIssue1
+     * @param bool $treatPhpDocTypesAsCertain
+     */
+    public function testBugWithoutGitHubIssue1(bool $treatPhpDocTypesAsCertain): void
+    {
+        $this->treatPhpDocTypesAsCertain = $treatPhpDocTypesAsCertain;
+        $this->analyse([__DIR__ . '/data/bug-without-issue-1.php'], []);
+    }
 
-	/**
-	 * @dataProvider dataBugWithoutGitHubIssue1
-	 * @param bool $treatPhpDocTypesAsCertain
-	 */
-	public function testBugWithoutGitHubIssue1(bool $treatPhpDocTypesAsCertain): void
-	{
-		$this->treatPhpDocTypesAsCertain = $treatPhpDocTypesAsCertain;
-		$this->analyse([__DIR__ . '/data/bug-without-issue-1.php'], []);
-	}
+    public function testBug4070(): void
+    {
+        $this->treatPhpDocTypesAsCertain = true;
+        $this->analyse([__DIR__ . '/data/bug-4070.php'], []);
+    }
 
-	public function testBug4070(): void
-	{
-		$this->treatPhpDocTypesAsCertain = true;
-		$this->analyse([__DIR__ . '/data/bug-4070.php'], []);
-	}
+    public function testBug4070Two(): void
+    {
+        $this->treatPhpDocTypesAsCertain = true;
+        $this->analyse([__DIR__ . '/data/bug-4070_2.php'], []);
+    }
 
-	public function testBug4070Two(): void
-	{
-		$this->treatPhpDocTypesAsCertain = true;
-		$this->analyse([__DIR__ . '/data/bug-4070_2.php'], []);
-	}
+    public function testBug4076(): void
+    {
+        $this->treatPhpDocTypesAsCertain = true;
+        $this->analyse([__DIR__ . '/data/bug-4076.php'], []);
+    }
 
-	public function testBug4076(): void
-	{
-		$this->treatPhpDocTypesAsCertain = true;
-		$this->analyse([__DIR__ . '/data/bug-4076.php'], []);
-	}
+    public function testBug4535(): void
+    {
+        $this->treatPhpDocTypesAsCertain = true;
+        $this->analyse([__DIR__ . '/data/bug-4535.php'], []);
+    }
 
-	public function testBug4535(): void
-	{
-		$this->treatPhpDocTypesAsCertain = true;
-		$this->analyse([__DIR__ . '/data/bug-4535.php'], []);
-	}
+    public function testBug4346(): void
+    {
+        $this->treatPhpDocTypesAsCertain = true;
+        $this->analyse([__DIR__ . '/data/bug-4346.php'], []);
+    }
 
-	public function testBug4346(): void
-	{
-		$this->treatPhpDocTypesAsCertain = true;
-		$this->analyse([__DIR__ . '/data/bug-4346.php'], []);
-	}
-
-	public function testBug2913(): void
-	{
-		$this->treatPhpDocTypesAsCertain = true;
-		$this->analyse([__DIR__ . '/data/bug-2913.php'], []);
-	}
-
+    public function testBug2913(): void
+    {
+        $this->treatPhpDocTypesAsCertain = true;
+        $this->analyse([__DIR__ . '/data/bug-2913.php'], []);
+    }
 }

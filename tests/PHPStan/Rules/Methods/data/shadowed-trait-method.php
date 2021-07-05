@@ -4,22 +4,17 @@ namespace ShadowedTraitMethod;
 
 trait FooTrait
 {
-
-	public function doFoo()
-	{
-		$this->doBar();
-	}
-
+    public function doFoo()
+    {
+        $this->doBar();
+    }
 }
 
 class Foo
 {
+    use FooTrait;
 
-	use FooTrait;
-
-	public function doFoo()
-	{
-
-	}
-
+    public function doFoo()
+    {
+    }
 }

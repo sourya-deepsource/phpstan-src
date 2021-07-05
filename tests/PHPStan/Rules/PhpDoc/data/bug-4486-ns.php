@@ -3,6 +3,7 @@
 /**
  * @var ClassName1 $one
  */
+
 namespace Bug4486Namespace;
 
 /**

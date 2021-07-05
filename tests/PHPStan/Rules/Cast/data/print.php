@@ -6,7 +6,8 @@ print [];
 
 print new stdClass();
 
-print function () {};
+print function () {
+};
 
 print 13132;
 
@@ -14,7 +15,8 @@ print([]);
 
 print(new stdClass());
 
-print(function () {});
+print(function () {
+});
 
 print('string');
 

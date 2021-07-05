@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\DeadCode;
 
@@ -14,36 +16,32 @@ use UnusedPrivateConstant\TestExtension;
  */
 class UnusedPrivateConstantRuleTest extends RuleTestCase
 {
+    protected function getRule(): Rule
+    {
+        return new UnusedPrivateConstantRule(
+            new DirectAlwaysUsedClassConstantsExtensionProvider([
+                new class() implements AlwaysUsedClassConstantsExtension {
+                    public function isAlwaysUsed(ConstantReflection $constant): bool
+                    {
+                        return $constant->getDeclaringClass()->getName() === TestExtension::class
+                            && $constant->getName() === 'USED';
+                    }
+                },
+            ])
+        );
+    }
 
-	protected function getRule(): Rule
-	{
-		return new UnusedPrivateConstantRule(
-			new DirectAlwaysUsedClassConstantsExtensionProvider([
-				new class() implements AlwaysUsedClassConstantsExtension {
-
-					public function isAlwaysUsed(ConstantReflection $constant): bool
-					{
-						return $constant->getDeclaringClass()->getName() === TestExtension::class
-							&& $constant->getName() === 'USED';
-					}
-
-				},
-			])
-		);
-	}
-
-	public function testRule(): void
-	{
-		$this->analyse([__DIR__ . '/data/unused-private-constant.php'], [
-			[
-				'Constant UnusedPrivateConstant\Foo::BAR_CONST is unused.',
-				10,
-			],
-			[
-				'Constant UnusedPrivateConstant\TestExtension::UNUSED is unused.',
-				23,
-			],
-		]);
-	}
-
+    public function testRule(): void
+    {
+        $this->analyse([__DIR__ . '/data/unused-private-constant.php'], [
+            [
+                'Constant UnusedPrivateConstant\Foo::BAR_CONST is unused.',
+                10,
+            ],
+            [
+                'Constant UnusedPrivateConstant\TestExtension::UNUSED is unused.',
+                23,
+            ],
+        ]);
+    }
 }

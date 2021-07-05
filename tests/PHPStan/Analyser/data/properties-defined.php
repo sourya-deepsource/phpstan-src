@@ -11,30 +11,27 @@ use SomeNamespace\Sit as Dolor;
  */
 class Bar extends DOMDocument
 {
+    /**
+     * @var Dolor
+     */
+    protected $inheritedProperty;
 
-	/**
-	 * @var Dolor
-	 */
-	protected $inheritedProperty;
+    /**
+     * @var self
+     */
+    protected $inheritDocProperty;
 
-	/**
-	 * @var self
-	 */
-	protected $inheritDocProperty;
+    /**
+     * @var self
+     */
+    protected $inheritDocWithoutCurlyBracesProperty;
 
-	/**
-	 * @var self
-	 */
-	protected $inheritDocWithoutCurlyBracesProperty;
+    /**
+     * @var self
+     */
+    protected $implicitInheritDocProperty;
 
-	/**
-	 * @var self
-	 */
-	protected $implicitInheritDocProperty;
-
-	public function doBar(): Self
-	{
-
-	}
-
+    public function doBar(): self
+    {
+    }
 }

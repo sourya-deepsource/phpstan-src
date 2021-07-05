@@ -7,7 +7,6 @@ namespace ClassTemplateType;
  */
 class Foo
 {
-
 }
 
 /**
@@ -15,7 +14,6 @@ class Foo
  */
 class Bar
 {
-
 }
 
 /**
@@ -23,7 +21,6 @@ class Bar
  */
 class Baz
 {
-
 }
 
 /**
@@ -31,7 +28,6 @@ class Baz
  */
 class Lorem
 {
-
 }
 
 /**
@@ -40,7 +36,6 @@ class Lorem
  */
 class Ipsum
 {
-
 }
 
 /**
@@ -52,30 +47,19 @@ class Ipsum
  */
 class Dolor
 {
-
 }
 
-new /** @template stdClass */ class
-{
-
+new /** @template stdClass */ class() {
 };
 
-new /** @template T of Zazzzu */ class
-{
-
+new /** @template T of Zazzzu */ class() {
 };
 
-new /** @template T of float */ class
-{
-
+new /** @template T of float */ class() {
 };
 
-new /** @template T of baz */ class
-{
-
+new /** @template T of baz */ class() {
 };
 
-new /** @template TypeAlias */ class
-{
-
+new /** @template TypeAlias */ class() {
 };

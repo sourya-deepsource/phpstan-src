@@ -4,294 +4,276 @@ namespace WrongVariableNameVarTag;
 
 class Foo
 {
+    public function doFoo()
+    {
+        /** @var int $test */
+        $test = doFoo();
 
-	public function doFoo()
-	{
-		/** @var int $test */
-		$test = doFoo();
+        /** @var int */
+        $test = doFoo();
 
-		/** @var int */
-		$test = doFoo();
+        /** @var int $foo */
+        $test = doFoo();
 
-		/** @var int $foo */
-		$test = doFoo();
+        /**
+         * @var int
+         * @var string
+         */
+        $test = doFoo();
+    }
 
-		/**
-		 * @var int
-		 * @var string
-		 */
-		$test = doFoo();
-	}
+    public function doBar(array $list)
+    {
+        /** @var int[] $list */
+        foreach ($list as $key => $var) {
+        }
 
-	public function doBar(array $list)
-	{
-		/** @var int[] $list */
-		foreach ($list as $key => $var) {
+        /** @var int $key */
+        foreach ($list as $key => $var) {
+        }
 
-		}
+        /** @var int $var */
+        foreach ($list as $key => $var) {
+        }
 
-		/** @var int $key */
-		foreach ($list as $key => $var) {
+        /**
+         * @var int $foo
+         * @var int $bar
+         * @var int $baz
+         * @var int $lorem
+         */
+        foreach ($list as $key => [$foo, $bar, [$baz, $lorem]]) {
+        }
 
-		}
+        /**
+         * @var int $foo
+         * @var int $bar
+         * @var int $baz
+         * @var int $lorem
+         */
+        foreach ($list as $key => list($foo, $bar, list($baz, $lorem))) {
+        }
 
-		/** @var int $var */
-		foreach ($list as $key => $var) {
+        /**
+         * @var int $foo
+         */
+        foreach ($list as $key => $val) {
+        }
 
-		}
+        /** @var int */
+        foreach ($list as $key => $val) {
+        }
+    }
 
-		/**
-		 * @var int $foo
-		 * @var int $bar
-		 * @var int $baz
-		 * @var int $lorem
-		 */
-		foreach ($list as $key => [$foo, $bar, [$baz, $lorem]]) {
+    public function doBaz()
+    {
+        /** @var int $var */
+        static $var;
 
-		}
+        /** @var int */
+        static $var;
 
-		/**
-		 * @var int $foo
-		 * @var int $bar
-		 * @var int $baz
-		 * @var int $lorem
-		 */
-		foreach ($list as $key => list($foo, $bar, list($baz, $lorem))) {
+        /** @var int */
+        static $var, $bar;
 
-		}
+        /**
+         * @var int
+         * @var string
+         */
+        static $var, $bar;
 
-		/**
-		 * @var int $foo
-		 */
-		foreach ($list as $key => $val) {
+        /** @var int $foo */
+        static $test;
+    }
 
-		}
+    public function doLorem($test)
+    {
+        /** @var int $test */
+        $test2 = doFoo();
 
-		/** @var int */
-		foreach ($list as $key => $val) {
+        /** @var int */
+        $test->foo();
 
-		}
-	}
+        /** @var int $test */
+        $test->foo();
 
-	public function doBaz()
-	{
-		/** @var int $var */
-		static $var;
+        /** @var int $foo */
+        $test->foo();
+    }
 
-		/** @var int */
-		static $var;
+    public function multiplePrefixedTagsAreFine()
+    {
+        /**
+         * @var int
+         * @phpstan-var int
+         * @psalm-var int
+         */
+        $test = doFoo(); // OK
 
-		/** @var int */
-		static $var, $bar;
+        /**
+         * @var int
+         * @var string
+         */
+        $test = doFoo(); // error
+    }
 
-		/**
-		 * @var int
-		 * @var string
-		 */
-		static $var, $bar;
+    public function testEcho($a)
+    {
+        /** @var string $a */
+        echo $a;
 
-		/** @var int $foo */
-		static $test;
-	}
+        /** @var string $b */
+        echo $a;
+    }
 
-	public function doLorem($test)
-	{
-		/** @var int $test */
-		$test2 = doFoo();
+    public function throwVar($a)
+    {
+        /** @var \Exception $a */
+        throw $a;
+    }
 
-		/** @var int */
-		$test->foo();
+    public function throwVar2($a)
+    {
+        /** @var \Exception */
+        throw $a;
+    }
 
-		/** @var int $test */
-		$test->foo();
+    public function throwVar3($a)
+    {
+        /**
+         * @var \Exception
+         * @var \InvalidArgumentException
+         */
+        throw $a;
+    }
 
-		/** @var int $foo */
-		$test->foo();
-	}
+    public function returnVar($a)
+    {
+        /** @var \stdClass $a */
+        return $a;
+    }
 
-	public function multiplePrefixedTagsAreFine()
-	{
-		/**
-		 * @var int
-		 * @phpstan-var int
-		 * @psalm-var int
-		 */
-		$test = doFoo(); // OK
+    public function returnVar2($a)
+    {
+        /** @var \stdClass */
+        return $a;
+    }
 
-		/**
-		 * @var int
-		 * @var string
-		 */
-		$test = doFoo(); // error
-	}
+    public function returnVar3($a)
+    {
+        /**
+         * @var \stdClass
+         * @var \DateTime
+         */
+        return $a;
+    }
 
-	public function testEcho($a)
-	{
-		/** @var string $a */
-		echo $a;
+    public function thisInVar1()
+    {
+        /** @var Repository $this */
+        $this->demo();
+    }
 
-		/** @var string $b */
-		echo $a;
-	}
+    public function thisInVar2()
+    {
+        /** @var Repository $this */
+        $demo = $this->demo();
+    }
 
-	public function throwVar($a)
-	{
-		/** @var \Exception $a */
-		throw $a;
-	}
+    public function overrideDifferentVariableAboveAssign()
+    {
+        $foo = 'foo';
 
-	public function throwVar2($a)
-	{
-		/** @var \Exception */
-		throw $a;
-	}
+        /** @var int $foo */
+        $bar = $foo + 1;
+    }
 
-	public function throwVar3($a)
-	{
-		/**
-		 * @var \Exception
-		 * @var \InvalidArgumentException
-		 */
-		throw $a;
-	}
+    public function testIf($foo)
+    {
+        /** @var int $foo */
+        do {
+        } while (true);
+    }
 
-	public function returnVar($a)
-	{
-		/** @var \stdClass $a */
-		return $a;
-	}
-
-	public function returnVar2($a)
-	{
-		/** @var \stdClass */
-		return $a;
-	}
-
-	public function returnVar3($a)
-	{
-		/**
-		 * @var \stdClass
-		 * @var \DateTime
-		 */
-		return $a;
-	}
-
-	public function thisInVar1()
-	{
-		/** @var Repository $this */
-		$this->demo();
-	}
-
-	public function thisInVar2()
-	{
-		/** @var Repository $this */
-		$demo = $this->demo();
-	}
-
-	public function overrideDifferentVariableAboveAssign()
-	{
-		$foo = 'foo';
-
-		/** @var int $foo */
-		$bar = $foo + 1;
-	}
-
-	public function testIf($foo)
-	{
-		/** @var int $foo */
-		do {
-
-		} while (true);
-	}
-
-	public function testIf2()
-	{
-		/** @var int $foo */
-		do {
-
-		} while (true);
-	}
-
+    public function testIf2()
+    {
+        /** @var int $foo */
+        do {
+        } while (true);
+    }
 }
 
 class Bar
 {
+    /** @var int */
+    private $test;
 
-	/** @var int */
-	private $test;
-
-	/** @var string */
-	const TEST = 'str';
-
+    /** @var string */
+    public const TEST = 'str';
 }
 
 class ForeachJustValueVar
 {
-
-	public function doBar(array $list)
-	{
-		/** @var int */
-		foreach ($list as $val) {
-
-		}
-	}
-
+    public function doBar(array $list)
+    {
+        /** @var int */
+        foreach ($list as $val) {
+        }
+    }
 }
 
 class MultipleDocComments
 {
+    public function doFoo(): void
+    {
+        /** @var int $foo */
+        /** @var string $bar */
+        echo 'foo';
+    }
 
-	public function doFoo(): void
-	{
-		/** @var int $foo */
-		/** @var string $bar */
-		echo 'foo';
-	}
+    public function doBar(array $slots): void
+    {
+        /** @var \stdClass[] $itemSlots */
+        /** @var \stdClass[] $slots */
+        $itemSlots = [];
+    }
 
-	public function doBar(array $slots): void
-	{
-		/** @var \stdClass[] $itemSlots */
-		/** @var \stdClass[] $slots */
-		$itemSlots = [];
-	}
+    public function doBaz(): void
+    {
+        /** @var \stdClass[] $itemSlots */
+        /** @var \stdClass[] $slots */
+        $itemSlots = [];
+    }
 
-	public function doBaz(): void
-	{
-		/** @var \stdClass[] $itemSlots */
-		/** @var \stdClass[] $slots */
-		$itemSlots = [];
-	}
+    public function doLorem(): void
+    {
+        /** @var \stdClass[] $slots */
+        $itemSlots['foo'] = 'bar';
+    }
 
-	public function doLorem(): void
-	{
-		/** @var \stdClass[] $slots */
-		$itemSlots['foo'] = 'bar';
-	}
+    public function doIpsum(): void
+    {
+        /** @var \stdClass[] */
+        $itemSlots['foo'] = 'bar';
+    }
 
-	public function doIpsum(): void
-	{
-		/** @var \stdClass[] */
-		$itemSlots['foo'] = 'bar';
-	}
+    public function doDolor(): void
+    {
+        /** @var \stdClass[] $slots */
+        $itemSlots = [];
 
-	public function doDolor(): void
-	{
-		/** @var \stdClass[] $slots */
-		$itemSlots = [];
+        /** @var int $test */
+        [[$test]] = doFoo();
+    }
 
-		/** @var int $test */
-		[[$test]] = doFoo();
-	}
-
-	public function doSit(): void
-	{
-		/**
-		 * @var int $foo
-		 * @var int $bar
-		 */
-		[$foo, $bar] = doFoo();
-	}
-
+    public function doSit(): void
+    {
+        /**
+         * @var int $foo
+         * @var int $bar
+         */
+        [$foo, $bar] = doFoo();
+    }
 }
 
 /**
@@ -299,17 +281,13 @@ class MultipleDocComments
  */
 class VarInWrongPlaces
 {
-
-	/** @var int $a */
-	public function doFoo($a)
-	{
-
-	}
-
+    /** @var int $a */
+    public function doFoo($a)
+    {
+    }
 }
 
 /** @var int */
 function doFoo(): void
 {
-
 }

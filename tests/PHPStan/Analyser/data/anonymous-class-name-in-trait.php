@@ -4,7 +4,5 @@ namespace AnonymousClassNameInTrait;
 
 class Foo
 {
-
-	use FooTrait;
-
+    use FooTrait;
 }

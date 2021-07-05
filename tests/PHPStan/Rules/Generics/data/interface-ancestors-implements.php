@@ -8,7 +8,6 @@ namespace InterfaceAncestorsImplements;
  */
 interface FooGeneric
 {
-
 }
 
 /**
@@ -17,7 +16,6 @@ interface FooGeneric
  */
 interface FooGeneric2
 {
-
 }
 
 /**
@@ -26,7 +24,6 @@ interface FooGeneric2
  */
 interface FooGeneric3
 {
-
 }
 
 /**
@@ -34,7 +31,6 @@ interface FooGeneric3
  */
 interface FooDoesNotImplementAnything
 {
-
 }
 
 /**
@@ -43,7 +39,6 @@ interface FooDoesNotImplementAnything
  */
 interface FooInvalidImplementsTags
 {
-
 }
 
 /**
@@ -51,7 +46,6 @@ interface FooInvalidImplementsTags
  */
 interface FooWrongClassImplemented
 {
-
 }
 
 /**
@@ -59,7 +53,6 @@ interface FooWrongClassImplemented
  */
 interface FooWrongTypeInImplementsTag
 {
-
 }
 
 /**
@@ -67,7 +60,6 @@ interface FooWrongTypeInImplementsTag
  */
 interface FooCorrect
 {
-
 }
 
 /**
@@ -75,7 +67,6 @@ interface FooCorrect
  */
 interface FooNotEnough
 {
-
 }
 
 /**
@@ -83,7 +74,6 @@ interface FooNotEnough
  */
 interface FooExtraTypes
 {
-
 }
 
 /**
@@ -91,7 +81,6 @@ interface FooExtraTypes
  */
 interface FooNotSubtype
 {
-
 }
 
 /**
@@ -99,7 +88,6 @@ interface FooNotSubtype
  */
 interface FooAlsoNotSubtype
 {
-
 }
 
 /**
@@ -107,7 +95,6 @@ interface FooAlsoNotSubtype
  */
 interface FooUnknownClass
 {
-
 }
 
 /**
@@ -116,7 +103,6 @@ interface FooUnknownClass
  */
 interface FooGenericGeneric
 {
-
 }
 
 /**
@@ -125,7 +111,6 @@ interface FooGenericGeneric
  */
 interface FooGenericGeneric2
 {
-
 }
 
 
@@ -135,7 +120,6 @@ interface FooGenericGeneric2
  */
 interface FooGenericGeneric3
 {
-
 }
 
 /**
@@ -144,7 +128,6 @@ interface FooGenericGeneric3
  */
 interface FooGenericGeneric4
 {
-
 }
 
 /**
@@ -153,7 +136,6 @@ interface FooGenericGeneric4
  */
 interface FooGenericGeneric5
 {
-
 }
 
 /**
@@ -162,7 +144,6 @@ interface FooGenericGeneric5
  */
 interface FooGenericGeneric6
 {
-
 }
 
 /**
@@ -171,7 +152,6 @@ interface FooGenericGeneric6
  */
 interface FooGenericGeneric7
 {
-
 }
 
 /**
@@ -181,5 +161,4 @@ interface FooGenericGeneric7
  */
 interface FooGenericGeneric8
 {
-
 }

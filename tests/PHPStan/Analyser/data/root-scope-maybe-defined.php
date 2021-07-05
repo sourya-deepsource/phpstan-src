@@ -12,12 +12,12 @@ $bar = 'str';
 \PHPStan\Testing\assertType('\'str\'', $bar);
 
 if (!isset($baz)) {
-	$baz = 1;
-	\PHPStan\Testing\assertType('1', $baz);
+    $baz = 1;
+    \PHPStan\Testing\assertType('1', $baz);
 }
 
 \PHPStan\Testing\assertType('mixed', $baz);
 
 function () {
-	\PHPStan\Testing\assertVariableCertainty(TrinaryLogic::createNo(), $foo);
+    \PHPStan\Testing\assertVariableCertainty(TrinaryLogic::createNo(), $foo);
 };

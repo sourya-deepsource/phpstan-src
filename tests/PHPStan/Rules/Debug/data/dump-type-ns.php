@@ -3,10 +3,10 @@
 namespace App\Foo;
 
 function (array $a) {
-	if ($a === []) {
-		return;
-	}
+    if ($a === []) {
+        return;
+    }
 
-	\PHPStan\dumpType($a);
-	dumpType($a);
+    \PHPStan\dumpType($a);
+    dumpType($a);
 };

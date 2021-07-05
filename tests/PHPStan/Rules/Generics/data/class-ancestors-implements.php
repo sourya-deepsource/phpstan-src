@@ -8,7 +8,6 @@ namespace ClassAncestorsImplements;
  */
 interface FooGeneric
 {
-
 }
 
 /**
@@ -17,7 +16,6 @@ interface FooGeneric
  */
 interface FooGeneric2
 {
-
 }
 
 /**
@@ -26,7 +24,6 @@ interface FooGeneric2
  */
 interface FooGeneric3
 {
-
 }
 
 /**
@@ -34,7 +31,6 @@ interface FooGeneric3
  */
 class FooDoesNotImplementAnything
 {
-
 }
 
 /**
@@ -43,7 +39,6 @@ class FooDoesNotImplementAnything
  */
 class FooInvalidImplementsTags implements FooGeneric
 {
-
 }
 
 /**
@@ -51,7 +46,6 @@ class FooInvalidImplementsTags implements FooGeneric
  */
 class FooWrongClassImplemented implements FooGeneric, FooGeneric3
 {
-
 }
 
 /**
@@ -59,7 +53,6 @@ class FooWrongClassImplemented implements FooGeneric, FooGeneric3
  */
 class FooWrongTypeInImplementsTag implements FooGeneric
 {
-
 }
 
 /**
@@ -67,7 +60,6 @@ class FooWrongTypeInImplementsTag implements FooGeneric
  */
 class FooCorrect implements FooGeneric
 {
-
 }
 
 /**
@@ -75,7 +67,6 @@ class FooCorrect implements FooGeneric
  */
 class FooNotEnough implements FooGeneric
 {
-
 }
 
 /**
@@ -83,7 +74,6 @@ class FooNotEnough implements FooGeneric
  */
 class FooExtraTypes implements FooGeneric
 {
-
 }
 
 /**
@@ -91,7 +81,6 @@ class FooExtraTypes implements FooGeneric
  */
 class FooNotSubtype implements FooGeneric
 {
-
 }
 
 /**
@@ -99,7 +88,6 @@ class FooNotSubtype implements FooGeneric
  */
 class FooAlsoNotSubtype implements FooGeneric
 {
-
 }
 
 /**
@@ -107,7 +95,6 @@ class FooAlsoNotSubtype implements FooGeneric
  */
 class FooUnknownClass implements FooGeneric
 {
-
 }
 
 /**
@@ -116,7 +103,6 @@ class FooUnknownClass implements FooGeneric
  */
 class FooGenericGeneric implements FooGeneric
 {
-
 }
 
 /**
@@ -125,7 +111,6 @@ class FooGenericGeneric implements FooGeneric
  */
 class FooGenericGeneric2 implements FooGeneric
 {
-
 }
 
 
@@ -135,7 +120,6 @@ class FooGenericGeneric2 implements FooGeneric
  */
 class FooGenericGeneric3 implements FooGeneric
 {
-
 }
 
 /**
@@ -144,7 +128,6 @@ class FooGenericGeneric3 implements FooGeneric
  */
 class FooGenericGeneric4 implements FooGeneric
 {
-
 }
 
 /**
@@ -153,7 +136,6 @@ class FooGenericGeneric4 implements FooGeneric
  */
 class FooGenericGeneric5 implements FooGeneric
 {
-
 }
 
 /**
@@ -162,7 +144,6 @@ class FooGenericGeneric5 implements FooGeneric
  */
 class FooGenericGeneric6 implements FooGeneric
 {
-
 }
 
 /**
@@ -171,7 +152,6 @@ class FooGenericGeneric6 implements FooGeneric
  */
 class FooGenericGeneric7 implements FooGeneric
 {
-
 }
 
 /**
@@ -181,23 +161,19 @@ class FooGenericGeneric7 implements FooGeneric
  */
 class FooGenericGeneric8 implements FooGeneric, FooGeneric2
 {
-
 }
 
 interface NonGenericInterface
 {
-
 }
 
 class FooImplementsNonGenericInterface implements NonGenericInterface
 {
-
 }
 
 
 class FooImplementsGenericInterface implements FooGeneric
 {
-
 }
 
 /**
@@ -206,7 +182,6 @@ class FooImplementsGenericInterface implements FooGeneric
  */
 interface FooGeneric9
 {
-
 }
 
 /**
@@ -215,5 +190,4 @@ interface FooGeneric9
  */
 class FooGeneric10 implements FooGeneric9
 {
-
 }

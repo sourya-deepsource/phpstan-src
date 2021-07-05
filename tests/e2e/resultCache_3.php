@@ -1,10 +1,12 @@
-<?php return array (
+<?php
+
+return array(
   'lib/PhpParser/Autoloader.php' =>
-  array (
+  array(
     0 => 'lib/bootstrap.php',
   ),
   'lib/PhpParser/Builder.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Class_.php',
     1 => 'lib/PhpParser/Builder/Declaration.php',
     2 => 'lib/PhpParser/Builder/FunctionLike.php',
@@ -20,11 +22,11 @@
     12 => 'lib/PhpParser/BuilderFactory.php',
   ),
   'lib/PhpParser/Builder/Class_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/BuilderFactory.php',
   ),
   'lib/PhpParser/Builder/Declaration.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Class_.php',
     1 => 'lib/PhpParser/Builder/FunctionLike.php',
     2 => 'lib/PhpParser/Builder/Function_.php',
@@ -35,46 +37,46 @@
     7 => 'lib/PhpParser/BuilderFactory.php',
   ),
   'lib/PhpParser/Builder/FunctionLike.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Function_.php',
     1 => 'lib/PhpParser/Builder/Method.php',
     2 => 'lib/PhpParser/BuilderFactory.php',
   ),
   'lib/PhpParser/Builder/Function_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/BuilderFactory.php',
   ),
   'lib/PhpParser/Builder/Interface_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/BuilderFactory.php',
   ),
   'lib/PhpParser/Builder/Method.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/BuilderFactory.php',
   ),
   'lib/PhpParser/Builder/Namespace_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/BuilderFactory.php',
   ),
   'lib/PhpParser/Builder/Param.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/FunctionLike.php',
     1 => 'lib/PhpParser/BuilderFactory.php',
   ),
   'lib/PhpParser/Builder/Property.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/BuilderFactory.php',
   ),
   'lib/PhpParser/Builder/Trait_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/BuilderFactory.php',
   ),
   'lib/PhpParser/Builder/Use_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/BuilderFactory.php',
   ),
   'lib/PhpParser/BuilderAbstract.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Class_.php',
     1 => 'lib/PhpParser/Builder/Declaration.php',
     2 => 'lib/PhpParser/Builder/FunctionLike.php',
@@ -89,10 +91,10 @@
     11 => 'lib/PhpParser/BuilderFactory.php',
   ),
   'lib/PhpParser/BuilderFactory.php' =>
-  array (
+  array(
   ),
   'lib/PhpParser/Comment.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Declaration.php',
     1 => 'lib/PhpParser/Builder/Property.php',
     2 => 'lib/PhpParser/BuilderAbstract.php',
@@ -105,7 +107,7 @@
     9 => 'lib/PhpParser/Serializer/XML.php',
   ),
   'lib/PhpParser/Comment/Doc.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Declaration.php',
     1 => 'lib/PhpParser/Builder/Property.php',
     2 => 'lib/PhpParser/BuilderAbstract.php',
@@ -116,7 +118,7 @@
     7 => 'lib/PhpParser/Serializer/XML.php',
   ),
   'lib/PhpParser/Error.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/ErrorHandler.php',
     1 => 'lib/PhpParser/ErrorHandler/Collecting.php',
     2 => 'lib/PhpParser/ErrorHandler/Throwing.php',
@@ -131,7 +133,7 @@
     11 => 'lib/PhpParser/ParserAbstract.php',
   ),
   'lib/PhpParser/ErrorHandler.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/ErrorHandler/Collecting.php',
     1 => 'lib/PhpParser/ErrorHandler/Throwing.php',
     2 => 'lib/PhpParser/Lexer.php',
@@ -142,17 +144,17 @@
     7 => 'lib/PhpParser/ParserAbstract.php',
   ),
   'lib/PhpParser/ErrorHandler/Collecting.php' =>
-  array (
+  array(
   ),
   'lib/PhpParser/ErrorHandler/Throwing.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Lexer.php',
     1 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     2 => 'lib/PhpParser/Parser/Multiple.php',
     3 => 'lib/PhpParser/ParserAbstract.php',
   ),
   'lib/PhpParser/Lexer.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Lexer/Emulative.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
@@ -160,11 +162,11 @@
     4 => 'lib/PhpParser/ParserFactory.php',
   ),
   'lib/PhpParser/Lexer/Emulative.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/ParserFactory.php',
   ),
   'lib/PhpParser/Node.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder.php',
     1 => 'lib/PhpParser/Builder/Class_.php',
     2 => 'lib/PhpParser/Builder/FunctionLike.php',
@@ -354,7 +356,7 @@
     186 => 'lib/PhpParser/Serializer/XML.php',
   ),
   'lib/PhpParser/Node/Arg.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Node/Expr/FuncCall.php',
     1 => 'lib/PhpParser/Node/Expr/MethodCall.php',
     2 => 'lib/PhpParser/Node/Expr/New_.php',
@@ -364,7 +366,7 @@
     6 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Const_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Node/Stmt/ClassConst.php',
     1 => 'lib/PhpParser/Node/Stmt/Const_.php',
     2 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
@@ -373,7 +375,7 @@
     5 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Param.php',
     1 => 'lib/PhpParser/Builder/Property.php',
     2 => 'lib/PhpParser/BuilderAbstract.php',
@@ -510,13 +512,13 @@
     133 => 'lib/PhpParser/PrettyPrinterAbstract.php',
   ),
   'lib/PhpParser/Node/Expr/ArrayDimFetch.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/ArrayItem.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/BuilderAbstract.php',
     1 => 'lib/PhpParser/Node/Expr/Array_.php',
     2 => 'lib/PhpParser/Node/Expr/List_.php',
@@ -525,20 +527,20 @@
     5 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Array_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/BuilderAbstract.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Assign.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/AssignOp.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Node/Expr/AssignOp/BitwiseAnd.php',
     1 => 'lib/PhpParser/Node/Expr/AssignOp/BitwiseOr.php',
     2 => 'lib/PhpParser/Node/Expr/AssignOp/BitwiseXor.php',
@@ -556,85 +558,85 @@
     14 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/AssignOp/BitwiseAnd.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/AssignOp/BitwiseOr.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/AssignOp/BitwiseXor.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/AssignOp/Concat.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/AssignOp/Div.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/AssignOp/Minus.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/AssignOp/Mod.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/AssignOp/Mul.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/AssignOp/Plus.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/AssignOp/Pow.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/AssignOp/ShiftLeft.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/AssignOp/ShiftRight.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/AssignRef.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Node/Expr/BinaryOp/BitwiseAnd.php',
     1 => 'lib/PhpParser/Node/Expr/BinaryOp/BitwiseOr.php',
     2 => 'lib/PhpParser/Node/Expr/BinaryOp/BitwiseXor.php',
@@ -667,181 +669,181 @@
     29 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/BitwiseAnd.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/BitwiseOr.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/BitwiseXor.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/BooleanAnd.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/BooleanOr.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/Coalesce.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/Concat.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/Div.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/Equal.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/Greater.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/GreaterOrEqual.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/Identical.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/LogicalAnd.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/LogicalOr.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/LogicalXor.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/Minus.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/Mod.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/Mul.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/NotEqual.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/NotIdentical.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/Plus.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/Pow.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/ShiftLeft.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/ShiftRight.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/Smaller.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/SmallerOrEqual.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BinaryOp/Spaceship.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BitwiseNot.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/BooleanNot.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Cast.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Node/Expr/Cast/Array_.php',
     1 => 'lib/PhpParser/Node/Expr/Cast/Bool_.php',
     2 => 'lib/PhpParser/Node/Expr/Cast/Double.php',
@@ -854,76 +856,76 @@
     9 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Cast/Array_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Cast/Bool_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Cast/Double.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Cast/Int_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Cast/Object_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Cast/String_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Cast/Unset_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/ClassConstFetch.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Clone_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Closure.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/ClosureUse.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Node/Expr/Closure.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/ConstFetch.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/BuilderAbstract.php',
     1 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     2 => 'lib/PhpParser/Parser/Php5.php',
@@ -931,176 +933,176 @@
     4 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Empty_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Error.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Node/Expr/ClassConstFetch.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/ErrorSuppress.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Eval_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Exit_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/FuncCall.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Include_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/NodeDumper.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Instanceof_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Isset_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/List_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/MethodCall.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/New_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/PostDec.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/PostInc.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/PreDec.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/PreInc.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Print_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/PropertyFetch.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/ShellExec.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/StaticCall.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/StaticPropertyFetch.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Ternary.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/UnaryMinus.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/UnaryPlus.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Variable.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/YieldFrom.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Expr/Yield_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/FunctionLike.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Function_.php',
     1 => 'lib/PhpParser/Builder/Method.php',
     2 => 'lib/PhpParser/Builder/Trait_.php',
@@ -1115,7 +1117,7 @@
     11 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Name.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Class_.php',
     1 => 'lib/PhpParser/Builder/FunctionLike.php',
     2 => 'lib/PhpParser/Builder/Function_.php',
@@ -1158,7 +1160,7 @@
     39 => 'lib/PhpParser/PrettyPrinterAbstract.php',
   ),
   'lib/PhpParser/Node/Name/FullyQualified.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/BuilderAbstract.php',
     1 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     2 => 'lib/PhpParser/Parser/Php5.php',
@@ -1166,14 +1168,14 @@
     4 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Name/Relative.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/BuilderAbstract.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/NullableType.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/FunctionLike.php',
     1 => 'lib/PhpParser/Builder/Function_.php',
     2 => 'lib/PhpParser/Builder/Method.php',
@@ -1189,7 +1191,7 @@
     12 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Param.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/FunctionLike.php',
     1 => 'lib/PhpParser/Builder/Param.php',
     2 => 'lib/PhpParser/Node/Expr/Closure.php',
@@ -1203,7 +1205,7 @@
     10 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Scalar.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/BuilderAbstract.php',
     1 => 'lib/PhpParser/Node/Scalar/DNumber.php',
     2 => 'lib/PhpParser/Node/Scalar/Encapsed.php',
@@ -1225,32 +1227,32 @@
     18 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Scalar/DNumber.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/BuilderAbstract.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Scalar/Encapsed.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Scalar/EncapsedStringPart.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Scalar/LNumber.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/BuilderAbstract.php',
     1 => 'lib/PhpParser/ParserAbstract.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Scalar/MagicConst.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Node/Scalar/MagicConst/Class_.php',
     1 => 'lib/PhpParser/Node/Scalar/MagicConst/Dir.php',
     2 => 'lib/PhpParser/Node/Scalar/MagicConst/File.php',
@@ -1264,55 +1266,55 @@
     10 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Scalar/MagicConst/Class_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Scalar/MagicConst/Dir.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Scalar/MagicConst/File.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Scalar/MagicConst/Function_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Scalar/MagicConst/Line.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Scalar/MagicConst/Method.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Scalar/MagicConst/Namespace_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Scalar/MagicConst/Trait_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Scalar/String_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/BuilderAbstract.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
@@ -1320,7 +1322,7 @@
     4 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Class_.php',
     1 => 'lib/PhpParser/Builder/Function_.php',
     2 => 'lib/PhpParser/Builder/Interface_.php',
@@ -1389,20 +1391,20 @@
     65 => 'lib/PhpParser/PrettyPrinterAbstract.php',
   ),
   'lib/PhpParser/Node/Stmt/Break_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Case_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Node/Stmt/Switch_.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Catch_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Node/Stmt/TryCatch.php',
     1 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     2 => 'lib/PhpParser/Parser/Php5.php',
@@ -1411,14 +1413,14 @@
     5 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/ClassConst.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/ParserAbstract.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/ClassLike.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Class_.php',
     1 => 'lib/PhpParser/Builder/Interface_.php',
     2 => 'lib/PhpParser/Builder/Method.php',
@@ -1440,7 +1442,7 @@
     18 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/ClassMethod.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Method.php',
     1 => 'lib/PhpParser/Builder/Trait_.php',
     2 => 'lib/PhpParser/Node/Stmt/ClassLike.php',
@@ -1451,7 +1453,7 @@
     7 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Class_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Class_.php',
     1 => 'lib/PhpParser/Builder/Method.php',
     2 => 'lib/PhpParser/Builder/Property.php',
@@ -1468,60 +1470,60 @@
     13 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Const_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Continue_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/DeclareDeclare.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Node/Stmt/Declare_.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Declare_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/ParserAbstract.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Do_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Echo_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/ElseIf_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Node/Stmt/If_.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Else_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Node/Stmt/If_.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Finally_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Node/Stmt/TryCatch.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
@@ -1529,19 +1531,19 @@
     4 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/For_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Foreach_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Function_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Function_.php',
     1 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     2 => 'lib/PhpParser/Parser/Php5.php',
@@ -1549,19 +1551,19 @@
     4 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Global_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Goto_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/GroupUse.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/NodeDumper.php',
     1 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     2 => 'lib/PhpParser/Parser/Php5.php',
@@ -1569,20 +1571,20 @@
     4 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/HaltCompiler.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/ParserAbstract.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/If_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/InlineHTML.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/ParserAbstract.php',
@@ -1590,7 +1592,7 @@
     4 => 'lib/PhpParser/PrettyPrinterAbstract.php',
   ),
   'lib/PhpParser/Node/Stmt/Interface_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Interface_.php',
     1 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     2 => 'lib/PhpParser/Parser/Php5.php',
@@ -1599,13 +1601,13 @@
     5 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Label.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Namespace_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Namespace_.php',
     1 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     2 => 'lib/PhpParser/Parser/Php5.php',
@@ -1615,7 +1617,7 @@
     6 => 'lib/PhpParser/PrettyPrinterAbstract.php',
   ),
   'lib/PhpParser/Node/Stmt/Nop.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/ParserAbstract.php',
@@ -1623,7 +1625,7 @@
     4 => 'lib/PhpParser/PrettyPrinterAbstract.php',
   ),
   'lib/PhpParser/Node/Stmt/Property.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Property.php',
     1 => 'lib/PhpParser/Builder/Trait_.php',
     2 => 'lib/PhpParser/Parser/Php5.php',
@@ -1632,7 +1634,7 @@
     5 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/PropertyProperty.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Property.php',
     1 => 'lib/PhpParser/Node/Stmt/Property.php',
     2 => 'lib/PhpParser/Parser/Php5.php',
@@ -1640,38 +1642,38 @@
     4 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Return_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/StaticVar.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Node/Stmt/Static_.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Static_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Switch_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Throw_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/TraitUse.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Trait_.php',
     1 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     2 => 'lib/PhpParser/Parser/Php5.php',
@@ -1679,7 +1681,7 @@
     4 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/TraitUseAdaptation.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Node/Stmt/TraitUse.php',
     1 => 'lib/PhpParser/Node/Stmt/TraitUseAdaptation/Alias.php',
     2 => 'lib/PhpParser/Node/Stmt/TraitUseAdaptation/Precedence.php',
@@ -1689,20 +1691,20 @@
     6 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/TraitUseAdaptation/Alias.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/TraitUseAdaptation/Precedence.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Trait_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Trait_.php',
     1 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     2 => 'lib/PhpParser/Parser/Php5.php',
@@ -1710,20 +1712,20 @@
     4 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/TryCatch.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/ParserAbstract.php',
     3 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Unset_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/UseUse.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Use_.php',
     1 => 'lib/PhpParser/Node/Stmt/GroupUse.php',
     2 => 'lib/PhpParser/Node/Stmt/Use_.php',
@@ -1735,7 +1737,7 @@
     8 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/Use_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Use_.php',
     1 => 'lib/PhpParser/BuilderFactory.php',
     2 => 'lib/PhpParser/Node/Stmt/GroupUse.php',
@@ -1747,13 +1749,13 @@
     8 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Node/Stmt/While_.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/NodeAbstract.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Builder/Class_.php',
     1 => 'lib/PhpParser/Builder/FunctionLike.php',
     2 => 'lib/PhpParser/Builder/Function_.php',
@@ -1934,31 +1936,31 @@
     177 => 'lib/PhpParser/PrettyPrinterAbstract.php',
   ),
   'lib/PhpParser/NodeDumper.php' =>
-  array (
+  array(
   ),
   'lib/PhpParser/NodeTraverser.php' =>
-  array (
+  array(
   ),
   'lib/PhpParser/NodeTraverserInterface.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/NodeTraverser.php',
   ),
   'lib/PhpParser/NodeVisitor.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/NodeTraverser.php',
     1 => 'lib/PhpParser/NodeTraverserInterface.php',
     2 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
     3 => 'lib/PhpParser/NodeVisitorAbstract.php',
   ),
   'lib/PhpParser/NodeVisitor/NameResolver.php' =>
-  array (
+  array(
   ),
   'lib/PhpParser/NodeVisitorAbstract.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/NodeVisitor/NameResolver.php',
   ),
   'lib/PhpParser/Parser.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Multiple.php',
     1 => 'lib/PhpParser/Parser/Php5.php',
     2 => 'lib/PhpParser/Parser/Php7.php',
@@ -1966,50 +1968,50 @@
     4 => 'lib/PhpParser/ParserFactory.php',
   ),
   'lib/PhpParser/Parser/Multiple.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/ParserFactory.php',
   ),
   'lib/PhpParser/Parser/Php5.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/ParserFactory.php',
   ),
   'lib/PhpParser/Parser/Php7.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/ParserFactory.php',
   ),
   'lib/PhpParser/Parser/Tokens.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Lexer.php',
     1 => 'lib/PhpParser/Lexer/Emulative.php',
   ),
   'lib/PhpParser/ParserAbstract.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Parser/Php5.php',
     1 => 'lib/PhpParser/Parser/Php7.php',
     2 => 'lib/PhpParser/ParserFactory.php',
   ),
   'lib/PhpParser/ParserFactory.php' =>
-  array (
+  array(
   ),
   'lib/PhpParser/PrettyPrinter/Standard.php' =>
-  array (
+  array(
   ),
   'lib/PhpParser/PrettyPrinterAbstract.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/PrettyPrinter/Standard.php',
   ),
   'lib/PhpParser/Serializer.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Serializer/XML.php',
   ),
   'lib/PhpParser/Serializer/XML.php' =>
-  array (
+  array(
   ),
   'lib/PhpParser/Unserializer.php' =>
-  array (
+  array(
     0 => 'lib/PhpParser/Unserializer/XML.php',
   ),
   'lib/PhpParser/Unserializer/XML.php' =>
-  array (
+  array(
   ),
 );

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type;
 
@@ -7,71 +9,69 @@ use PHPUnit\Framework\TestCase;
 
 class TestDecimalOperatorTypeSpecifyingExtensionTest extends TestCase
 {
+    /**
+     * @dataProvider dataSigilAndSidesProvider
+     */
+    public function testSupportsMatchingSigilsAndSides(string $sigil, Type $leftType, Type $rightType): void
+    {
+        $extension = new TestDecimalOperatorTypeSpecifyingExtension();
 
-	/**
-	 * @dataProvider dataSigilAndSidesProvider
-	 */
-	public function testSupportsMatchingSigilsAndSides(string $sigil, Type $leftType, Type $rightType): void
-	{
-		$extension = new TestDecimalOperatorTypeSpecifyingExtension();
+        $result = $extension->isOperatorSupported($sigil, $leftType, $rightType);
 
-		$result = $extension->isOperatorSupported($sigil, $leftType, $rightType);
+        self::assertTrue($result);
+    }
 
-		self::assertTrue($result);
-	}
+    public function dataSigilAndSidesProvider(): iterable
+    {
+        yield '+' => [
+            '+',
+            new ObjectType(TestDecimal::class),
+            new ObjectType(TestDecimal::class),
+        ];
 
-	public function dataSigilAndSidesProvider(): iterable
-	{
-		yield '+' => [
-			'+',
-			new ObjectType(TestDecimal::class),
-			new ObjectType(TestDecimal::class),
-		];
+        yield '-' => [
+            '-',
+            new ObjectType(TestDecimal::class),
+            new ObjectType(TestDecimal::class),
+        ];
 
-		yield '-' => [
-			'-',
-			new ObjectType(TestDecimal::class),
-			new ObjectType(TestDecimal::class),
-		];
+        yield '*' => [
+            '*',
+            new ObjectType(TestDecimal::class),
+            new ObjectType(TestDecimal::class),
+        ];
 
-		yield '*' => [
-			'*',
-			new ObjectType(TestDecimal::class),
-			new ObjectType(TestDecimal::class),
-		];
+        yield '/' => [
+            '/',
+            new ObjectType(TestDecimal::class),
+            new ObjectType(TestDecimal::class),
+        ];
+    }
 
-		yield '/' => [
-			'/',
-			new ObjectType(TestDecimal::class),
-			new ObjectType(TestDecimal::class),
-		];
-	}
+    /**
+     * @dataProvider dataNotMatchingSidesProvider
+     */
+    public function testNotSupportsNotMatchingSides(string $sigil, Type $leftType, Type $rightType): void
+    {
+        $extension = new TestDecimalOperatorTypeSpecifyingExtension();
 
-	/**
-	 * @dataProvider dataNotMatchingSidesProvider
-	 */
-	public function testNotSupportsNotMatchingSides(string $sigil, Type $leftType, Type $rightType): void
-	{
-		$extension = new TestDecimalOperatorTypeSpecifyingExtension();
+        $result = $extension->isOperatorSupported($sigil, $leftType, $rightType);
 
-		$result = $extension->isOperatorSupported($sigil, $leftType, $rightType);
+        self::assertFalse($result);
+    }
 
-		self::assertFalse($result);
-	}
+    public function dataNotMatchingSidesProvider(): iterable
+    {
+        yield 'left' => [
+            '+',
+            new ObjectType(\stdClass::class),
+            new ObjectType(TestDecimal::class),
+        ];
 
-	public function dataNotMatchingSidesProvider(): iterable
-	{
-		yield 'left' => [
-			'+',
-			new ObjectType(\stdClass::class),
-			new ObjectType(TestDecimal::class),
-		];
-
-		yield 'right' => [
-			'+',
-			new ObjectType(TestDecimal::class),
-			new ObjectType(\stdClass::class),
-		];
-	}
-
+        yield 'right' => [
+            '+',
+            new ObjectType(TestDecimal::class),
+            new ObjectType(\stdClass::class),
+        ];
+    }
 }

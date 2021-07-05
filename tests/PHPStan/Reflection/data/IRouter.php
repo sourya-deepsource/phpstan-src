@@ -4,8 +4,6 @@ namespace WrongClassConstantFile;
 
 interface IRouter
 {
-
-	/** @deprecated */
-	const SECURED = 's';
-
+    /** @deprecated */
+    public const SECURED = 's';
 }

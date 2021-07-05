@@ -9,60 +9,60 @@ use function ThrowPoints\Helpers\maybeThrows;
 use function ThrowPoints\Helpers\throws;
 
 function () {
-	try {
-		throws();
-		$foo = 1;
-	} finally {
-		assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
-	}
+    try {
+        throws();
+        $foo = 1;
+    } finally {
+        assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
+    }
 };
 
 function () {
-	try {
-		maybeThrows();
-		$foo = 1;
-	} finally {
-		assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
-	}
+    try {
+        maybeThrows();
+        $foo = 1;
+    } finally {
+        assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
+    }
 };
 
 function () {
-	try {
-		doesntThrow();
-		$foo = 1;
-	} finally {
-		assertVariableCertainty(TrinaryLogic::createYes(), $foo);
-	}
+    try {
+        doesntThrow();
+        $foo = 1;
+    } finally {
+        assertVariableCertainty(TrinaryLogic::createYes(), $foo);
+    }
 };
 
 function () {
-	try {
-		doesntThrow()($foo = 1);
-	} finally {
-		assertVariableCertainty(TrinaryLogic::createYes(), $foo);
-	}
+    try {
+        doesntThrow()($foo = 1);
+    } finally {
+        assertVariableCertainty(TrinaryLogic::createYes(), $foo);
+    }
 };
 
 function () {
-	try {
-		maybeThrows()($foo = 1);
-	} finally {
-		assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
-	}
+    try {
+        maybeThrows()($foo = 1);
+    } finally {
+        assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
+    }
 };
 
 function () {
-	try {
-		doesntThrow(doesntThrow(), $foo = 1);
-	} finally {
-		assertVariableCertainty(TrinaryLogic::createYes(), $foo);
-	}
+    try {
+        doesntThrow(doesntThrow(), $foo = 1);
+    } finally {
+        assertVariableCertainty(TrinaryLogic::createYes(), $foo);
+    }
 };
 
 function () {
-	try {
-		doesntThrow(maybeThrows(), $foo = 1);
-	} finally {
-		assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
-	}
+    try {
+        doesntThrow(maybeThrows(), $foo = 1);
+    } finally {
+        assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
+    }
 };

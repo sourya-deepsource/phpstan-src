@@ -4,7 +4,5 @@ namespace DefaultValueForNativePropertyType;
 
 class Foo
 {
-
-	private \DateTime $foo = null;
-
+    private \DateTime $foo = null;
 }

@@ -4,8 +4,6 @@ namespace TraitPhpDocsThree;
 
 trait LoremTrait
 {
-
-	/** @var Foo */
-	protected $loremTraitProperty;
-
+    /** @var Foo */
+    protected $loremTraitProperty;
 }

@@ -18,16 +18,14 @@ interface MockObject
 
 class Foo
 {
-
-	/**
-	 * @template T
-	 * @param class-string<T> $class
-	 * @return T&MockObject
-	 */
-	public function createMock($class)
-	{
-	}
-
+    /**
+     * @template T
+     * @param class-string<T> $class
+     * @return T&MockObject
+     */
+    public function createMock($class)
+    {
+    }
 }
 
 /**
@@ -35,32 +33,27 @@ class Foo
  */
 class Bar extends Foo
 {
+    public function doBar(): void
+    {
+        $mock = $this->createMock(\stdClass::class);
+        assertType('Bug4557\\MockObject&stdClass', $mock);
+    }
 
-	public function doBar(): void
-	{
-		$mock = $this->createMock(\stdClass::class);
-		assertType('Bug4557\\MockObject&stdClass', $mock);
-	}
-
-	/** @return T */
-	public function doBaz()
-	{
-
-	}
-
+    /** @return T */
+    public function doBaz()
+    {
+    }
 }
 
 class Baz
 {
-
-	/**
-	 * @param Bar<Lorem> $barLorem
-	 * @param Bar<Ipsum> $barIpsum
-	 */
-	public function doFoo(Bar $barLorem, Bar $barIpsum): void
-	{
-		assertType('Bug4557\\Lorem', $barLorem->doBaz());
-		assertType('Bug4557\\Ipsum', $barIpsum->doBaz());
-	}
-
+    /**
+     * @param Bar<Lorem> $barLorem
+     * @param Bar<Ipsum> $barIpsum
+     */
+    public function doFoo(Bar $barLorem, Bar $barIpsum): void
+    {
+        assertType('Bug4557\\Lorem', $barLorem->doBaz());
+        assertType('Bug4557\\Ipsum', $barIpsum->doBaz());
+    }
 }

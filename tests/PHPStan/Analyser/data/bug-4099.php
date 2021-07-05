@@ -7,35 +7,33 @@ use function PHPStan\Testing\assertType;
 
 class Foo
 {
+    /**
+     * @param array{key: array{inner: mixed}} $arr
+     */
+    public function arrayHint(array $arr): void
+    {
+        assertType('array(\'key\' => array(\'inner\' => mixed))', $arr);
+        assertNativeType('array', $arr);
 
-	/**
-	 * @param array{key: array{inner: mixed}} $arr
-	 */
-	function arrayHint(array $arr): void
-	{
-		assertType('array(\'key\' => array(\'inner\' => mixed))', $arr);
-		assertNativeType('array', $arr);
+        if (!array_key_exists('key', $arr)) {
+            assertType('*NEVER*', $arr);
+            assertNativeType('array', $arr);
+            throw new \Exception('no key "key" found.');
+        }
+        assertType('array(\'key\' => array(\'inner\' => mixed))', $arr);
+        assertNativeType('array&hasOffset(\'key\')', $arr);
+        assertType('array(\'inner\' => mixed)', $arr['key']);
+        assertNativeType('mixed', $arr['key']);
 
-		if (!array_key_exists('key', $arr)) {
-			assertType('*NEVER*', $arr);
-			assertNativeType('array', $arr);
-			throw new \Exception('no key "key" found.');
-		}
-		assertType('array(\'key\' => array(\'inner\' => mixed))', $arr);
-		assertNativeType('array&hasOffset(\'key\')', $arr);
-		assertType('array(\'inner\' => mixed)', $arr['key']);
-		assertNativeType('mixed', $arr['key']);
+        if (!array_key_exists('inner', $arr['key'])) {
+            assertType('array(\'key\' => *NEVER*)', $arr);
+            //assertNativeType('array(\'key\' => mixed)', $arr);
+            assertType('*NEVER*', $arr['key']);
+            //assertNativeType('mixed', $arr['key']);
+            throw new \Exception('need key.inner');
+        }
 
-		if (!array_key_exists('inner', $arr['key'])) {
-			assertType('array(\'key\' => *NEVER*)', $arr);
-			//assertNativeType('array(\'key\' => mixed)', $arr);
-			assertType('*NEVER*', $arr['key']);
-			//assertNativeType('mixed', $arr['key']);
-			throw new \Exception('need key.inner');
-		}
-
-		assertType('array(\'key\' => array(\'inner\' => mixed))', $arr);
-		assertNativeType('array(\'key\' => array(\'inner\' => mixed))', $arr);
-	}
-
+        assertType('array(\'key\' => array(\'inner\' => mixed))', $arr);
+        assertNativeType('array(\'key\' => array(\'inner\' => mixed))', $arr);
+    }
 }

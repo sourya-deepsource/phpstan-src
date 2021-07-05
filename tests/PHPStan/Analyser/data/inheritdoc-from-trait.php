@@ -4,28 +4,24 @@ namespace InheritDocFromTrait;
 
 class Foo implements FooInterface
 {
-	use FooTrait;
+    use FooTrait;
 }
 
 trait FooTrait
 {
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function doFoo($string)
-	{
-		die;
-	}
-
+    /**
+     * {@inheritdoc}
+     */
+    public function doFoo($string)
+    {
+        die;
+    }
 }
 
 interface FooInterface
 {
-
-	/**
-	 * @param string $string
-	 */
-	public function doFoo($string);
-
+    /**
+     * @param string $string
+     */
+    public function doFoo($string);
 }

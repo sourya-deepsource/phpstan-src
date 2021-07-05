@@ -7,15 +7,15 @@ use function PHPStan\Testing\assertVariableCertainty;
 
 function doFoo(array $config): void
 {
-	extract($config);
+    extract($config);
 
-	assertVariableCertainty(TrinaryLogic::createMaybe(), $a);
+    assertVariableCertainty(TrinaryLogic::createMaybe(), $a);
 
-	if (isset($a)) {
-		assertVariableCertainty(TrinaryLogic::createYes(), $a);
-	} else {
-		assertVariableCertainty(TrinaryLogic::createMaybe(), $a);
-	}
+    if (isset($a)) {
+        assertVariableCertainty(TrinaryLogic::createYes(), $a);
+    } else {
+        assertVariableCertainty(TrinaryLogic::createMaybe(), $a);
+    }
 
-	assertVariableCertainty(TrinaryLogic::createMaybe(), $a);
+    assertVariableCertainty(TrinaryLogic::createMaybe(), $a);
 }

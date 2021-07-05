@@ -6,66 +6,57 @@ use function PHPStan\Testing\assertType;
 
 interface Foo
 {
-
-	/**
-	 * @return static
-	 */
-	public function returnStatic(): self;
-
+    /**
+     * @return static
+     */
+    public function returnStatic(): self;
 }
 
 interface Bar
 {
-
 }
 
 interface Baz
 {
-
-	/**
-	 * @return static
-	 */
-	public function returnStatic(): self;
-
+    /**
+     * @return static
+     */
+    public function returnStatic(): self;
 }
 
 class Lorem
 {
+    /**
+     * @param Foo&Bar $intersection
+     */
+    public function doFoo($intersection)
+    {
+        assertType('IntersectionStatic\Bar&IntersectionStatic\Foo', $intersection);
+        assertType('IntersectionStatic\Bar&IntersectionStatic\Foo', $intersection->returnStatic());
+    }
 
-	/**
-	 * @param Foo&Bar $intersection
-	 */
-	public function doFoo($intersection)
-	{
-		assertType('IntersectionStatic\Bar&IntersectionStatic\Foo', $intersection);
-		assertType('IntersectionStatic\Bar&IntersectionStatic\Foo', $intersection->returnStatic());
-	}
-
-	/**
-	 * @param Foo&Baz $intersection
-	 */
-	public function doBar($intersection)
-	{
-		assertType('IntersectionStatic\Baz&IntersectionStatic\Foo', $intersection);
-		assertType('IntersectionStatic\Baz&IntersectionStatic\Foo', $intersection->returnStatic());
-	}
-
+    /**
+     * @param Foo&Baz $intersection
+     */
+    public function doBar($intersection)
+    {
+        assertType('IntersectionStatic\Baz&IntersectionStatic\Foo', $intersection);
+        assertType('IntersectionStatic\Baz&IntersectionStatic\Foo', $intersection->returnStatic());
+    }
 }
 
 abstract class Ipsum implements Foo
 {
-
-	public function testThis(): void
-	{
-		assertType('static(IntersectionStatic\Ipsum)', $this->returnStatic());
-		if ($this instanceof Bar) {
-			assertType('$this(IntersectionStatic\Ipsum)&IntersectionStatic\Bar', $this);
-			assertType('$this(IntersectionStatic\Ipsum)&IntersectionStatic\Bar', $this->returnStatic());
-		}
-		if ($this instanceof Baz) {
-			assertType('$this(IntersectionStatic\Ipsum)&IntersectionStatic\Baz', $this);
-			assertType('$this(IntersectionStatic\Ipsum)&IntersectionStatic\Baz', $this->returnStatic());
-		}
-	}
-
+    public function testThis(): void
+    {
+        assertType('static(IntersectionStatic\Ipsum)', $this->returnStatic());
+        if ($this instanceof Bar) {
+            assertType('$this(IntersectionStatic\Ipsum)&IntersectionStatic\Bar', $this);
+            assertType('$this(IntersectionStatic\Ipsum)&IntersectionStatic\Bar', $this->returnStatic());
+        }
+        if ($this instanceof Baz) {
+            assertType('$this(IntersectionStatic\Ipsum)&IntersectionStatic\Baz', $this);
+            assertType('$this(IntersectionStatic\Ipsum)&IntersectionStatic\Baz', $this->returnStatic());
+        }
+    }
 }

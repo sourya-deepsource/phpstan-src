@@ -4,5 +4,5 @@ namespace InheritDocWithoutCurlyBracesFromTrait2;
 
 class FooParent
 {
-	use FooTrait;
+    use FooTrait;
 }

@@ -4,12 +4,10 @@ namespace StaticClosure;
 
 class Foo
 {
-
-	public function doFoo(): void
-	{
-		static function () {
-			die;
-		};
-	}
-
+    public function doFoo(): void
+    {
+        static function () {
+            die;
+        };
+    }
 }

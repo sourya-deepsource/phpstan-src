@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules;
 
@@ -9,20 +11,18 @@ use PHPStan\Testing\RuleTestCase;
  */
 class NodeConnectingRuleTest extends RuleTestCase
 {
+    protected function getRule(): Rule
+    {
+        return new NodeConnectingRule();
+    }
 
-	protected function getRule(): Rule
-	{
-		return new NodeConnectingRule();
-	}
-
-	public function testRule(): void
-	{
-		$this->analyse([__DIR__ . '/data/node-connecting.php'], [
-			[
-				'Parent: PhpParser\Node\Stmt\If_, previous: PhpParser\Node\Stmt\Switch_, next: PhpParser\Node\Stmt\Foreach_',
-				11,
-			],
-		]);
-	}
-
+    public function testRule(): void
+    {
+        $this->analyse([__DIR__ . '/data/node-connecting.php'], [
+            [
+                'Parent: PhpParser\Node\Stmt\If_, previous: PhpParser\Node\Stmt\Switch_, next: PhpParser\Node\Stmt\Foreach_',
+                11,
+            ],
+        ]);
+    }
 }

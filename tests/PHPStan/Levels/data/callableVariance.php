@@ -2,18 +2,24 @@
 
 namespace Levels\CallableVariance;
 
-class A {}
-class B extends A {}
-class C extends B {}
+class A
+{
+}
+class B extends A
+{
+}
+class C extends B
+{
+}
 
 /**
  * @param callable(B): void $cb
  */
 function a(callable $cb): void
 {
-	$cb(new A());
-	$cb(new B());
-	$cb(new C());
+    $cb(new A());
+    $cb(new B());
+    $cb(new C());
 }
 
 /**
@@ -30,13 +36,16 @@ function b(callable $cb): void
  */
 function testB($a, $b, $c): void
 {
-	b(function (A $a): void {});
-	b(function (B $b): void {});
-	b(function (C $c): void {});
+    b(function (A $a): void {
+    });
+    b(function (B $b): void {
+    });
+    b(function (C $c): void {
+    });
 
-	b($a);
-	b($b);
-	b($c);
+    b($a);
+    b($b);
+    b($c);
 }
 
 /**
@@ -53,13 +62,19 @@ function c(callable $cb): void
  */
 function testC($a, $b, $c): void
 {
-	c(function (): A { return new A(); });
-	c(function (): B { return new B(); });
-	c(function (): C { return new C(); });
+    c(function (): A {
+        return new A();
+    });
+    c(function (): B {
+        return new B();
+    });
+    c(function (): C {
+        return new C();
+    });
 
-	c($a);
-	c($b);
-	c($c);
+    c($a);
+    c($b);
+    c($c);
 }
 
 /**
@@ -78,9 +93,9 @@ function d(callable $cb)
  */
 function testD($a, $b, $c, $d, $e)
 {
-	d($a);
-	d($b);
-	d($c);
-	d($d);
-	d($e);
+    d($a);
+    d($b);
+    d($c);
+    d($d);
+    d($e);
 }

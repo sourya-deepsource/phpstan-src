@@ -1,18 +1,17 @@
-<?php // lint >= 8.0
+<?php
+
+// lint >= 8.0
 
 namespace UnusedConstructorParametersPromotedProperties;
 
 class Foo
 {
+    private int $y;
 
-	private int $y;
-
-	public function __construct(
-		public int $x,
-		int $y
-	)
-	{
-		$this->y = $y;
-	}
-
+    public function __construct(
+        public int $x,
+        int $y
+    ) {
+        $this->y = $y;
+    }
 }

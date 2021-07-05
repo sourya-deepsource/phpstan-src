@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /**
  * @property int | float $numericBazBazProperty
@@ -14,25 +16,21 @@
  */
 class Foo
 {
+    public function doSomething()
+    {
+        /** @var Bar */
+        $number = $this;
 
+        /** @var Foo $something */
+        $something = &$number;
+    }
 
-	public function doSomething()
-	{
-		/** @var Bar */
-		$number = $this;
+    public function arrays()
+    {
+        $array = [];
 
-		/** @var Foo $something */
-		$something = &$number;
-	}
-
-	public function arrays()
-	{
-		$array = [];
-
-		/** @var int[] $value */
-		foreach ($array as $value) {
-
-		}
-	}
-
+        /** @var int[] $value */
+        foreach ($array as $value) {
+        }
+    }
 }

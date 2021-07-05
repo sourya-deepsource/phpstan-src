@@ -1,84 +1,86 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace InheritDocMergingVar;
 
 use function PHPStan\Testing\assertType;
 
-class A {}
-class B extends A {}
+class A
+{
+}
+class B extends A
+{
+}
 
 class One
 {
-	/** @var A */
-	protected $property;
+    /** @var A */
+    protected $property;
 
-	public function method(): void
-	{
-		assertType('InheritDocMergingVar\A', $this->property);
-	}
+    public function method(): void
+    {
+        assertType('InheritDocMergingVar\A', $this->property);
+    }
 }
 
 class Two extends One
 {
-	/** @var B */
-	protected $property;
+    /** @var B */
+    protected $property;
 
-	public function method(): void
-	{
-		assertType('InheritDocMergingVar\B', $this->property);
-	}
+    public function method(): void
+    {
+        assertType('InheritDocMergingVar\B', $this->property);
+    }
 }
 
 class Three extends Two
 {
-	/** Some comment */
-	protected $property;
+    /** Some comment */
+    protected $property;
 
-	public function method(): void
-	{
-		assertType('InheritDocMergingVar\B', $this->property);
-	}
+    public function method(): void
+    {
+        assertType('InheritDocMergingVar\B', $this->property);
+    }
 }
 
 class Four extends Three
 {
-	protected $property;
+    protected $property;
 
-	public function method(): void
-	{
-		assertType('InheritDocMergingVar\B', $this->property);
-	}
+    public function method(): void
+    {
+        assertType('InheritDocMergingVar\B', $this->property);
+    }
 }
 
 class Five extends Four
 {
-
-	public function method(): void
-	{
-		assertType('InheritDocMergingVar\B', $this->property);
-	}
-
+    public function method(): void
+    {
+        assertType('InheritDocMergingVar\B', $this->property);
+    }
 }
 
 class Six extends Five
 {
-	protected $property;
+    protected $property;
 
-	public function method(): void
-	{
-		assertType('InheritDocMergingVar\B', $this->property);
-	}
+    public function method(): void
+    {
+        assertType('InheritDocMergingVar\B', $this->property);
+    }
 }
 
 class Seven extends One
 {
-
-	/**
-	 * @inheritDoc
-	 * @var B
-	 */
-	protected $property;
-
+    /**
+     * @inheritDoc
+     * @var B
+     */
+    protected $property;
 }
 
 /**
@@ -86,22 +88,18 @@ class Seven extends One
  */
 class ClassWithTemplate
 {
-
-	/** @var T */
-	protected $prop;
-
+    /** @var T */
+    protected $prop;
 }
 
 class ChildClassExtendingClassWithTemplate extends ClassWithTemplate
 {
+    protected $prop;
 
-	protected $prop;
-
-	public function doFoo()
-	{
-		assertType('object', $this->prop);
-	}
-
+    public function doFoo()
+    {
+        assertType('object', $this->prop);
+    }
 }
 
 /**
@@ -109,13 +107,11 @@ class ChildClassExtendingClassWithTemplate extends ClassWithTemplate
  */
 class ChildClass2ExtendingClassWithTemplate extends ClassWithTemplate
 {
+    /** someComment */
+    protected $prop;
 
-	/** someComment */
-	protected $prop;
-
-	public function doFoo()
-	{
-		assertType('stdClass', $this->prop);
-	}
-
+    public function doFoo()
+    {
+        assertType('stdClass', $this->prop);
+    }
 }

@@ -6,15 +6,13 @@ use Lorem as Bar;
 
 class Foo
 {
+    use FooTrait;
 
-	use FooTrait;
+    public function doFoo(): void
+    {
+        $this->id = 1;
+        $this->id = 'foo';
 
-	public function doFoo(): void
-	{
-		$this->id = 1;
-		$this->id = 'foo';
-
-		$this->bar = 1;
-	}
-
+        $this->bar = 1;
+    }
 }

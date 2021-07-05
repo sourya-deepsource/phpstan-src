@@ -2,7 +2,9 @@
 
 namespace LocalTypeAliases;
 
-class ExistingClassAlias {}
+class ExistingClassAlias
+{
+}
 
 /**
  * @phpstan-type ExportedTypeAlias \Countable&\Traversable

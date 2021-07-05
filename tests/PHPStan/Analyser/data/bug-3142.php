@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Analyser\Bug3142;
 
@@ -6,15 +8,13 @@ use function PHPStan\Testing\assertType;
 
 class ParentClass
 {
-
-	/**
-	 * @return int
-	 */
-	public function sayHi()
-	{
-		return 'hi';
-	}
-
+    /**
+     * @return int
+     */
+    public function sayHi()
+    {
+        return 'hi';
+    }
 }
 
 /**
@@ -23,19 +23,19 @@ class ParentClass
  */
 class HelloWorld extends ParentClass
 {
-	/**
-	 * @return int
-	 */
-	public function sayHello()
-	{
-		return 'hello';
-	}
+    /**
+     * @return int
+     */
+    public function sayHello()
+    {
+        return 'hello';
+    }
 }
 
 function (): void {
-	$hw = new HelloWorld();
-	assertType('string', $hw->sayHi());
-	assertType('int', $hw->sayHello());
+    $hw = new HelloWorld();
+    assertType('string', $hw->sayHi());
+    assertType('int', $hw->sayHello());
 };
 
 interface DecoratorInterface
@@ -44,18 +44,18 @@ interface DecoratorInterface
 
 class FooDecorator implements DecoratorInterface
 {
-	public function getCode(): string
-	{
-		return 'FOO';
-	}
+    public function getCode(): string
+    {
+        return 'FOO';
+    }
 }
 
 trait DecoratorTrait
 {
-	public function getDecorator(): DecoratorInterface
-	{
-		return new FooDecorator();
-	}
+    public function getDecorator(): DecoratorInterface
+    {
+        return new FooDecorator();
+    }
 }
 
 /**
@@ -63,15 +63,15 @@ trait DecoratorTrait
  */
 class Dummy
 {
-	use DecoratorTrait;
+    use DecoratorTrait;
 
-	public function getLabel(): string
-	{
-		return $this->getDecorator()->getCode();
-	}
+    public function getLabel(): string
+    {
+        return $this->getDecorator()->getCode();
+    }
 }
 
 function () {
-	$dummy = new Dummy();
-	assertType(FooDecorator::class, $dummy->getDecorator());
+    $dummy = new Dummy();
+    assertType(FooDecorator::class, $dummy->getDecorator());
 };

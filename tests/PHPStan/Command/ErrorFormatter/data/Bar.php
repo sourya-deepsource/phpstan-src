@@ -4,15 +4,13 @@ namespace BaselineIntegration;
 
 class Bar
 {
+    use FooTrait;
 
-	use FooTrait;
-
-	/**
-	 * @return array<array<int>>
-	 */
-	public function doFoo(): array
-	{
-		return [['foo']];
-	}
-
+    /**
+     * @return array<array<int>>
+     */
+    public function doFoo(): array
+    {
+        return [['foo']];
+    }
 }

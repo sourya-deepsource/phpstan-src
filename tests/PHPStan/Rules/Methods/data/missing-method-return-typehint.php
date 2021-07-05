@@ -4,27 +4,20 @@ namespace MissingMethodReturnTypehint;
 
 interface FooInterface
 {
-
     public function getFoo($p1);
-
 }
 
 class FooParent
 {
-
     public function getBar($p2)
     {
-
     }
-
 }
 
 class Foo extends FooParent implements FooInterface
 {
-
     public function getFoo($p1)
     {
-
     }
 
     /**
@@ -32,7 +25,6 @@ class Foo extends FooParent implements FooInterface
      */
     public function getBar($p2)
     {
-
     }
 
     public function getBaz(): bool
@@ -40,14 +32,12 @@ class Foo extends FooParent implements FooInterface
         return false;
     }
 
-	/**
-	 * @return \stdClass|array|int|null
-	 */
-	public function unionTypeWithUnknownArrayValueTypehint()
-	{
-
-	}
-
+    /**
+     * @return \stdClass|array|int|null
+     */
+    public function unionTypeWithUnknownArrayValueTypehint()
+    {
+    }
 }
 
 /**
@@ -56,12 +46,10 @@ class Foo extends FooParent implements FooInterface
  */
 interface GenericInterface
 {
-
 }
 
 class NonGenericClass
 {
-
 }
 
 /**
@@ -70,35 +58,26 @@ class NonGenericClass
  */
 class GenericClass
 {
-
 }
 
 class Bar
 {
+    public function returnsGenericInterface(): GenericInterface
+    {
+    }
 
-	public function returnsGenericInterface(): GenericInterface
-	{
+    public function returnsNonGenericClass(): NonGenericClass
+    {
+    }
 
-	}
-
-	public function returnsNonGenericClass(): NonGenericClass
-	{
-
-	}
-
-	public function returnsGenericClass(): GenericClass
-	{
-
-	}
-
+    public function returnsGenericClass(): GenericClass
+    {
+    }
 }
 
 class CallableSignature
 {
-
-	public function doFoo(): callable
-	{
-
-	}
-
+    public function doFoo(): callable
+    {
+    }
 }

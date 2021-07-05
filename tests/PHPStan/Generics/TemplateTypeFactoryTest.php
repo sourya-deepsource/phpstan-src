@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Generics;
 
@@ -16,74 +18,72 @@ use PHPStan\Type\VerbosityLevel;
 
 class TemplateTypeFactoryTest extends \PHPStan\Testing\TestCase
 {
+    /** @return array<array{?Type, Type}> */
+    public function dataCreate(): array
+    {
+        return [
+            [
+                new ObjectType('DateTime'),
+                new ObjectType('DateTime'),
+            ],
+            [
+                new MixedType(),
+                new MixedType(),
+            ],
+            [
+                null,
+                new MixedType(),
+            ],
+            [
+                new StringType(),
+                new StringType(),
+            ],
+            [
+                new IntegerType(),
+                new IntegerType(),
+            ],
+            [
+                new ErrorType(),
+                new MixedType(),
+            ],
+            [
+                TemplateTypeFactory::create(
+                    TemplateTypeScope::createWithFunction('a'),
+                    'U',
+                    null,
+                    TemplateTypeVariance::createInvariant()
+                ),
+                new MixedType(),
+            ],
+            [
+                new UnionType([
+                    new StringType(),
+                    new IntegerType(),
+                ]),
+                new UnionType([
+                    new StringType(),
+                    new IntegerType(),
+                ]),
+            ],
+        ];
+    }
 
-	/** @return array<array{?Type, Type}> */
-	public function dataCreate(): array
-	{
-		return [
-			[
-				new ObjectType('DateTime'),
-				new ObjectType('DateTime'),
-			],
-			[
-				new MixedType(),
-				new MixedType(),
-			],
-			[
-				null,
-				new MixedType(),
-			],
-			[
-				new StringType(),
-				new StringType(),
-			],
-			[
-				new IntegerType(),
-				new IntegerType(),
-			],
-			[
-				new ErrorType(),
-				new MixedType(),
-			],
-			[
-				TemplateTypeFactory::create(
-					TemplateTypeScope::createWithFunction('a'),
-					'U',
-					null,
-					TemplateTypeVariance::createInvariant()
-				),
-				new MixedType(),
-			],
-			[
-				new UnionType([
-					new StringType(),
-					new IntegerType(),
-				]),
-				new UnionType([
-					new StringType(),
-					new IntegerType(),
-				]),
-			],
-		];
-	}
+    /**
+     * @dataProvider dataCreate
+     */
+    public function testCreate(?Type $bound, Type $expectedBound): void
+    {
+        $scope = TemplateTypeScope::createWithFunction('a');
+        $templateType = TemplateTypeFactory::create(
+            $scope,
+            'T',
+            $bound,
+            TemplateTypeVariance::createInvariant()
+        );
 
-	/**
-	 * @dataProvider dataCreate
-	 */
-	public function testCreate(?Type $bound, Type $expectedBound): void
-	{
-		$scope = TemplateTypeScope::createWithFunction('a');
-		$templateType = TemplateTypeFactory::create(
-			$scope,
-			'T',
-			$bound,
-			TemplateTypeVariance::createInvariant()
-		);
-
-		$this->assertTrue(
-			$expectedBound->equals($templateType->getBound()),
-			sprintf('%s -> equals(%s)', $expectedBound->describe(VerbosityLevel::precise()), $templateType->getBound()->describe(VerbosityLevel::precise()))
-		);
-	}
-
+        $this->assertTrue(
+            $expectedBound->equals($templateType->getBound()),
+            sprintf('%s -> equals(%s)', $expectedBound->describe(VerbosityLevel::precise()), $templateType->getBound()->describe(VerbosityLevel::precise()))
+        );
+    }
 }

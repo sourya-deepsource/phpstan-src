@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Exceptions;
 
@@ -10,28 +12,26 @@ use PHPStan\Testing\RuleTestCase;
  */
 class OverwrittenExitPointByFinallyRuleTest extends RuleTestCase
 {
+    protected function getRule(): Rule
+    {
+        return new OverwrittenExitPointByFinallyRule();
+    }
 
-	protected function getRule(): Rule
-	{
-		return new OverwrittenExitPointByFinallyRule();
-	}
-
-	public function testRule(): void
-	{
-		$this->analyse([__DIR__ . '/data/overwritten-exit-point.php'], [
-			[
-				'This return is overwritten by a different one in the finally block below.',
-				11,
-			],
-			[
-				'This return is overwritten by a different one in the finally block below.',
-				13,
-			],
-			[
-				'The overwriting return is on this line.',
-				15,
-			],
-		]);
-	}
-
+    public function testRule(): void
+    {
+        $this->analyse([__DIR__ . '/data/overwritten-exit-point.php'], [
+            [
+                'This return is overwritten by a different one in the finally block below.',
+                11,
+            ],
+            [
+                'This return is overwritten by a different one in the finally block below.',
+                13,
+            ],
+            [
+                'The overwriting return is on this line.',
+                15,
+            ],
+        ]);
+    }
 }

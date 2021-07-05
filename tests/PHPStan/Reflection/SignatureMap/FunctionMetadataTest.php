@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Reflection\SignatureMap;
 
@@ -8,18 +10,16 @@ use PHPStan\Testing\TestCase;
 
 class FunctionMetadataTest extends TestCase
 {
+    public function testSchema(): void
+    {
+        $data = require __DIR__ . '/../../../../resources/functionMetadata.php';
+        $this->assertIsArray($data);
 
-	public function testSchema(): void
-	{
-		$data = require __DIR__ . '/../../../../resources/functionMetadata.php';
-		$this->assertIsArray($data);
-
-		$processor = new Processor();
-		$processor->process(Expect::arrayOf(
-			Expect::structure([
-				'hasSideEffects' => Expect::bool()->required(),
-			])->required()
-		)->required(), $data);
-	}
-
+        $processor = new Processor();
+        $processor->process(Expect::arrayOf(
+            Expect::structure([
+                'hasSideEffects' => Expect::bool()->required(),
+            ])->required()
+        )->required(), $data);
+    }
 }

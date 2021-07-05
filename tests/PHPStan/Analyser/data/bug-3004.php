@@ -7,19 +7,19 @@ use function PHPStan\Testing\assertVariableCertainty;
 
 class HelloWorld
 {
-	public function sayHello(): void
-	{
-		try {
-			$a = $this->getA();
-		} catch (\InvalidArgumentException $e) {
-			$a = 2;
-		} finally {
-			assertVariableCertainty(TrinaryLogic::createMaybe(), $a);
-		}
-	}
+    public function sayHello(): void
+    {
+        try {
+            $a = $this->getA();
+        } catch (\InvalidArgumentException $e) {
+            $a = 2;
+        } finally {
+            assertVariableCertainty(TrinaryLogic::createMaybe(), $a);
+        }
+    }
 
-	private function getA(): int
-	{
-		throw new \DomainException('test');
-	}
+    private function getA(): int
+    {
+        throw new \DomainException('test');
+    }
 }

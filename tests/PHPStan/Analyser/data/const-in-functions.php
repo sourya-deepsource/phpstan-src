@@ -11,8 +11,8 @@ assertType('\'foo\'', ANOTHER_NAME);
 assertType('\'foo\'', \ANOTHER_NAME);
 
 function () {
-	assertType('\'resized_images\'', TABLE_NAME);
-	assertType('\'resized_images\'', \TABLE_NAME);
-	assertType('\'foo\'', ANOTHER_NAME);
-	assertType('\'foo\'', \ANOTHER_NAME);
+    assertType('\'resized_images\'', TABLE_NAME);
+    assertType('\'resized_images\'', \TABLE_NAME);
+    assertType('\'foo\'', ANOTHER_NAME);
+    assertType('\'foo\'', \ANOTHER_NAME);
 };

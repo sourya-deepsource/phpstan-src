@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Comparison;
 
@@ -10,104 +12,102 @@ use PHPStan\Type\PHPUnit\Assert\AssertStaticMethodTypeSpecifyingExtension;
  */
 class ImpossibleCheckTypeStaticMethodCallRuleTest extends \PHPStan\Testing\RuleTestCase
 {
+    /** @var bool */
+    private $treatPhpDocTypesAsCertain;
 
-	/** @var bool */
-	private $treatPhpDocTypesAsCertain;
+    public function getRule(): \PHPStan\Rules\Rule
+    {
+        return new ImpossibleCheckTypeStaticMethodCallRule(
+            new ImpossibleCheckTypeHelper(
+                $this->createReflectionProvider(),
+                $this->getTypeSpecifier(),
+                [],
+                $this->treatPhpDocTypesAsCertain
+            ),
+            true,
+            $this->treatPhpDocTypesAsCertain
+        );
+    }
 
-	public function getRule(): \PHPStan\Rules\Rule
-	{
-		return new ImpossibleCheckTypeStaticMethodCallRule(
-			new ImpossibleCheckTypeHelper(
-				$this->createReflectionProvider(),
-				$this->getTypeSpecifier(),
-				[],
-				$this->treatPhpDocTypesAsCertain
-			),
-			true,
-			$this->treatPhpDocTypesAsCertain
-		);
-	}
+    protected function shouldTreatPhpDocTypesAsCertain(): bool
+    {
+        return $this->treatPhpDocTypesAsCertain;
+    }
 
-	protected function shouldTreatPhpDocTypesAsCertain(): bool
-	{
-		return $this->treatPhpDocTypesAsCertain;
-	}
+    /**
+     * @return \PHPStan\Type\StaticMethodTypeSpecifyingExtension[]
+     */
+    protected function getStaticMethodTypeSpecifyingExtensions(): array
+    {
+        return [
+            new AssertionClassStaticMethodTypeSpecifyingExtension(null),
+            new AssertStaticMethodTypeSpecifyingExtension(),
+        ];
+    }
 
-	/**
-	 * @return \PHPStan\Type\StaticMethodTypeSpecifyingExtension[]
-	 */
-	protected function getStaticMethodTypeSpecifyingExtensions(): array
-	{
-		return [
-			new AssertionClassStaticMethodTypeSpecifyingExtension(null),
-			new AssertStaticMethodTypeSpecifyingExtension(),
-		];
-	}
+    public function testRule(): void
+    {
+        $this->treatPhpDocTypesAsCertain = true;
+        $this->analyse([__DIR__ . '/data/impossible-static-method-call.php'], [
+            [
+                'Call to static method PHPStan\Tests\AssertionClass::assertInt() with int will always evaluate to true.',
+                13,
+            ],
+            [
+                'Call to static method PHPStan\Tests\AssertionClass::assertInt() with string will always evaluate to false.',
+                14,
+            ],
+            [
+                'Call to static method PHPStan\Tests\AssertionClass::assertInt() with int will always evaluate to true.',
+                31,
+            ],
+            [
+                'Call to static method PHPStan\Tests\AssertionClass::assertInt() with string will always evaluate to false.',
+                32,
+            ],
+            [
+                'Call to static method PHPStan\Tests\AssertionClass::assertInt() with 1 and 2 will always evaluate to true.',
+                33,
+            ],
+            [
+                'Call to static method PHPStan\Tests\AssertionClass::assertInt() with arguments 1, 2 and 3 will always evaluate to true.',
+                34,
+            ],
+        ]);
+    }
 
-	public function testRule(): void
-	{
-		$this->treatPhpDocTypesAsCertain = true;
-		$this->analyse([__DIR__ . '/data/impossible-static-method-call.php'], [
-			[
-				'Call to static method PHPStan\Tests\AssertionClass::assertInt() with int will always evaluate to true.',
-				13,
-			],
-			[
-				'Call to static method PHPStan\Tests\AssertionClass::assertInt() with string will always evaluate to false.',
-				14,
-			],
-			[
-				'Call to static method PHPStan\Tests\AssertionClass::assertInt() with int will always evaluate to true.',
-				31,
-			],
-			[
-				'Call to static method PHPStan\Tests\AssertionClass::assertInt() with string will always evaluate to false.',
-				32,
-			],
-			[
-				'Call to static method PHPStan\Tests\AssertionClass::assertInt() with 1 and 2 will always evaluate to true.',
-				33,
-			],
-			[
-				'Call to static method PHPStan\Tests\AssertionClass::assertInt() with arguments 1, 2 and 3 will always evaluate to true.',
-				34,
-			],
-		]);
-	}
+    public function testDoNotReportPhpDocs(): void
+    {
+        $this->treatPhpDocTypesAsCertain = false;
+        $this->analyse([__DIR__ . '/data/impossible-static-method-call-not-phpdoc.php'], [
+            [
+                'Call to static method PHPStan\Tests\AssertionClass::assertInt() with int will always evaluate to true.',
+                16,
+            ],
+            [
+                'Call to static method PHPStan\Tests\AssertionClass::assertInt() with int will always evaluate to true.',
+                18,
+            ],
+        ]);
+    }
 
-	public function testDoNotReportPhpDocs(): void
-	{
-		$this->treatPhpDocTypesAsCertain = false;
-		$this->analyse([__DIR__ . '/data/impossible-static-method-call-not-phpdoc.php'], [
-			[
-				'Call to static method PHPStan\Tests\AssertionClass::assertInt() with int will always evaluate to true.',
-				16,
-			],
-			[
-				'Call to static method PHPStan\Tests\AssertionClass::assertInt() with int will always evaluate to true.',
-				18,
-			],
-		]);
-	}
-
-	public function testReportPhpDocs(): void
-	{
-		$this->treatPhpDocTypesAsCertain = true;
-		$this->analyse([__DIR__ . '/data/impossible-static-method-call-not-phpdoc.php'], [
-			[
-				'Call to static method PHPStan\Tests\AssertionClass::assertInt() with int will always evaluate to true.',
-				16,
-			],
-			[
-				'Call to static method PHPStan\Tests\AssertionClass::assertInt() with int will always evaluate to true.',
-				17,
-				'Because the type is coming from a PHPDoc, you can turn off this check by setting <fg=cyan>treatPhpDocTypesAsCertain: false</> in your <fg=cyan>%configurationFile%</>.',
-			],
-			[
-				'Call to static method PHPStan\Tests\AssertionClass::assertInt() with int will always evaluate to true.',
-				18,
-			],
-		]);
-	}
-
+    public function testReportPhpDocs(): void
+    {
+        $this->treatPhpDocTypesAsCertain = true;
+        $this->analyse([__DIR__ . '/data/impossible-static-method-call-not-phpdoc.php'], [
+            [
+                'Call to static method PHPStan\Tests\AssertionClass::assertInt() with int will always evaluate to true.',
+                16,
+            ],
+            [
+                'Call to static method PHPStan\Tests\AssertionClass::assertInt() with int will always evaluate to true.',
+                17,
+                'Because the type is coming from a PHPDoc, you can turn off this check by setting <fg=cyan>treatPhpDocTypesAsCertain: false</> in your <fg=cyan>%configurationFile%</>.',
+            ],
+            [
+                'Call to static method PHPStan\Tests\AssertionClass::assertInt() with int will always evaluate to true.',
+                18,
+            ],
+        ]);
+    }
 }

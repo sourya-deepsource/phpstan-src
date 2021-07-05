@@ -8,12 +8,12 @@ namespace Bug3922Integration;
  */
 interface QueryHandlerInterface
 {
-	/**
-	 * @param TQuery $query
-	 *
-	 * @return TResult
-	 */
-	public function handle(QueryInterface $query);
+    /**
+     * @param TQuery $query
+     *
+     * @return TResult
+     */
+    public function handle(QueryInterface $query);
 }
 
 /**
@@ -39,30 +39,39 @@ final class FooQueryResult
  */
 final class FooQueryHandler implements QueryHandlerInterface
 {
-	public function handle(QueryInterface $query): FooQueryResult
-	{
-		return new FooQueryResult();
-	}
+    public function handle(QueryInterface $query): FooQueryResult
+    {
+        return new FooQueryResult();
+    }
 }
 
-interface BasePackage {}
+interface BasePackage
+{
+}
 
-interface InnerPackage extends BasePackage {}
+interface InnerPackage extends BasePackage
+{
+}
 
 /**
  * @template TInnerPackage of InnerPackage
  */
-interface GenericPackage extends BasePackage {
-	/** @return TInnerPackage */
-	public function unwrap() : InnerPackage;
+interface GenericPackage extends BasePackage
+{
+    /** @return TInnerPackage */
+    public function unwrap(): InnerPackage;
 }
 
-interface SomeInnerPackage extends InnerPackage {}
+interface SomeInnerPackage extends InnerPackage
+{
+}
 
 /**
  * @extends GenericPackage<SomeInnerPackage>
  */
-interface SomePackage extends GenericPackage {}
+interface SomePackage extends GenericPackage
+{
+}
 
 /**
  * @template TInnerPackage of InnerPackage
@@ -70,8 +79,9 @@ interface SomePackage extends GenericPackage {}
  * @param TGenericPackage $package
  * @return TInnerPackage
  */
-function unwrapGeneric(GenericPackage $package) {
-	return $package->unwrap();
+function unwrapGeneric(GenericPackage $package)
+{
+    return $package->unwrap();
 }
 
 /**
@@ -80,9 +90,10 @@ function unwrapGeneric(GenericPackage $package) {
  * @param  class-string<TGenericPackage> $class  FQCN to be instantiated
  * @return TInnerPackage
  */
-function loadWithDirectUnwrap(string $class) {
-	$package = new $class();
-	return $package->unwrap();
+function loadWithDirectUnwrap(string $class)
+{
+    $package = new $class();
+    return $package->unwrap();
 }
 
 /**
@@ -91,11 +102,12 @@ function loadWithDirectUnwrap(string $class) {
  * @param  class-string<TGenericPackage> $class  FQCN to be instantiated
  * @return TInnerPackage
  */
-function loadWithIndirectUnwrap(string $class) {
-	$package = new $class();
-	return unwrapGeneric($package);
+function loadWithIndirectUnwrap(string $class)
+{
+    $package = new $class();
+    return unwrapGeneric($package);
 }
 
 function (): void {
-	loadWithDirectUnwrap(SomePackage::class);
+    loadWithDirectUnwrap(SomePackage::class);
 };

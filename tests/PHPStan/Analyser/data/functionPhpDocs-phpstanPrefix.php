@@ -39,41 +39,40 @@ use SomeNamespace\Consecteur;
  * @phpstan-return Foo
  */
 function doFooPhpstanPrefix(
-	$mixedParameter,
-	$unionTypeParameter,
-	$anotherMixedParameter,
-	$yetAnotherMixedParameter,
-	$integerParameter,
-	$anotherIntegerParameter,
-	$arrayParameterOne,
-	$arrayParameterOther,
-	$objectRelative,
-	$objectFullyQualified,
-	$objectUsed,
-	$nullableInteger,
-	$nullableObject,
-	$nullType,
-	$barObject,
-	Bar $conflictedObject,
-	Bar $moreSpecifiedObject,
-	$resource,
-	$yetAnotherAnotherMixedParameter,
-	$yetAnotherAnotherAnotherMixedParameter,
-	$yetAnotherAnotherAnotherAnotherMixedParameter,
-	$voidParameter,
-	$useWithoutAlias,
-	$true,
-	$false,
-	bool $boolTrue,
-	bool $boolFalse,
-	bool $trueBoolean,
-	$parameterWithDefaultValueFalse = false,
-	$anotherNullableObject = null
-)
-{
-	$fooFunctionResult = doFoo();
+    $mixedParameter,
+    $unionTypeParameter,
+    $anotherMixedParameter,
+    $yetAnotherMixedParameter,
+    $integerParameter,
+    $anotherIntegerParameter,
+    $arrayParameterOne,
+    $arrayParameterOther,
+    $objectRelative,
+    $objectFullyQualified,
+    $objectUsed,
+    $nullableInteger,
+    $nullableObject,
+    $nullType,
+    $barObject,
+    Bar $conflictedObject,
+    Bar $moreSpecifiedObject,
+    $resource,
+    $yetAnotherAnotherMixedParameter,
+    $yetAnotherAnotherAnotherMixedParameter,
+    $yetAnotherAnotherAnotherAnotherMixedParameter,
+    $voidParameter,
+    $useWithoutAlias,
+    $true,
+    $false,
+    bool $boolTrue,
+    bool $boolFalse,
+    bool $trueBoolean,
+    $parameterWithDefaultValueFalse = false,
+    $anotherNullableObject = null
+) {
+    $fooFunctionResult = doFoo();
 
-	foreach ($moreSpecifiedObject->doFluentUnionIterable() as $fluentUnionIterableBaz) {
-		die;
-	}
+    foreach ($moreSpecifiedObject->doFluentUnionIterable() as $fluentUnionIterableBaz) {
+        die;
+    }
 }

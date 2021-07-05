@@ -4,7 +4,6 @@ namespace FinalAnnotations;
 
 function foo()
 {
-
 }
 
 /**
@@ -12,22 +11,17 @@ function foo()
  */
 function finalFoo()
 {
-
 }
 
 class Foo
 {
+    public function foo()
+    {
+    }
 
-	public function foo()
-	{
-
-	}
-
-	public static function staticFoo()
-	{
-
-	}
-
+    public static function staticFoo()
+    {
+    }
 }
 
 /**
@@ -35,21 +29,17 @@ class Foo
  */
 class FinalFoo
 {
+    /**
+     * @final
+     */
+    public function finalFoo()
+    {
+    }
 
-	/**
-	 * @final
-	 */
-	public function finalFoo()
-	{
-
-	}
-
-	/**
-	 * @final
-	 */
-	public static function finalStaticFoo()
-	{
-
-	}
-
+    /**
+     * @final
+     */
+    public static function finalStaticFoo()
+    {
+    }
 }

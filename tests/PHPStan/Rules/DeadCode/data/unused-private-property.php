@@ -1,157 +1,147 @@
-<?php // lint >= 7.4
+<?php
+
+// lint >= 7.4
 
 namespace UnusedPrivateProperty;
 
 class Foo
 {
+    private $foo;
 
-	private $foo;
+    private $bar; // write-only
 
-	private $bar; // write-only
+    private $baz; // unused
 
-	private $baz; // unused
+    private $lorem; // read-only
 
-	private $lorem; // read-only
+    private $ipsum;
 
-	private $ipsum;
+    private $dolor = 0;
 
-	private $dolor = 0;
+    public function __construct()
+    {
+        $this->foo = 1;
+        $this->bar = 2;
+        $this->ipsum['foo']['bar'] = 3;
+        $this->dolor++;
+    }
 
-	public function __construct()
-	{
-		$this->foo = 1;
-		$this->bar = 2;
-		$this->ipsum['foo']['bar'] = 3;
-		$this->dolor++;
-	}
+    public function getFoo()
+    {
+        return $this->foo;
+    }
 
-	public function getFoo()
-	{
-		return $this->foo;
-	}
+    public function getLorem()
+    {
+        return $this->lorem;
+    }
 
-	public function getLorem()
-	{
-		return $this->lorem;
-	}
+    public function getIpsum()
+    {
+        return $this->ipsum;
+    }
 
-	public function getIpsum()
-	{
-		return $this->ipsum;
-	}
-
-	public function getDolor(): int
-	{
-		return $this->dolor;
-	}
-
+    public function getDolor(): int
+    {
+        return $this->dolor;
+    }
 }
 
 class Bar
 {
+    private int $foo;
 
-	private int $foo;
+    private int $bar; // do not report read-only, it's uninitialized
 
-	private int $bar; // do not report read-only, it's uninitialized
+    private $baz; // report read-only
 
-	private $baz; // report read-only
+    public function __construct()
+    {
+        $this->foo = 1;
+    }
 
-	public function __construct()
-	{
-		$this->foo = 1;
-	}
+    public function getFoo(): int
+    {
+        return $this->foo;
+    }
 
-	public function getFoo(): int
-	{
-		return $this->foo;
-	}
+    public function getBar(): int
+    {
+        return $this->bar;
+    }
 
-	public function getBar(): int
-	{
-		return $this->bar;
-	}
-
-	public function getBaz(): int
-	{
-		return $this->baz;
-	}
-
+    public function getBaz(): int
+    {
+        return $this->baz;
+    }
 }
 
 class Baz
 {
+    private static $foo;
 
-	private static $foo;
+    private static $bar; // write-only
 
-	private static $bar; // write-only
+    private static $baz; // unused
 
-	private static $baz; // unused
+    private static $lorem; // read-only
 
-	private static $lorem; // read-only
+    public static function doFoo()
+    {
+        self::$foo = 1;
+        self::$bar = 2;
+    }
 
-	public static function doFoo()
-	{
-		self::$foo = 1;
-		self::$bar = 2;
-	}
+    public static function getFoo()
+    {
+        return self::$foo;
+    }
 
-	public static function getFoo()
-	{
-		return self::$foo;
-	}
-
-	public static function getLorem()
-	{
-		return self::$lorem;
-	}
-
+    public static function getLorem()
+    {
+        return self::$lorem;
+    }
 }
 
 class Lorem
 {
+    private $foo = 'foo';
 
-	private $foo = 'foo';
+    private $bar = 'bar';
 
-	private $bar = 'bar';
+    private $baz = 'baz';
 
-	private $baz = 'baz';
+    public function doFoo()
+    {
+        $nameProperties = [
+            'foo',
+            'bar',
+        ];
 
-	public function doFoo()
-	{
-		$nameProperties = [
-			'foo',
-			'bar',
-		];
-
-		foreach ($nameProperties as $nameProperty) {
-			echo "Hello, {$this->$nameProperty}";
-		}
-	}
-
+        foreach ($nameProperties as $nameProperty) {
+            echo "Hello, {$this->$nameProperty}";
+        }
+    }
 }
 
 class Ipsum
 {
+    private $foo = 'foo';
 
-	private $foo = 'foo';
-
-	public function doBar(string $s)
-	{
-		echo $this->{$s};
-	}
-
+    public function doBar(string $s)
+    {
+        echo $this->{$s};
+    }
 }
 
 class DolorWithAnonymous
 {
+    private $foo;
 
-	private $foo;
-
-	public function doFoo()
-	{
-		new class () {
-			private $bar;
-		};
-	}
-
+    public function doFoo()
+    {
+        new class() {
+            private $bar;
+        };
+    }
 }

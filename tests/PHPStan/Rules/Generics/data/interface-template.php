@@ -7,7 +7,6 @@ namespace InterfaceTemplateType;
  */
 interface Foo
 {
-
 }
 
 /**
@@ -15,7 +14,6 @@ interface Foo
  */
 interface Bar
 {
-
 }
 
 /**
@@ -23,7 +21,6 @@ interface Bar
  */
 interface Baz
 {
-
 }
 
 /**
@@ -32,7 +29,6 @@ interface Baz
  */
 interface Lorem
 {
-
 }
 
 /**
@@ -44,17 +40,14 @@ interface Lorem
  */
 interface Ipsum
 {
-
 }
 
 /** @template T */
 interface NormalT
 {
-
 }
 
 /** @template T of NormalT<\stdClass>|\stdClass */
 interface UnionBound
 {
-
 }

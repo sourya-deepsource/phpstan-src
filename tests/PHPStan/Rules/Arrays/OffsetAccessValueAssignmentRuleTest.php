@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Arrays;
 
@@ -11,40 +13,38 @@ use PHPStan\Testing\RuleTestCase;
  */
 class OffsetAccessValueAssignmentRuleTest extends RuleTestCase
 {
+    protected function getRule(): Rule
+    {
+        return new OffsetAccessValueAssignmentRule(new RuleLevelHelper($this->createReflectionProvider(), true, false, true, false));
+    }
 
-	protected function getRule(): Rule
-	{
-		return new OffsetAccessValueAssignmentRule(new RuleLevelHelper($this->createReflectionProvider(), true, false, true, false));
-	}
-
-	public function testRule(): void
-	{
-		$this->analyse([__DIR__ . '/data/offset-access-value-assignment.php'], [
-			[
-				'ArrayAccess<int, int> does not accept string.',
-				13,
-			],
-			[
-				'ArrayAccess<int, int> does not accept string.',
-				15,
-			],
-			[
-				'ArrayAccess<int, int> does not accept string.',
-				20,
-			],
-			[
-				'ArrayAccess<int, int> does not accept array<int, string>.',
-				21,
-			],
-			[
-				'ArrayAccess<int, int> does not accept string.',
-				24,
-			],
-			[
-				'ArrayAccess<int, int> does not accept float.',
-				38,
-			],
-		]);
-	}
-
+    public function testRule(): void
+    {
+        $this->analyse([__DIR__ . '/data/offset-access-value-assignment.php'], [
+            [
+                'ArrayAccess<int, int> does not accept string.',
+                13,
+            ],
+            [
+                'ArrayAccess<int, int> does not accept string.',
+                15,
+            ],
+            [
+                'ArrayAccess<int, int> does not accept string.',
+                20,
+            ],
+            [
+                'ArrayAccess<int, int> does not accept array<int, string>.',
+                21,
+            ],
+            [
+                'ArrayAccess<int, int> does not accept string.',
+                24,
+            ],
+            [
+                'ArrayAccess<int, int> does not accept float.',
+                38,
+            ],
+        ]);
+    }
 }

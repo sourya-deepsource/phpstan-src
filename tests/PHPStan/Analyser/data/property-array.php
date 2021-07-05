@@ -4,16 +4,14 @@ namespace PropertyArray;
 
 class Foo
 {
+    private $property;
 
-	private $property;
-
-	public function doFoo()
-	{
-		'start';
-		$this->property = [];
-		'emptyArray';
-		$this->property['foo'] = 1;
-		'afterAssignment';
-	}
-
+    public function doFoo()
+    {
+        'start';
+        $this->property = [];
+        'emptyArray';
+        $this->property['foo'] = 1;
+        'afterAssignment';
+    }
 }

@@ -3,46 +3,37 @@
 namespace TryCatchScope;
 
 function () {
+    $resource = null;
+    try {
+        $resource = new Foo();
+    } catch (FooException $e) {
+        $resource = new Foo();
+    } catch (BarException $e) {
+        $resource = new Foo();
+    }
 
-	$resource = null;
-	try {
-		$resource = new Foo();
-	} catch (FooException $e) {
-		$resource = new Foo();
-	} catch (BarException $e) {
-		$resource = new Foo();
-	}
-
-	'first';
-
+    'first';
 };
 
 function () {
+    $resource = null;
+    try {
+        $resource = new Foo();
+    } catch (FooException $e) {
+    } catch (BarException $e) {
+        $resource = new Foo();
+    }
 
-	$resource = null;
-	try {
-		$resource = new Foo();
-	} catch (FooException $e) {
-
-	} catch (BarException $e) {
-		$resource = new Foo();
-	}
-
-	'second';
-
+    'second';
 };
 
 function () {
+    $resource = null;
+    try {
+        $resource = new Foo();
+    } catch (FooException $e) {
+    } catch (BarException $e) {
+    }
 
-	$resource = null;
-	try {
-		$resource = new Foo();
-	} catch (FooException $e) {
-
-	} catch (BarException $e) {
-
-	}
-
-	'third';
-
+    'third';
 };

@@ -14,10 +14,8 @@ use OtherNamespace\Ipsum;
  */
 class Foo implements FooInterface
 {
-
-	/** @var Foo */
-	public $overridenPropertyWithAnnotation;
-
+    /** @var Foo */
+    public $overridenPropertyWithAnnotation;
 }
 
 /**
@@ -26,13 +24,11 @@ class Foo implements FooInterface
  */
 class Bar extends Foo
 {
+    /** @var Bar */
+    public $overridenProperty;
 
-	/** @var Bar */
-	public $overridenProperty;
-
-	/** @var Bar */
-	public $conflictingAnnotationProperty;
-
+    /** @var Bar */
+    public $conflictingAnnotationProperty;
 }
 
 /**
@@ -42,9 +38,7 @@ class Bar extends Foo
  */
 class Baz extends Bar
 {
-
-	use FooTrait;
-
+    use FooTrait;
 }
 
 /**
@@ -52,7 +46,6 @@ class Baz extends Bar
  */
 class BazBaz extends Baz
 {
-
 }
 
 /**
@@ -60,7 +53,6 @@ class BazBaz extends Baz
  */
 interface FooInterface
 {
-
 }
 
 /**
@@ -68,5 +60,4 @@ interface FooInterface
  */
 trait FooTrait
 {
-
 }

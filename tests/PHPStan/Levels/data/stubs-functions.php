@@ -4,11 +4,11 @@ namespace StubsIntegrationTest;
 
 function foo($i)
 {
-	return '';
+    return '';
 }
 
 function () {
-	foo('test');
-	$string = foo(1);
-	foo($string);
+    foo('test');
+    $string = foo(1);
+    foo($string);
 };

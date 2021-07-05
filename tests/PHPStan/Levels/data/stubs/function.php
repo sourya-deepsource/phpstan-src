@@ -8,5 +8,5 @@ namespace StubsIntegrationTest;
  */
 function foo($i)
 {
-	return '';
+    return '';
 }

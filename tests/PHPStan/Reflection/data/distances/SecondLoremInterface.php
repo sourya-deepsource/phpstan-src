@@ -4,5 +4,4 @@ namespace HierarchyDistances;
 
 interface SecondLoremInterface
 {
-
 }

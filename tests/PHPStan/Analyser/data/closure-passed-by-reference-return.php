@@ -3,18 +3,18 @@
 namespace ClosurePassedByReference;
 
 function () {
-	$fooOrNull = null;
-	'beforeCallback';
-	$callback = function () use (&$fooOrNull): void {
-		'inCallbackBeforeAssign';
-		if ($fooOrNull === null) {
-			$fooOrNull = new Foo();
-		}
+    $fooOrNull = null;
+    'beforeCallback';
+    $callback = function () use (&$fooOrNull): void {
+        'inCallbackBeforeAssign';
+        if ($fooOrNull === null) {
+            $fooOrNull = new Foo();
+        }
 
-		'inCallbackAfterAssign';
+        'inCallbackAfterAssign';
 
-		return $fooOrNull;
-	};
+        return $fooOrNull;
+    };
 
-	'afterCallback';
+    'afterCallback';
 };

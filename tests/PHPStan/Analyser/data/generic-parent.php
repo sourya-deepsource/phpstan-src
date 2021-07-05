@@ -6,12 +6,10 @@ use function PHPStan\Testing\assertType;
 
 interface Animal
 {
-
 }
 
 interface Dog extends Animal
 {
-
 }
 
 /**
@@ -19,40 +17,41 @@ interface Dog extends Animal
  */
 class Foo
 {
-
-	/** @return T */
-	public function getAnimal(): Animal
-	{
-
-	}
-
+    /** @return T */
+    public function getAnimal(): Animal
+    {
+    }
 }
 
 /** @extends Foo<Dog> */
 class Bar extends Foo
 {
-
-	public function doFoo()
-	{
-		assertType(Dog::class, parent::getAnimal());
-		assertType(Dog::class, Foo::getAnimal());
-	}
-
+    public function doFoo()
+    {
+        assertType(Dog::class, parent::getAnimal());
+        assertType(Dog::class, Foo::getAnimal());
+    }
 }
 
-class E {}
+class E
+{
+}
 
 /**
  * @template T of E
  */
-class R {
+class R
+{
+    /** @return T */
+    public function ret()
+    {
+        return $this->e;
+    } // nonsense, to silence missing return
 
-	/** @return T */
-	function ret() { return $this->e; } // nonsense, to silence missing return
-
-	function test(): void {
-		assertType('T of GenericParent\E (class GenericParent\R, argument)', self::ret());
-		assertType('T of GenericParent\E (class GenericParent\R, argument)', $this->ret());
-		assertType('T of GenericParent\E (class GenericParent\R, argument)', static::ret());
-	}
+    public function test(): void
+    {
+        assertType('T of GenericParent\E (class GenericParent\R, argument)', self::ret());
+        assertType('T of GenericParent\E (class GenericParent\R, argument)', $this->ret());
+        assertType('T of GenericParent\E (class GenericParent\R, argument)', static::ret());
+    }
 }

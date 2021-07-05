@@ -4,28 +4,28 @@ namespace CompactVariables;
 
 class Foo
 {
-	/**
-	 * @return string[]
-	 */
-	public function doFoo(string $foo): array
-	{
-		$methodFoo = 'foo';
-		$methodBar = 'bar';
+    /**
+     * @return string[]
+     */
+    public function doFoo(string $foo): array
+    {
+        $methodFoo = 'foo';
+        $methodBar = 'bar';
 
-		if ($foo === 'defined') {
-			$baz = 'maybe defined';
-		}
+        if ($foo === 'defined') {
+            $baz = 'maybe defined';
+        }
 
-		return compact(
-			$foo,
-			$methodFoo,
-			$methodBar,
-			'baz'
-		);
-	}
+        return compact(
+            $foo,
+            $methodFoo,
+            $methodBar,
+            'baz'
+        );
+    }
 
-	public function doBar(): void
-	{
-		compact([[['foo']]]);
-	}
+    public function doBar(): void
+    {
+        compact([[['foo']]]);
+    }
 }

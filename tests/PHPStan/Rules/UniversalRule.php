@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules;
 
@@ -11,37 +13,35 @@ use PHPStan\Analyser\Scope;
  */
 class UniversalRule implements Rule
 {
+    /** @phpstan-var class-string<TNodeType> */
+    private $nodeType;
 
-	/** @phpstan-var class-string<TNodeType> */
-	private $nodeType;
+    /** @var (callable(TNodeType, Scope): array<string|RuleError>) */
+    private $processNodeCallback;
 
-	/** @var (callable(TNodeType, Scope): array<string|RuleError>) */
-	private $processNodeCallback;
+    /**
+     * @param class-string<TNodeType> $nodeType
+     * @param (callable(TNodeType, Scope): array<string|RuleError>) $processNodeCallback
+     */
+    public function __construct(string $nodeType, callable $processNodeCallback)
+    {
+        $this->nodeType = $nodeType;
+        $this->processNodeCallback = $processNodeCallback;
+    }
 
-	/**
-	 * @param class-string<TNodeType> $nodeType
-	 * @param (callable(TNodeType, Scope): array<string|RuleError>) $processNodeCallback
-	 */
-	public function __construct(string $nodeType, callable $processNodeCallback)
-	{
-		$this->nodeType = $nodeType;
-		$this->processNodeCallback = $processNodeCallback;
-	}
+    public function getNodeType(): string
+    {
+        return $this->nodeType;
+    }
 
-	public function getNodeType(): string
-	{
-		return $this->nodeType;
-	}
-
-	/**
-	 * @param TNodeType $node
-	 * @param \PHPStan\Analyser\Scope $scope
-	 * @return array<string|RuleError>
-	 */
-	public function processNode(Node $node, Scope $scope): array
-	{
-		$callback = $this->processNodeCallback;
-		return $callback($node, $scope);
-	}
-
+    /**
+     * @param TNodeType $node
+     * @param \PHPStan\Analyser\Scope $scope
+     * @return array<string|RuleError>
+     */
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $callback = $this->processNodeCallback;
+        return $callback($node, $scope);
+    }
 }

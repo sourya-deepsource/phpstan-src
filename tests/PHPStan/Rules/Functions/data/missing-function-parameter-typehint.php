@@ -2,165 +2,145 @@
 
 namespace
 {
-	/**
-	 * @param int $a
-	 * @param $b
-	 */
-	function globalFunction($a, $b, $c): bool
-	{
-		$closure = function($a, $b, $c) {
+    /**
+     * @param int $a
+     * @param $b
+     */
+    function globalFunction($a, $b, $c): bool
+    {
+        $closure = function ($a, $b, $c) {
+        };
 
-		};
-
-		return false;
-	}
+        return false;
+    }
 }
 
 namespace MissingFunctionParameterTypehint
 {
-	/**
-	 * @param $d
-	 */
-	function namespacedFunction($d, bool $e): int {
-		return 9;
-	};
+    /**
+     * @param $d
+     */
+    function namespacedFunction($d, bool $e): int
+    {
+        return 9;
+    };
 
-	/**
-	 * @param array|int[] $a
-	 */
-	function intIterableTypehint($a)
-	{
+    /**
+     * @param array|int[] $a
+     */
+    function intIterableTypehint($a)
+    {
+    }
 
-	}
+    function missingArrayTypehint(array $a)
+    {
+    }
 
-	function missingArrayTypehint(array $a)
-	{
+    /**
+     * @param array $a
+     */
+    function missingPhpDocIterableTypehint(array $a)
+    {
+    }
 
-	}
+    /**
+     * @param mixed[] $a
+     */
+    function explicitMixedArrayTypehint(array $a)
+    {
+    }
 
-	/**
-	 * @param array $a
-	 */
-	function missingPhpDocIterableTypehint(array $a)
-	{
+    /**
+     * @param \stdClass|array|int|null $a
+     */
+    function unionTypeWithUnknownArrayValueTypehint($a)
+    {
+    }
 
-	}
+    /**
+     * @param iterable<int>&\Traversable $a
+     */
+    function iterableIntersectionTypehint($a)
+    {
+    }
 
-	/**
-	 * @param mixed[] $a
-	 */
-	function explicitMixedArrayTypehint(array $a)
-	{
+    /**
+     * @param iterable<mixed>&\Traversable $a
+     */
+    function iterableIntersectionTypehint2($a)
+    {
+    }
 
-	}
+    /**
+     * @param \PDOStatement<int> $a
+     */
+    function iterableIntersectionTypehint3($a)
+    {
+    }
 
-	/**
-	 * @param \stdClass|array|int|null $a
-	 */
-	function unionTypeWithUnknownArrayValueTypehint($a)
-	{
+    /**
+     * @param \PDOStatement<mixed> $a
+     */
+    function iterableIntersectionTypehint4($a)
+    {
+    }
 
-	}
+    /**
+     * @template T
+     * @template U
+     */
+    interface GenericInterface
+    {
+    }
 
-	/**
-	 * @param iterable<int>&\Traversable $a
-	 */
-	function iterableIntersectionTypehint($a)
-	{
+    class NonGenericClass
+    {
+    }
 
-	}
+    function acceptsGenericInterface(GenericInterface $i)
+    {
+    }
 
-	/**
-	 * @param iterable<mixed>&\Traversable $a
-	 */
-	function iterableIntersectionTypehint2($a)
-	{
+    function acceptsNonGenericClass(NonGenericClass $c)
+    {
+    }
 
-	}
+    /**
+     * @template A
+     * @template B
+     */
+    class GenericClass
+    {
+    }
 
-	/**
-	 * @param \PDOStatement<int> $a
-	 */
-	function iterableIntersectionTypehint3($a)
-	{
+    function acceptsGenericClass(GenericClass $c)
+    {
+    }
 
-	}
+    function missingIterableTypehint(iterable $iterable)
+    {
+    }
 
-	/**
-	 * @param \PDOStatement<mixed> $a
-	 */
-	function iterableIntersectionTypehint4($a)
-	{
+    /**
+     * @param iterable $iterable
+     */
+    function missingIterableTypehintPhpDoc($iterable)
+    {
+    }
 
-	}
+    function missingTraversableTypehint(\Traversable $traversable)
+    {
+    }
 
-	/**
-	 * @template T
-	 * @template U
-	 */
-	interface GenericInterface
-	{
+    /**
+     * @param \Traversable $traversable
+     */
+    function missingTraversableTypehintPhpDoc($traversable)
+    {
+    }
 
-	}
-
-	class NonGenericClass
-	{
-
-	}
-
-	function acceptsGenericInterface(GenericInterface $i)
-	{
-
-	}
-
-	function acceptsNonGenericClass(NonGenericClass $c)
-	{
-
-	}
-
-	/**
-	 * @template A
-	 * @template B
-	 */
-	class GenericClass
-	{
-
-	}
-
-	function acceptsGenericClass(GenericClass $c)
-	{
-
-	}
-
-	function missingIterableTypehint(iterable $iterable)
-	{
-
-	}
-
-	/**
-	 * @param iterable $iterable
-	 */
-	function missingIterableTypehintPhpDoc($iterable)
-	{
-
-	}
-
-	function missingTraversableTypehint(\Traversable $traversable)
-	{
-
-	}
-
-	/**
-	 * @param \Traversable $traversable
-	 */
-	function missingTraversableTypehintPhpDoc($traversable)
-	{
-
-	}
-
-	function missingCallableSignature(callable $cb)
-	{
-
-	}
+    function missingCallableSignature(callable $cb)
+    {
+    }
 
 }

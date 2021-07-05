@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Analyser;
 
@@ -9,37 +11,35 @@ use PHPStan\Rules\Rule;
 
 class AnonymousClassNameRule implements Rule
 {
+    /** @var ReflectionProvider */
+    private $reflectionProvider;
 
-	/** @var ReflectionProvider */
-	private $reflectionProvider;
+    public function __construct(ReflectionProvider $reflectionProvider)
+    {
+        $this->reflectionProvider = $reflectionProvider;
+    }
 
-	public function __construct(ReflectionProvider $reflectionProvider)
-	{
-		$this->reflectionProvider = $reflectionProvider;
-	}
+    public function getNodeType(): string
+    {
+        return Class_::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return Class_::class;
-	}
+    /**
+     * @param Class_ $node
+     * @param Scope $scope
+     * @return string[]
+     */
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $className = isset($node->namespacedName)
+            ? (string) $node->namespacedName
+            : (string) $node->name;
+        try {
+            $this->reflectionProvider->getClass($className);
+        } catch (\PHPStan\Broker\ClassNotFoundException $e) {
+            return ['not found'];
+        }
 
-	/**
-	 * @param Class_ $node
-	 * @param Scope $scope
-	 * @return string[]
-	 */
-	public function processNode(Node $node, Scope $scope): array
-	{
-		$className = isset($node->namespacedName)
-			? (string) $node->namespacedName
-			: (string) $node->name;
-		try {
-			$this->reflectionProvider->getClass($className);
-		} catch (\PHPStan\Broker\ClassNotFoundException $e) {
-			return ['not found'];
-		}
-
-		return ['found'];
-	}
-
+        return ['found'];
+    }
 }

@@ -1,4 +1,6 @@
-<?php // lint <= 7.0
+<?php
+
+// lint <= 7.0
 
 namespace YieldOutsideFunction;
 

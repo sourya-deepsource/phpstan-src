@@ -1,13 +1,13 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace TraitsIgnore;
 
 trait FooTrait
 {
-
-	public function doFoo(): void
-	{
-		fail();
-	}
-
+    public function doFoo(): void
+    {
+        fail();
+    }
 }

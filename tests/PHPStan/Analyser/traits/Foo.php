@@ -1,18 +1,18 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace AnalyseTraits;
 
 class Foo
 {
+    use FooTrait;
 
-	use FooTrait;
+    public function doFoo(): void
+    {
+    }
 
-	public function doFoo(): void
-	{
-	}
-
-	public function conflictingMethodWithDifferentArgumentNames(string $input): void
-	{
-	}
-
+    public function conflictingMethodWithDifferentArgumentNames(string $input): void
+    {
+    }
 }

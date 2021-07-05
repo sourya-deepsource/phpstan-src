@@ -7,7 +7,6 @@ namespace MixinRule;
  */
 class Foo
 {
-
 }
 
 /**
@@ -15,7 +14,6 @@ class Foo
  */
 class Bar
 {
-
 }
 
 /**
@@ -23,7 +21,6 @@ class Bar
  */
 class Baz
 {
-
 }
 
 /**
@@ -33,12 +30,10 @@ class Baz
  */
 class Lorem
 {
-
 }
 
 trait FooTrait
 {
-
 }
 
 /**
@@ -58,7 +53,6 @@ class Ipsum
  */
 class Dolor
 {
-
 }
 
 /**
@@ -67,7 +61,6 @@ class Dolor
  */
 class Consecteur
 {
-
 }
 
 /**
@@ -75,7 +68,6 @@ class Consecteur
  */
 class Sit
 {
-
 }
 
 /**
@@ -83,5 +75,4 @@ class Sit
  */
 class Amet
 {
-
 }

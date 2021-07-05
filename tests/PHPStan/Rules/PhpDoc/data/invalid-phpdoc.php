@@ -25,9 +25,8 @@ namespace InvalidPhpDoc;
 function foo()
 {
 
-	/** @var \\Foo|\Bar $test */
-	$test = doFoo();
-
+    /** @var \\Foo|\Bar $test */
+    $test = doFoo();
 }
 
 /**
@@ -36,40 +35,32 @@ function foo()
  */
 class Foo
 {
-
 }
 
 class Bar
 {
-
-	/**
-	 * @psalm-param list() $a
-	 */
-	public function doFoo($a)
-	{
-
-	}
-
+    /**
+     * @psalm-param list() $a
+     */
+    public function doFoo($a)
+    {
+    }
 }
 
 class Baz
 {
+    /** @var callable(int) */
+    private $fooProperty;
 
-	/** @var callable(int) */
-	private $fooProperty;
-
-	/** @var (Foo|Bar */
-	private $barProperty;
-
+    /** @var (Foo|Bar */
+    private $barProperty;
 }
 
 class InlineThrows
 {
-
-	public function doFoo()
-	{
-		/** @throws (\Exception */
-		$i = 1;
-	}
-
+    public function doFoo()
+    {
+        /** @throws (\Exception */
+        $i = 1;
+    }
 }

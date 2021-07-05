@@ -6,63 +6,63 @@ use function PHPStan\Testing\assertType;
 
 class HelloWorld
 {
-	public function getDescription(?\DateTimeImmutable $start, ?string $someObject): void
-	{
-		if ($start === null && $someObject === null) {
-			return;
-		}
+    public function getDescription(?\DateTimeImmutable $start, ?string $someObject): void
+    {
+        if ($start === null && $someObject === null) {
+            return;
+        }
 
-		// $start !== null || $someObject !== null
+        // $start !== null || $someObject !== null
 
-		if ($start !== null) {
-			return;
-		}
+        if ($start !== null) {
+            return;
+        }
 
-		// $start === null therefore $someObject !== null
+        // $start === null therefore $someObject !== null
 
-		assertType('string', $someObject);
-	}
+        assertType('string', $someObject);
+    }
 
-	public function getDescription2(?\DateTimeImmutable $start, ?string $someObject): void
-	{
-		if ($start !== null || $someObject !== null) {
-			if ($start !== null) {
-				return;
-			}
+    public function getDescription2(?\DateTimeImmutable $start, ?string $someObject): void
+    {
+        if ($start !== null || $someObject !== null) {
+            if ($start !== null) {
+                return;
+            }
 
-			// $start === null therefore $someObject !== null
+            // $start === null therefore $someObject !== null
 
-			assertType('string', $someObject);
-		}
-	}
+            assertType('string', $someObject);
+        }
+    }
 
-	public function getDescription3(?\DateTimeImmutable $start, ?string $someObject): void
-	{
-		if ($start === null && $someObject === null) {
-			return;
-		}
+    public function getDescription3(?\DateTimeImmutable $start, ?string $someObject): void
+    {
+        if ($start === null && $someObject === null) {
+            return;
+        }
 
-		// $start !== null || $someObject !== null
+        // $start !== null || $someObject !== null
 
-		if ($someObject !== null) {
-			return;
-		}
+        if ($someObject !== null) {
+            return;
+        }
 
-		// $someObject === null therefore $start cannot be null
+        // $someObject === null therefore $start cannot be null
 
-		assertType('DateTimeImmutable', $start);
-	}
+        assertType('DateTimeImmutable', $start);
+    }
 
-	public function getDescription4(?\DateTimeImmutable $start, ?string $someObject): void
-	{
-		if ($start !== null || $someObject !== null) {
-			if ($someObject !== null) {
-				return;
-			}
+    public function getDescription4(?\DateTimeImmutable $start, ?string $someObject): void
+    {
+        if ($start !== null || $someObject !== null) {
+            if ($someObject !== null) {
+                return;
+            }
 
-			// $someObject === null therefore $start cannot be null
+            // $someObject === null therefore $start cannot be null
 
-			assertType('DateTimeImmutable', $start);
-		}
-	}
+            assertType('DateTimeImmutable', $start);
+        }
+    }
 }

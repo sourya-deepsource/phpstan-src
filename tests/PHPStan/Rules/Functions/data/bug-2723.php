@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Bug2723;
 
@@ -7,14 +9,14 @@ namespace Bug2723;
  */
 class Foo
 {
-	/** @var T1 */
-	public $t;
+    /** @var T1 */
+    public $t;
 
-	/** @param T1 $t */
-	public function __construct($t)
-	{
-		$this->t = $t;
-	}
+    /** @param T1 $t */
+    public function __construct($t)
+    {
+        $this->t = $t;
+    }
 }
 
 /**
@@ -22,14 +24,14 @@ class Foo
  */
 class Bar
 {
-	/** @var T2 */
-	public $t;
+    /** @var T2 */
+    public $t;
 
-	/** @param T2 $t */
-	public function __construct($t)
-	{
-		$this->t = $t;
-	}
+    /** @param T2 $t */
+    public function __construct($t)
+    {
+        $this->t = $t;
+    }
 }
 
 /**
@@ -38,11 +40,11 @@ class Bar
  */
 class BarOfFoo extends Bar
 {
-	/** @param T3 $t */
-	public function __construct($t)
-	{
-		parent::__construct(new Foo($t));
-	}
+    /** @param T3 $t */
+    public function __construct($t)
+    {
+        parent::__construct(new Foo($t));
+    }
 }
 
 /**
@@ -52,7 +54,7 @@ class BarOfFoo extends Bar
  */
 function baz($t)
 {
-	return new BarOfFoo("hello");
+    return new BarOfFoo("hello");
 }
 
 /**
@@ -62,5 +64,5 @@ function baz($t)
  */
 function baz2($t)
 {
-	return new BarOfFoo($t);
+    return new BarOfFoo($t);
 }

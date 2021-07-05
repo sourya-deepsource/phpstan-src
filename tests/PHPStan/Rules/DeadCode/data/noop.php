@@ -3,29 +3,29 @@
 namespace DeadCodeNoop;
 
 function (stdClass $foo) {
-	$foo->foo();
+    $foo->foo();
 
-	$arr = [];
-	$arr;
-	$arr['test'];
-	$foo::$test;
-	$foo->test;
+    $arr = [];
+    $arr;
+    $arr['test'];
+    $foo::$test;
+    $foo->test;
 
-	'foo';
-	1;
+    'foo';
+    1;
 
-	@'foo';
-	+1;
-	-1;
+    @'foo';
+    +1;
+    -1;
 
-	+$foo->foo();
-	-$foo->foo();
-	@$foo->foo();
+    +$foo->foo();
+    -$foo->foo();
+    @$foo->foo();
 
-	isset($test);
-	empty($test);
-	true;
-	Foo::TEST;
+    isset($test);
+    empty($test);
+    true;
+    Foo::TEST;
 
-	(string) 1;
+    (string) 1;
 };

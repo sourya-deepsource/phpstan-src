@@ -8,12 +8,12 @@ namespace Bug3922Ancestors;
  */
 interface QueryHandlerInterface
 {
-	/**
-	 * @param TQuery $query
-	 *
-	 * @return TResult
-	 */
-	public function handle(QueryInterface $query);
+    /**
+     * @param TQuery $query
+     *
+     * @return TResult
+     */
+    public function handle(QueryInterface $query);
 }
 
 /**
@@ -42,10 +42,10 @@ final class BarQuery implements QueryInterface
  */
 final class FooQueryHandler implements QueryHandlerInterface
 {
-	public function handle(QueryInterface $query): string
-	{
-		return 'foo';
-	}
+    public function handle(QueryInterface $query): string
+    {
+        return 'foo';
+    }
 }
 
 /**
@@ -53,8 +53,8 @@ final class FooQueryHandler implements QueryHandlerInterface
  */
 final class BarQueryHandler implements QueryHandlerInterface
 {
-	public function handle(QueryInterface $query): int
-	{
-		return 10;
-	}
+    public function handle(QueryInterface $query): int
+    {
+        return 10;
+    }
 }

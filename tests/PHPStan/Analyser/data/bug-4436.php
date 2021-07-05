@@ -10,22 +10,22 @@ class Bar
 
 class Foo
 {
-	/** @var \SplObjectStorage<Bar, string> */
-	private $storage;
+    /** @var \SplObjectStorage<Bar, string> */
+    private $storage;
 
-	public function __construct()
-	{
-		$this->storage = new \SplObjectStorage();
-	}
+    public function __construct()
+    {
+        $this->storage = new \SplObjectStorage();
+    }
 
-	public function add(Bar $bar, string $value): void
-	{
-		$this->storage[$bar] = $value;
-	}
+    public function add(Bar $bar, string $value): void
+    {
+        $this->storage[$bar] = $value;
+    }
 
-	public function get(Bar $bar): string
-	{
-		assertType('string', $this->storage[$bar]);
-		return $this->storage[$bar];
-	}
+    public function get(Bar $bar): string
+    {
+        assertType('string', $this->storage[$bar]);
+        return $this->storage[$bar];
+    }
 }

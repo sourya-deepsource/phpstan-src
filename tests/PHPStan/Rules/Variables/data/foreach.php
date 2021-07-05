@@ -1,220 +1,192 @@
 <?php
 
 function (array $arr) {
+    foreach ($arr as $val) {
+        $test = 'foo';
+    }
 
-	foreach ($arr as $val) {
-		$test = 'foo';
-	}
-
-	echo $val;
-	echo $test;
-
+    echo $val;
+    echo $test;
 };
 
 function (array $arr) {
+    if (!isset($arr['foo'])) {
+        return;
+    }
 
-	if (!isset($arr['foo'])) {
-		return;
-	}
+    foreach ($arr as $val) {
+        $test = 'foo';
+    }
 
-	foreach ($arr as $val) {
-		$test = 'foo';
-	}
-
-	echo $val;
-	echo $test;
-
+    echo $val;
+    echo $test;
 };
 
 function () {
+    foreach ([1, 2, 3] as $val) {
+        $test = 'foo';
+    }
 
-	foreach ([1, 2, 3] as $val) {
-		$test = 'foo';
-	}
-
-	echo $val;
-	echo $test;
-
+    echo $val;
+    echo $test;
 };
 
 function () {
+    foreach ([] as $val) {
+        $test = 'foo';
+    }
 
-	foreach ([] as $val) {
-		$test = 'foo';
-	}
-
-	echo $val;
-	echo $test;
-
+    echo $val;
+    echo $test;
 };
 
 function () {
+    $arr = [];
+    if (rand(0, 1) === 0) {
+        $arr[] = 1;
+    }
 
-	$arr = [];
-	if (rand(0, 1) === 0) {
-		$arr[] = 1;
-	}
+    foreach ($arr as $val) {
+        $test = 'foo';
+    }
 
-	foreach ($arr as $val) {
-		$test = 'foo';
-	}
-
-	echo $val;
-	echo $test;
-
+    echo $val;
+    echo $test;
 };
 
 function (array $arr) {
+    if (!isset($arr['foo'])) {
+        return;
+    }
 
-	if (!isset($arr['foo'])) {
-		return;
-	}
+    if ($arr) {
+        $test = 1;
+    }
 
-	if ($arr) {
-		$test = 1;
-	}
-
-	echo $test;
-
+    echo $test;
 };
 
 function (array $arr) {
+    if (count($arr) === 0) {
+        return;
+    }
 
-	if (count($arr) === 0) {
-		return;
-	}
+    foreach ($arr as $val) {
+        $test = 1;
+    }
 
-	foreach ($arr as $val) {
-		$test = 1;
-	}
-
-	echo $val;
-	echo $test;
-
+    echo $val;
+    echo $test;
 };
 
 function (array $arr) {
+    if (count($arr) === 0) {
+        return;
+    }
 
-	if (count($arr) === 0) {
-		return;
-	}
+    if ($arr) {
+        $test = 1;
+    }
 
-	if ($arr) {
-		$test = 1;
-	}
-
-	echo $test;
-
+    echo $test;
 };
 
 /*function (array $arr) {
 
-	if (count($arr) > 0) {
-		foreach ($arr as $val) {
-			$test = 1;
-		}
+    if (count($arr) > 0) {
+        foreach ($arr as $val) {
+            $test = 1;
+        }
 
-		echo $val;
-		echo $test;
-	}
+        echo $val;
+        echo $test;
+    }
 
 };
 
 function (array $arr) {
 
-	if (count($arr) >= 1) {
-		foreach ($arr as $val) {
-			$test = 1;
-		}
+    if (count($arr) >= 1) {
+        foreach ($arr as $val) {
+            $test = 1;
+        }
 
-		echo $val;
-		echo $test;
-	}
+        echo $val;
+        echo $test;
+    }
 
 };*/
 
 function (array $arr) {
+    if ($arr === []) {
+        return;
+    }
 
-	if ($arr === []) {
-		return;
-	}
+    foreach ($arr as $val) {
+        $test = 1;
+    }
 
-	foreach ($arr as $val) {
-		$test = 1;
-	}
-
-	echo $val;
-	echo $test;
-
+    echo $val;
+    echo $test;
 };
 
 function (array $arr) {
+    if ($arr !== []) {
+        foreach ($arr as $val) {
+            $test = 1;
+        }
 
-	if ($arr !== []) {
-		foreach ($arr as $val) {
-			$test = 1;
-		}
-
-		echo $val;
-		echo $test;
-	}
-
+        echo $val;
+        echo $test;
+    }
 };
 
 function (array $arr) {
+    if (count($arr) === 0) {
+        foreach ($arr as $val) {
+            $test = 1;
+        }
 
-	if (count($arr) === 0) {
-		foreach ($arr as $val) {
-			$test = 1;
-		}
-
-		echo $val;
-		echo $test;
-	}
-
+        echo $val;
+        echo $test;
+    }
 };
 
 function (array $arr) {
+    if (count($arr) !== 0) {
+        return;
+    }
 
-	if (count($arr) !== 0) {
-		return;
-	}
+    foreach ($arr as $val) {
+        $test = 1;
+    }
 
-	foreach ($arr as $val) {
-		$test = 1;
-	}
-
-	echo $val;
-	echo $test;
-
+    echo $val;
+    echo $test;
 };
 
 function (array $arr) {
+    if (count($arr) !== 1) {
+        return;
+    }
 
-	if (count($arr) !== 1) {
-		return;
-	}
+    foreach ($arr as $val) {
+        $test = 1;
+    }
 
-	foreach ($arr as $val) {
-		$test = 1;
-	}
-
-	echo $val;
-	echo $test;
-
+    echo $val;
+    echo $test;
 };
 
 function (array $arr) {
+    if (count($arr) === 1) {
+        return;
+    }
 
-	if (count($arr) === 1) {
-		return;
-	}
+    foreach ($arr as $val) {
+        $test = 1;
+    }
 
-	foreach ($arr as $val) {
-		$test = 1;
-	}
-
-	echo $val;
-	echo $test;
-
+    echo $val;
+    echo $test;
 };

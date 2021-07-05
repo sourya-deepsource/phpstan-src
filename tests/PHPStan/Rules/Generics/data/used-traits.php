@@ -4,60 +4,46 @@ namespace UsedTraits;
 
 trait NongenericTrait
 {
-
 }
 
 /** @template T of object */
 trait GenericTrait
 {
-
 }
 
 class Foo
 {
+    /** @use NongenericTrait<\stdClass> */
+    use NongenericTrait;
 
-	/** @use NongenericTrait<\stdClass> */
-	use NongenericTrait;
-
-	/** @use GenericTrait<\stdClass> */
-	use GenericTrait;
-
+    /** @use GenericTrait<\stdClass> */
+    use GenericTrait;
 }
 
 class Bar
 {
-
-	/** @use GenericTrait<int> */
-	use GenericTrait;
-
+    /** @use GenericTrait<int> */
+    use GenericTrait;
 }
 
 class Baz
 {
-
-	use GenericTrait;
-
+    use GenericTrait;
 }
 
 class Lorem
 {
-
-	/** @use GenericTrait<\stdClass, \Exception> */
-	use GenericTrait;
-
+    /** @use GenericTrait<\stdClass, \Exception> */
+    use GenericTrait;
 }
 
 trait NestedTrait
 {
-
-	/** @use NongenericTrait<int> */
-	use GenericTrait;
-
+    /** @use NongenericTrait<int> */
+    use GenericTrait;
 }
 
 class Ipsum
 {
-
-	use NestedTrait;
-
+    use NestedTrait;
 }

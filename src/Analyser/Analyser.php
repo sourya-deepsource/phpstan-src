@@ -20,13 +20,14 @@ class Analyser
     private array $collectedErrors = [];
 
     public function __construct(
-   FileAnalyser $fileAnalyser,
-  Registry $registry,NodeScopeResolver $nodeScopeResolver, int $internalErrorsCountLimit
-    ) 
-	{
-$this->fileAnalyser = $fileAnalyser;
+        FileAnalyser $fileAnalyser,
+        Registry $registry,
+        NodeScopeResolver $nodeScopeResolver,
+        int $internalErrorsCountLimit
+    ) {
+        $this->fileAnalyser = $fileAnalyser;
         $this->registry = $registry;
-  $this->nodeScopeResolver = $nodeScopeResolver;
+        $this->nodeScopeResolver = $nodeScopeResolver;
         $this->internalErrorsCountLimit = $internalErrorsCountLimit;
     }
 
@@ -39,7 +40,7 @@ $this->fileAnalyser = $fileAnalyser;
      * @return AnalyserResult
      */
     public function analyse(
- array $files,
+        array $files,
         ?\Closure $preFileCallback = null,
         ?\Closure $postFileCallback = null,
         bool $debug = false,
@@ -55,17 +56,17 @@ $this->fileAnalyser = $fileAnalyser;
         $this->collectErrors($files);
 
         $errors = [];
-$internalErrorsCount = 0;
-$reachedInternalErrorsCountLimit = false;
+        $internalErrorsCount = 0;
+        $reachedInternalErrorsCountLimit = false;
         $dependencies = [];
         $exportedNodes = [];
         foreach ($files as $file) {
-        if ($preFileCallback !== null) {
+            if ($preFileCallback !== null) {
                 $preFileCallback($file);
             }
 
             try {
-      $fileAnalyserResult = $this->fileAnalyser->analyseFile(
+                $fileAnalyserResult = $this->fileAnalyser->analyseFile(
                     $file,
                     $allAnalysedFiles,
                     $this->registry,
@@ -88,7 +89,7 @@ $reachedInternalErrorsCountLimit = false;
                     '%sRun PHPStan with --debug option and post the stack trace to:%s%s',
                     "\n",
                     "\n",
-            'https://github.com/phpstan/phpstan/issues/new?template=Bug_report.md'
+                    'https://github.com/phpstan/phpstan/issues/new?template=Bug_report.md'
                 );
                 $errors[] = new Error($internalErrorMessage, $file, null, $t);
                 if ($internalErrorsCount >= $this->internalErrorsCountLimit) {

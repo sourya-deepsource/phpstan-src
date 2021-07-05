@@ -1,15 +1,15 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace DuplicateMethod;
 
 class Lesson
 {
+    use LessonTrait;
 
-	use LessonTrait;
-
-	public function test(): void
-	{
-		$this->doFoo();
-	}
-
+    public function test(): void
+    {
+        $this->doFoo();
+    }
 }

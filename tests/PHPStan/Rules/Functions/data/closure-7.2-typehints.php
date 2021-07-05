@@ -1,8 +1,8 @@
-<?php // lint >= 7.2
+<?php
+
+// lint >= 7.2
 
 namespace TestClosureFunctionTypehintsPhp72;
 
-function (object $foo): object
-{
-
+function (object $foo): object {
 };

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Generics;
 
@@ -10,22 +12,20 @@ use PHPStan\Testing\RuleTestCase;
  */
 class FunctionSignatureVarianceRuleTest extends RuleTestCase
 {
+    protected function getRule(): Rule
+    {
+        return new FunctionSignatureVarianceRule(
+            self::getContainer()->getByType(VarianceCheck::class)
+        );
+    }
 
-	protected function getRule(): Rule
-	{
-		return new FunctionSignatureVarianceRule(
-			self::getContainer()->getByType(VarianceCheck::class)
-		);
-	}
-
-	public function testRule(): void
-	{
-		$this->analyse([__DIR__ . '/data/function-signature-variance.php'], [
-			[
-				'Variance annotation is only allowed for type parameters of classes and interfaces, but occurs in template type T in in function FunctionSignatureVariance\f().',
-				20,
-			],
-		]);
-	}
-
+    public function testRule(): void
+    {
+        $this->analyse([__DIR__ . '/data/function-signature-variance.php'], [
+            [
+                'Variance annotation is only allowed for type parameters of classes and interfaces, but occurs in template type T in in function FunctionSignatureVariance\f().',
+                20,
+            ],
+        ]);
+    }
 }

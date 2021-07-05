@@ -9,10 +9,13 @@ namespace CallGenericFunction;
  * @param int|array<B> $b
  * @return A[]
  */
-function f($a, $b): array {}
+function f($a, $b): array
+{
+}
 
-function test(): void {
-	f(1, 2);
+function test(): void
+{
+    f(1, 2);
 }
 
 /**
@@ -20,10 +23,13 @@ function test(): void {
  * @param A $a
  * @return A
  */
-function g($a) {}
+function g($a)
+{
+}
 
-function testg(): void {
-	g(new \DateTimeImmutable());
+function testg(): void
+{
+    g(new \DateTimeImmutable());
 }
 
 /**
@@ -31,14 +37,15 @@ function testg(): void {
  * @param (callable(): TReturnType) $callback
  * @return TReturnType
  */
-function scope(callable $callback) {
-	return $callback();
+function scope(callable $callback)
+{
+    return $callback();
 }
 
 function (): void {
-	scope(
-		function (): void {
-			throw new \Exception();
-		}
-	);
+    scope(
+        function (): void {
+            throw new \Exception();
+        }
+    );
 };

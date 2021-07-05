@@ -1,18 +1,20 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace TraitErrors;
 
 trait MyTrait
 {
-	public function test(): void
-	{
-		echo $undefined;
-		$this->undefined($undefined);
-	}
+    public function test(): void
+    {
+        echo $undefined;
+        $this->undefined($undefined);
+    }
 }
 
 
 class MyClass
 {
-	use MyTrait;
+    use MyTrait;
 }

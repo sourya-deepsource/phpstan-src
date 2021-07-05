@@ -7,44 +7,44 @@ use function PHPStan\Testing\assertType;
 
 class HelloWorld
 {
-	/**
-	 * @var DateTime[]
-	 */
-	private $suggestions = [];
+    /**
+     * @var DateTime[]
+     */
+    private $suggestions = [];
 
-	public function sayHello(): ?DateTime
-	{
-		while (count($this->suggestions) > 0) {
-			assertType('array<DateTime>&nonEmpty', $this->suggestions);
-			assertType('int<1, max>', count($this->suggestions));
-			$try = array_shift($this->suggestions);
+    public function sayHello(): ?DateTime
+    {
+        while (count($this->suggestions) > 0) {
+            assertType('array<DateTime>&nonEmpty', $this->suggestions);
+            assertType('int<1, max>', count($this->suggestions));
+            $try = array_shift($this->suggestions);
 
-			assertType('array<DateTime>', $this->suggestions);
-			assertType('int<0, max>', count($this->suggestions));
+            assertType('array<DateTime>', $this->suggestions);
+            assertType('int<0, max>', count($this->suggestions));
 
-			if (rand(0, 1)) {
-				return $try;
-			}
+            if (rand(0, 1)) {
+                return $try;
+            }
 
-			assertType('array<DateTime>', $this->suggestions);
-			assertType('int<0, max>', count($this->suggestions));
+            assertType('array<DateTime>', $this->suggestions);
+            assertType('int<0, max>', count($this->suggestions));
 
-			// we might be out of suggested days, so load some more
-			if (count($this->suggestions) === 0) {
-				assertType('array()', $this->suggestions);
-				assertType('0', count($this->suggestions));
-				$this->createSuggestions();
-			}
+            // we might be out of suggested days, so load some more
+            if (count($this->suggestions) === 0) {
+                assertType('array()', $this->suggestions);
+                assertType('0', count($this->suggestions));
+                $this->createSuggestions();
+            }
 
-			assertType('array<DateTime>', $this->suggestions);
-			assertType('int<0, max>', count($this->suggestions));
-		}
+            assertType('array<DateTime>', $this->suggestions);
+            assertType('int<0, max>', count($this->suggestions));
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	private function createSuggestions(): void
-	{
-		$this->suggestions[] = new DateTime;
-	}
+    private function createSuggestions(): void
+    {
+        $this->suggestions[] = new DateTime();
+    }
 }

@@ -4,5 +4,4 @@ namespace Attributes;
 
 class IsNotAttribute
 {
-
 }

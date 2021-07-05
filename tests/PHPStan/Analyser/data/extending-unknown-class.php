@@ -4,5 +4,4 @@ namespace ExtendingUnknownClass;
 
 class Foo extends Bar
 {
-
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace GenericInheritance;
 
@@ -7,7 +9,8 @@ namespace GenericInheritance;
  *
  * @template T
  */
-interface I0 {
+interface I0
+{
 }
 
 /**
@@ -15,7 +18,8 @@ interface I0 {
  *
  * @template T
  */
-interface I1 {
+interface I1
+{
 }
 
 /**
@@ -26,7 +30,8 @@ interface I1 {
  * @extends I0<T>
  * @extends I1<int>
  */
-interface I extends I0, I1 {
+interface I extends I0, I1
+{
 }
 
 /**
@@ -36,7 +41,8 @@ interface I extends I0, I1 {
  *
  * @implements I<T>
  */
-class C0 implements I {
+class C0 implements I
+{
 }
 
 /**
@@ -44,12 +50,14 @@ class C0 implements I {
  *
  * @extends C0<\DateTime>
  */
-class C extends C0 {
+class C extends C0
+{
 }
 
 
 /**
  * @implements I<\DateTimeInterface>
  */
-class Override extends C {
+class Override extends C
+{
 }

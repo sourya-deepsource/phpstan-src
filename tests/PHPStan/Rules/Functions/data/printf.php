@@ -47,7 +47,7 @@ sprintf($format, 'foo', 'bar'); // ok
 
 $variousPlaceholderCount = 'foo';
 if (rand(0, 1) === 0) {
-	$variousPlaceholderCount = 'foo %s %s';
+    $variousPlaceholderCount = 'foo %s %s';
 }
 sprintf($variousPlaceholderCount, 'bar');
 sprintf($variousPlaceholderCount, 'bar', 'baz');

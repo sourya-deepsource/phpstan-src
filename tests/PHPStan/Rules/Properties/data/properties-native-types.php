@@ -1,15 +1,15 @@
-<?php // lint >= 7.4
+<?php
+
+// lint >= 7.4
 
 namespace PropertiesNativeTypes;
 
 class Foo
 {
+    private Foo $foo;
 
-	private Foo $foo;
+    private Bar $bar;
 
-	private Bar $bar;
-
-	/** @var Baz */
-	private Baz $baz;
-
+    /** @var Baz */
+    private Baz $baz;
 }

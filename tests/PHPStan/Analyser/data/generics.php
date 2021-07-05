@@ -16,8 +16,8 @@ use function PHPStan\Testing\assertType;
  */
 function a($a)
 {
-	assertType('T (function PHPStan\Generics\FunctionsAssertType\a(), argument)', $a);
-	return $a;
+    assertType('T (function PHPStan\Generics\FunctionsAssertType\a(), argument)', $a);
+    return $a;
 }
 
 /**
@@ -27,10 +27,10 @@ function a($a)
  */
 function testA($int, $intFloat, $mixed)
 {
-	assertType('int', a($int));
-	assertType('float|int', a($intFloat));
-	assertType('DateTime', a(new \DateTime()));
-	assertType('mixed', a($mixed));
+    assertType('int', a($int));
+    assertType('float|int', a($intFloat));
+    assertType('DateTime', a(new \DateTime()));
+    assertType('mixed', a($mixed));
 }
 
 /**
@@ -40,9 +40,9 @@ function testA($int, $intFloat, $mixed)
  */
 function b($a)
 {
-	assertType('T of DateTimeInterface (function PHPStan\Generics\FunctionsAssertType\b(), argument)', $a);
-	assertType('T of DateTimeInterface (function PHPStan\Generics\FunctionsAssertType\b(), argument)', b($a));
-	return $a;
+    assertType('T of DateTimeInterface (function PHPStan\Generics\FunctionsAssertType\b(), argument)', $a);
+    assertType('T of DateTimeInterface (function PHPStan\Generics\FunctionsAssertType\b(), argument)', b($a));
+    return $a;
 }
 
 /**
@@ -50,9 +50,9 @@ function b($a)
  */
 function assertTypeTest($dateTimeInterface)
 {
-	assertType('DateTime', b(new \DateTime()));
-	assertType('DateTimeImmutable', b(new \DateTimeImmutable()));
-	assertType('DateTimeInterface', b($dateTimeInterface));
+    assertType('DateTime', b(new \DateTime()));
+    assertType('DateTimeImmutable', b(new \DateTimeImmutable()));
+    assertType('DateTimeInterface', b($dateTimeInterface));
 }
 
 /**
@@ -63,7 +63,7 @@ function assertTypeTest($dateTimeInterface)
  */
 function c($a)
 {
-	return $a;
+    return $a;
 }
 
 /**
@@ -71,7 +71,7 @@ function c($a)
  */
 function testC($arrayOfString)
 {
-	assertType('array<int, string>', c($arrayOfString));
+    assertType('array<int, string>', c($arrayOfString));
 }
 
 /**
@@ -82,7 +82,7 @@ function testC($arrayOfString)
  */
 function d($a, $b)
 {
-	return $a;
+    return $a;
 }
 
 /**
@@ -92,12 +92,12 @@ function d($a, $b)
  */
 function testD($int, $float, $intFloat)
 {
-	assertType('int', d($int, $int));
-	assertType('float|int', d($int, $float));
-	assertType('DateTime|int', d($int, new \DateTime()));
-	assertType('DateTime|float|int', d($intFloat, new \DateTime()));
-	assertType('array()|DateTime', d([], new \DateTime()));
-	assertType('array(\'blabla\' => string)|DateTime', d(['blabla' => 'barrrr'], new \DateTime()));
+    assertType('int', d($int, $int));
+    assertType('float|int', d($int, $float));
+    assertType('DateTime|int', d($int, new \DateTime()));
+    assertType('DateTime|float|int', d($intFloat, new \DateTime()));
+    assertType('array()|DateTime', d([], new \DateTime()));
+    assertType('array(\'blabla\' => string)|DateTime', d(['blabla' => 'barrrr'], new \DateTime()));
 }
 
 /**
@@ -107,7 +107,7 @@ function testD($int, $float, $intFloat)
  */
 function e($a)
 {
-	throw new \Exception();
+    throw new \Exception();
 }
 
 /**
@@ -115,7 +115,7 @@ function e($a)
  */
 function testE($int)
 {
-	assertType('int', e([[$int]]));
+    assertType('int', e([[$int]]));
 }
 
 /**
@@ -129,16 +129,16 @@ function testE($int)
  */
 function f($a, $b)
 {
-	$result = [];
-	assertType('array<A (function PHPStan\Generics\FunctionsAssertType\f(), argument)>', $a);
-	assertType('callable(A (function PHPStan\Generics\FunctionsAssertType\f(), argument)): B (function PHPStan\Generics\FunctionsAssertType\f(), argument)', $b);
-	foreach ($a as $k => $v) {
-		assertType('A (function PHPStan\Generics\FunctionsAssertType\f(), argument)', $v);
-		$newV = $b($v);
-		assertType('B (function PHPStan\Generics\FunctionsAssertType\f(), argument)', $newV);
-		$result[$k] = $newV;
-	}
-	return $result;
+    $result = [];
+    assertType('array<A (function PHPStan\Generics\FunctionsAssertType\f(), argument)>', $a);
+    assertType('callable(A (function PHPStan\Generics\FunctionsAssertType\f(), argument)): B (function PHPStan\Generics\FunctionsAssertType\f(), argument)', $b);
+    foreach ($a as $k => $v) {
+        assertType('A (function PHPStan\Generics\FunctionsAssertType\f(), argument)', $v);
+        $newV = $b($v);
+        assertType('B (function PHPStan\Generics\FunctionsAssertType\f(), argument)', $newV);
+        $result[$k] = $newV;
+    }
+    return $result;
 }
 
 /**
@@ -147,18 +147,18 @@ function f($a, $b)
  */
 function testF($arrayOfInt, $callableOrNull)
 {
-	assertType('array<string&numeric>', f($arrayOfInt, function (int $a): string {
-		return (string)$a;
-	}));
-	assertType('array<string>', f($arrayOfInt, function ($a): string {
-		return (string)$a;
-	}));
-	assertType('array', f($arrayOfInt, function ($a) {
-		return $a;
-	}));
-	assertType('array<string>', f($arrayOfInt, $callableOrNull));
-	assertType('array', f($arrayOfInt, null));
-	assertType('array', f($arrayOfInt, ''));
+    assertType('array<string&numeric>', f($arrayOfInt, function (int $a): string {
+        return (string)$a;
+    }));
+    assertType('array<string>', f($arrayOfInt, function ($a): string {
+        return (string)$a;
+    }));
+    assertType('array', f($arrayOfInt, function ($a) {
+        return $a;
+    }));
+    assertType('array<string>', f($arrayOfInt, $callableOrNull));
+    assertType('array', f($arrayOfInt, null));
+    assertType('array', f($arrayOfInt, ''));
 }
 
 /**
@@ -168,7 +168,7 @@ function testF($arrayOfInt, $callableOrNull)
  */
 function g($a)
 {
-	return [$a];
+    return [$a];
 }
 
 /**
@@ -176,26 +176,25 @@ function g($a)
  */
 function testG($int)
 {
-	assertType('array<int>', g($int));
+    assertType('array<int>', g($int));
 }
 
 class Foo
 {
+    /** @var static */
+    public static $staticProp;
 
-	/** @var static */
-	public static $staticProp;
+    /** @return static */
+    public static function returnsStatic()
+    {
+        return new static();
+    }
 
-	/** @return static */
-	public static function returnsStatic()
-	{
-		return new static();
-	}
-
-	/** @return static */
-	public function instanceReturnsStatic()
-	{
-		return new static();
-	}
+    /** @return static */
+    public function instanceReturnsStatic()
+    {
+        return new static();
+    }
 }
 
 /**
@@ -204,8 +203,8 @@ class Foo
  */
 function testReturnsStatic($foo)
 {
-	assertType('T of PHPStan\Generics\FunctionsAssertType\Foo (function PHPStan\Generics\FunctionsAssertType\testReturnsStatic(), argument)', $foo::returnsStatic());
-	assertType('T of PHPStan\Generics\FunctionsAssertType\Foo (function PHPStan\Generics\FunctionsAssertType\testReturnsStatic(), argument)', $foo->instanceReturnsStatic());
+    assertType('T of PHPStan\Generics\FunctionsAssertType\Foo (function PHPStan\Generics\FunctionsAssertType\testReturnsStatic(), argument)', $foo::returnsStatic());
+    assertType('T of PHPStan\Generics\FunctionsAssertType\Foo (function PHPStan\Generics\FunctionsAssertType\testReturnsStatic(), argument)', $foo->instanceReturnsStatic());
 }
 
 /**
@@ -213,12 +212,12 @@ function testReturnsStatic($foo)
  */
 function testArrayMap(array $listOfIntegers)
 {
-	$strings = array_map(function ($int): string {
-		assertType('int', $int);
+    $strings = array_map(function ($int): string {
+        assertType('int', $int);
 
-		return (string) $int;
-	}, $listOfIntegers);
-	assertType('array<string&numeric>', $strings);
+        return (string) $int;
+    }, $listOfIntegers);
+    assertType('array<string&numeric>', $strings);
 }
 
 /**
@@ -226,12 +225,12 @@ function testArrayMap(array $listOfIntegers)
  */
 function testArrayFilter(array $listOfIntegers)
 {
-	$integers = array_filter($listOfIntegers, function ($int): bool {
-		assertType('int', $int);
+    $integers = array_filter($listOfIntegers, function ($int): bool {
+        assertType('int', $int);
 
-		return true;
-	});
-	assertType('array<int>', $integers);
+        return true;
+    });
+    assertType('array<int>', $integers);
 }
 
 /**
@@ -242,11 +241,11 @@ function testArrayFilter(array $listOfIntegers)
  */
 function iterableToArray($it)
 {
-	$ret = [];
-	foreach ($it as $k => $v) {
-		$ret[$k] = $v;
-	}
-	return $ret;
+    $ret = [];
+    foreach ($it as $k => $v) {
+        $ret[$k] = $v;
+    }
+    return $ret;
 }
 
 /**
@@ -254,7 +253,7 @@ function iterableToArray($it)
  */
 function testIterable(iterable $it)
 {
-	assertType('array<string, PHPStan\Generics\FunctionsAssertType\Foo>', iterableToArray($it));
+    assertType('array<string, PHPStan\Generics\FunctionsAssertType\Foo>', iterableToArray($it));
 }
 
 /**
@@ -265,14 +264,14 @@ function testIterable(iterable $it)
  */
 function constantArray($a): array
 {
-	return [$a['a'], $a['b']];
+    return [$a['a'], $a['b']];
 }
 
 function testConstantArray(int $int, string $str)
 {
-	[$a, $b] = constantArray(['a' => $int, 'b' => $str, 'c' => 1]);
-	assertType('int', $a);
-	assertType('string', $b);
+    [$a, $b] = constantArray(['a' => $int, 'b' => $str, 'c' => 1]);
+    assertType('int', $a);
+    assertType('string', $b);
 }
 
 /**
@@ -282,8 +281,8 @@ function testConstantArray(int $int, string $str)
  */
 function typeHints(\DateTimeInterface $a): \DateTimeInterface
 {
-	assertType('U of DateTimeInterface (function PHPStan\Generics\FunctionsAssertType\typeHints(), argument)', $a);
-	return $a;
+    assertType('U of DateTimeInterface (function PHPStan\Generics\FunctionsAssertType\typeHints(), argument)', $a);
+    return $a;
 }
 
 /**
@@ -293,8 +292,8 @@ function typeHints(\DateTimeInterface $a): \DateTimeInterface
  */
 function typeHintsSuperType(\DateTimeInterface $a): \DateTimeInterface
 {
-	assertType('U of DateTime (function PHPStan\Generics\FunctionsAssertType\typeHintsSuperType(), argument)', $a);
-	return $a;
+    assertType('U of DateTime (function PHPStan\Generics\FunctionsAssertType\typeHintsSuperType(), argument)', $a);
+    return $a;
 }
 
 /**
@@ -304,15 +303,15 @@ function typeHintsSuperType(\DateTimeInterface $a): \DateTimeInterface
  */
 function typeHintsSubType(\DateTime $a): \DateTimeInterface
 {
-	assertType('DateTime', $a);
-	return $a;
+    assertType('DateTime', $a);
+    return $a;
 }
 
 function testTypeHints(): void
 {
-	assertType('DateTime', typeHints(new \DateTime()));
-	assertType('DateTime', typeHintsSuperType(new \DateTime()));
-	assertType('DateTimeInterface', typeHintsSubType(new \DateTime()));
+    assertType('DateTime', typeHints(new \DateTime()));
+    assertType('DateTime', typeHintsSuperType(new \DateTime()));
+    assertType('DateTimeInterface', typeHintsSubType(new \DateTime()));
 }
 
 /**
@@ -323,12 +322,12 @@ function testTypeHints(): void
  */
 function expectsException($a, $b)
 {
-	return $b;
+    return $b;
 }
 
 function testUpperBounds(\Throwable $t)
 {
-	assertType('Exception', expectsException(new \Exception(), $t));
+    assertType('Exception', expectsException(new \Exception(), $t));
 }
 
 /**
@@ -338,12 +337,12 @@ function testUpperBounds(\Throwable $t)
  */
 function varAnnotation($cb)
 {
-	/** @var T */
-	$v = $cb();
+    /** @var T */
+    $v = $cb();
 
-	assertType('T (function PHPStan\Generics\FunctionsAssertType\varAnnotation(), argument)', $v);
+    assertType('T (function PHPStan\Generics\FunctionsAssertType\varAnnotation(), argument)', $v);
 
-	return $v;
+    return $v;
 }
 
 /**
@@ -351,35 +350,34 @@ function varAnnotation($cb)
  */
 class C
 {
-	/** @var T */
-	private $a;
+    /** @var T */
+    private $a;
 
-	/**
-	 * @param T $p
-	 * @param callable $cb
-	 */
-	public function f($p, $cb)
-	{
-		assertType('T (class PHPStan\Generics\FunctionsAssertType\C, argument)', $p);
+    /**
+     * @param T $p
+     * @param callable $cb
+     */
+    public function f($p, $cb)
+    {
+        assertType('T (class PHPStan\Generics\FunctionsAssertType\C, argument)', $p);
 
-		/** @var T */
-		$v = $cb();
+        /** @var T */
+        $v = $cb();
 
-		assertType('T (class PHPStan\Generics\FunctionsAssertType\C, argument)', $v);
+        assertType('T (class PHPStan\Generics\FunctionsAssertType\C, argument)', $v);
 
-		assertType('T (class PHPStan\Generics\FunctionsAssertType\C, argument)', $this->a);
+        assertType('T (class PHPStan\Generics\FunctionsAssertType\C, argument)', $this->a);
 
-		$a = new class
-		{
-			/** @return T */
-			public function g()
-			{
-				throw new \Exception();
-			}
-		};
+        $a = new class() {
+            /** @return T */
+            public function g()
+            {
+                throw new \Exception();
+            }
+        };
 
-		assertType('T (class PHPStan\Generics\FunctionsAssertType\C, argument)', $a->g());
-	}
+        assertType('T (class PHPStan\Generics\FunctionsAssertType\C, argument)', $a->g());
+    }
 }
 
 /**
@@ -387,41 +385,40 @@ class C
  */
 class A
 {
-	/** @var T */
-	private $a;
+    /** @var T */
+    private $a;
 
-	/** @var T */
-	public $b;
+    /** @var T */
+    public $b;
 
-	/**
-	 * A::__construct()
-	 *
-	 * @param T $a
-	 */
-	public function __construct($a)
-	{
-		$this->a = $a;
-		$this->b = $a;
-	}
+    /**
+     * A::__construct()
+     *
+     * @param T $a
+     */
+    public function __construct($a)
+    {
+        $this->a = $a;
+        $this->b = $a;
+    }
 
-	/**
-	 * @return T
-	 */
-	public function get()
-	{
-		asserType('T (class PHPStan\Generics\FunctionsAssertType\A, argument)', $this->a);
-		asserType('T (class PHPStan\Generics\FunctionsAssertType\A, argument)', $this->b);
-		return $this->a;
-	}
+    /**
+     * @return T
+     */
+    public function get()
+    {
+        asserType('T (class PHPStan\Generics\FunctionsAssertType\A, argument)', $this->a);
+        asserType('T (class PHPStan\Generics\FunctionsAssertType\A, argument)', $this->b);
+        return $this->a;
+    }
 
-	/**
-	 * @param T $a
-	 */
-	public function set($a)
-	{
-		$this->a = $a;
-	}
-
+    /**
+     * @param T $a
+     */
+    public function set($a)
+    {
+        $this->a = $a;
+    }
 }
 
 /**
@@ -429,10 +426,10 @@ class A
  */
 class AOfDateTime extends A
 {
-	public function __construct()
-	{
-		parent::__construct(new \DateTime());
-	}
+    public function __construct()
+    {
+        parent::__construct(new \DateTime());
+    }
 }
 
 /**
@@ -442,15 +439,15 @@ class AOfDateTime extends A
  */
 class B extends A
 {
-	/**
-	 * B::__construct()
-	 *
-	 * @param T $a
-	 */
-	public function __construct($a)
-	{
-		parent::__construct($a);
-	}
+    /**
+     * B::__construct()
+     *
+     * @param T $a
+     */
+    public function __construct($a)
+    {
+        parent::__construct($a);
+    }
 }
 
 /**
@@ -458,19 +455,19 @@ class B extends A
  */
 interface I
 {
-	/**
-	 * I::get()
-	 *
-	 * @return T
-	 */
-	function get();
+    /**
+     * I::get()
+     *
+     * @return T
+     */
+    public function get();
 
-	/**
-	 * I::getInheritdoc()
-	 *
-	 * @return T
-	 */
-	function getInheritdoc();
+    /**
+     * I::getInheritdoc()
+     *
+     * @return T
+     */
+    public function getInheritdoc();
 }
 
 /**
@@ -478,14 +475,14 @@ interface I
  */
 class CofI implements I
 {
-	public function get()
-	{
-	}
+    public function get()
+    {
+    }
 
-	/** @inheritdoc */
-	public function getInheritdoc()
-	{
-	}
+    /** @inheritdoc */
+    public function getInheritdoc()
+    {
+    }
 }
 
 /**
@@ -495,13 +492,13 @@ class CofI implements I
  */
 interface SuperIfaceA
 {
-	/**
-	 * SuperIfaceA::get()
-	 *
-	 * @param A $a
-	 * @return A
-	 */
-	public function getA($a);
+    /**
+     * SuperIfaceA::get()
+     *
+     * @param A $a
+     * @return A
+     */
+    public function getA($a);
 }
 
 /**
@@ -511,13 +508,13 @@ interface SuperIfaceA
  */
 interface SuperIfaceB
 {
-	/**
-	 * SuperIfaceB::get()
-	 *
-	 * @param B $b
-	 * @return B
-	 */
-	public function getB($b);
+    /**
+     * SuperIfaceB::get()
+     *
+     * @param B $b
+     * @return B
+     */
+    public function getB($b);
 }
 
 /**
@@ -539,17 +536,17 @@ interface IfaceAB extends SuperIfaceA, SuperIfaceB
  */
 class ABImpl implements IfaceAB
 {
-	public function getA($a)
-	{
-		assertType('int', $a);
-		return 1;
-	}
+    public function getA($a)
+    {
+        assertType('int', $a);
+        return 1;
+    }
 
-	public function getB($b)
-	{
-		assertType('DateTime', $b);
-		return new \DateTime();
-	}
+    public function getB($b)
+    {
+        assertType('DateTime', $b);
+        return new \DateTime();
+    }
 }
 
 /**
@@ -557,11 +554,11 @@ class ABImpl implements IfaceAB
  */
 class X implements SuperIfaceA
 {
-	public function getA($a)
-	{
-		assertType('int', $a);
-		return 1;
-	}
+    public function getA($a)
+    {
+        assertType('int', $a);
+        return 1;
+    }
 }
 
 /**
@@ -580,7 +577,7 @@ class NoConstructor extends A
  */
 function acceptsClassString(string $s)
 {
-	return new $s;
+    return new $s();
 }
 
 /**
@@ -590,7 +587,7 @@ function acceptsClassString(string $s)
  */
 function anotherAcceptsClassString(string $s)
 {
-	assertType('U (function PHPStan\Generics\FunctionsAssertType\anotherAcceptsClassString(), argument)', acceptsClassString($s));
+    assertType('U (function PHPStan\Generics\FunctionsAssertType\anotherAcceptsClassString(), argument)', acceptsClassString($s));
 }
 
 /**
@@ -600,7 +597,7 @@ function anotherAcceptsClassString(string $s)
  */
 function returnsClassString($object)
 {
-	return get_class($object);
+    return get_class($object);
 }
 
 /**
@@ -610,7 +607,7 @@ function returnsClassString($object)
  */
 function acceptsClassStringUpperBound($string)
 {
-	return new $string;
+    return new $string();
 }
 
 
@@ -619,15 +616,15 @@ function acceptsClassStringUpperBound($string)
  */
 interface GenericRule
 {
-	/**
-	 * @return TNodeType
-	 */
-	public function getNodeInstance(): Node;
+    /**
+     * @return TNodeType
+     */
+    public function getNodeInstance(): Node;
 
-	/**
-	 * @return class-string<TNodeType>
-	 */
-	public function getNodeType(): string;
+    /**
+     * @return class-string<TNodeType>
+     */
+    public function getNodeType(): string;
 }
 
 /**
@@ -635,28 +632,28 @@ interface GenericRule
  */
 class SomeRule implements GenericRule
 {
-	public function getNodeInstance(): Node
-	{
-		return new StaticCall(new Name(\stdClass::class), '__construct');
-	}
+    public function getNodeInstance(): Node
+    {
+        return new StaticCall(new Name(\stdClass::class), '__construct');
+    }
 
-	public function getNodeType(): string
-	{
-		return StaticCall::class;
-	}
+    public function getNodeType(): string
+    {
+        return StaticCall::class;
+    }
 }
 
 class SomeRule2 implements GenericRule
 {
-	public function getNodeInstance(): Node
-	{
-		return new StaticCall(new Name(\stdClass::class), '__construct');
-	}
+    public function getNodeInstance(): Node
+    {
+        return new StaticCall(new Name(\stdClass::class), '__construct');
+    }
 
-	public function getNodeType(): string
-	{
-		return Node::class;
-	}
+    public function getNodeType(): string
+    {
+        return Node::class;
+    }
 }
 
 /**
@@ -670,7 +667,7 @@ class SomeRule2 implements GenericRule
  */
 function inferFromGeneric($x)
 {
-	return $x->get();
+    return $x->get();
 }
 
 /**
@@ -679,87 +676,87 @@ function inferFromGeneric($x)
  */
 class Factory
 {
-	private $a;
-	private $b;
+    private $a;
+    private $b;
 
-	/**
-	 * @param A $a
-	 * @param B $b
-	 */
-	public function __construct($a, $b)
-	{
-		$this->a = $a;
-		$this->b = $b;
-	}
+    /**
+     * @param A $a
+     * @param B $b
+     */
+    public function __construct($a, $b)
+    {
+        $this->a = $a;
+        $this->b = $b;
+    }
 
-	/**
-	 * @template C
-	 * @template D
-	 *
-	 * @param A $a
-	 * @param C $c
-	 * @param D $d
-	 *
-	 * @return array{A, B, C, D}
-	 */
-	public function create($a, $c, $d): array
-	{
-		return [$a, $this->b, $c, $d];
-	}
+    /**
+     * @template C
+     * @template D
+     *
+     * @param A $a
+     * @param C $c
+     * @param D $d
+     *
+     * @return array{A, B, C, D}
+     */
+    public function create($a, $c, $d): array
+    {
+        return [$a, $this->b, $c, $d];
+    }
 }
 
 function testClasses()
 {
-	$a = new A(1);
-	assertType('PHPStan\Generics\FunctionsAssertType\A<int>', $a);
-	assertType('int', $a->get());
-	assertType('int', $a->b);
+    $a = new A(1);
+    assertType('PHPStan\Generics\FunctionsAssertType\A<int>', $a);
+    assertType('int', $a->get());
+    assertType('int', $a->b);
 
-	$a = new AOfDateTime();
-	assertType('PHPStan\Generics\FunctionsAssertType\AOfDateTime', $a);
-	assertType('DateTime', $a->get());
-	assertType('DateTime', $a->b);
+    $a = new AOfDateTime();
+    assertType('PHPStan\Generics\FunctionsAssertType\AOfDateTime', $a);
+    assertType('DateTime', $a->get());
+    assertType('DateTime', $a->b);
 
-	$b = new B(1);
-	assertType('PHPStan\Generics\FunctionsAssertType\B<int>', $b);
-	assertType('int', $b->get());
-	assertType('int', $b->b);
+    $b = new B(1);
+    assertType('PHPStan\Generics\FunctionsAssertType\B<int>', $b);
+    assertType('int', $b->get());
+    assertType('int', $b->b);
 
-	$c = new CofI();
-	assertType('PHPStan\Generics\FunctionsAssertType\CofI', $c);
-	assertType('int', $c->get());
-	assertType('int', $c->getInheritdoc());
+    $c = new CofI();
+    assertType('PHPStan\Generics\FunctionsAssertType\CofI', $c);
+    assertType('int', $c->get());
+    assertType('int', $c->getInheritdoc());
 
-	$ab = new ABImpl();
-	assertType('int', $ab->getA(0));
-	assertType('DateTime', $ab->getB(new \DateTime()));
+    $ab = new ABImpl();
+    assertType('int', $ab->getA(0));
+    assertType('DateTime', $ab->getB(new \DateTime()));
 
-	$noConstructor = new NoConstructor(1);
-	assertType('PHPStan\Generics\FunctionsAssertType\NoConstructor<mixed>', $noConstructor);
+    $noConstructor = new NoConstructor(1);
+    assertType('PHPStan\Generics\FunctionsAssertType\NoConstructor<mixed>', $noConstructor);
 
-	assertType('stdClass', acceptsClassString(\stdClass::class));
-	assertType('class-string<stdClass>', returnsClassString(new \stdClass()));
+    assertType('stdClass', acceptsClassString(\stdClass::class));
+    assertType('class-string<stdClass>', returnsClassString(new \stdClass()));
 
-	assertType('Exception', acceptsClassStringUpperBound(\Exception::class));
-	assertType('Exception', acceptsClassStringUpperBound(\Throwable::class));
-	assertType('InvalidArgumentException', acceptsClassStringUpperBound(\InvalidArgumentException::class));
+    assertType('Exception', acceptsClassStringUpperBound(\Exception::class));
+    assertType('Exception', acceptsClassStringUpperBound(\Throwable::class));
+    assertType('InvalidArgumentException', acceptsClassStringUpperBound(\InvalidArgumentException::class));
 
-	$rule = new SomeRule();
-	assertType(StaticCall::class, $rule->getNodeInstance());
-	assertType('class-string<' . StaticCall::class . '>', $rule->getNodeType());
+    $rule = new SomeRule();
+    assertType(StaticCall::class, $rule->getNodeInstance());
+    assertType('class-string<' . StaticCall::class . '>', $rule->getNodeType());
 
-	$rule2 = new SomeRule2();
-	assertType(Node::class, $rule2->getNodeInstance());
-	assertType('class-string<' . Node::class . '>', $rule2->getNodeType());
+    $rule2 = new SomeRule2();
+    assertType(Node::class, $rule2->getNodeInstance());
+    assertType('class-string<' . Node::class . '>', $rule2->getNodeType());
 
-	$a = inferFromGeneric(new A(new A(new \DateTime())));
-	assertType('PHPStan\Generics\FunctionsAssertType\A<DateTime>', $a);
+    $a = inferFromGeneric(new A(new A(new \DateTime())));
+    assertType('PHPStan\Generics\FunctionsAssertType\A<DateTime>', $a);
 
-	$factory = new Factory(new \DateTime(), new A(1));
-	assertType(
-		'array(DateTime, PHPStan\Generics\FunctionsAssertType\A<int>, string, PHPStan\Generics\FunctionsAssertType\A<DateTime>)',
-		$factory->create(new \DateTime(), '', new A(new \DateTime()))
-	);
+    $factory = new Factory(new \DateTime(), new A(1));
+    assertType(
+        'array(DateTime, PHPStan\Generics\FunctionsAssertType\A<int>, string, PHPStan\Generics\FunctionsAssertType\A<DateTime>)',
+        $factory->create(new \DateTime(), '', new A(new \DateTime()))
+    );
 }
 
 /**
@@ -767,28 +764,26 @@ function testClasses()
  */
 interface GenericIterator extends IteratorAggregate
 {
-
-	/**
-	 * @return \Iterator<T>
-	 */
-	public function getIterator(): \Iterator;
-
+    /**
+     * @return \Iterator<T>
+     */
+    public function getIterator(): \Iterator;
 }
 
 function () {
-	/** @var GenericIterator<int> $iterator */
-	$iterator = doFoo();
-	assertType('PHPStan\Generics\FunctionsAssertType\GenericIterator<int>', $iterator);
-	assertType('Iterator<mixed, int>', $iterator->getIterator());
+    /** @var GenericIterator<int> $iterator */
+    $iterator = doFoo();
+    assertType('PHPStan\Generics\FunctionsAssertType\GenericIterator<int>', $iterator);
+    assertType('Iterator<mixed, int>', $iterator->getIterator());
 
-	foreach ($iterator as $int) {
-		assertType('int', $int);
-	}
+    foreach ($iterator as $int) {
+        assertType('int', $int);
+    }
 };
 
 function (GenericRule $rule): void {
-	assertType('class-string<PhpParser\Node>', $rule->getNodeType());
-	assertType(Node::class, $rule->getNodeInstance());
+    assertType('class-string<PhpParser\Node>', $rule->getNodeType());
+    assertType(Node::class, $rule->getNodeInstance());
 };
 
 /**
@@ -796,25 +791,20 @@ function (GenericRule $rule): void {
  */
 class GenericClassWithProperty
 {
-
-	/** @var T */
-	public $a;
-
+    /** @var T */
+    public $a;
 }
 
-function (GenericClassWithProperty $obj): void
-{
-	assertType(Node::class, $obj->a);
+function (GenericClassWithProperty $obj): void {
+    assertType(Node::class, $obj->a);
 };
 
 class ClassThatExtendsGenericClassWithPropertyWithoutSpecifyingTemplateType extends GenericClassWithProperty
 {
-
 }
 
-function (ClassThatExtendsGenericClassWithPropertyWithoutSpecifyingTemplateType $obj): void
-{
-	assertType(Node::class, $obj->a);
+function (ClassThatExtendsGenericClassWithPropertyWithoutSpecifyingTemplateType $obj): void {
+    assertType(Node::class, $obj->a);
 };
 
 /**
@@ -822,16 +812,16 @@ function (ClassThatExtendsGenericClassWithPropertyWithoutSpecifyingTemplateType 
  */
 class GenericThis
 {
-	/** @param T $foo */
-	public function __construct(\DateTimeInterface $foo)
-	{
-		assertType('T of DateTimeInterface (class PHPStan\Generics\FunctionsAssertType\GenericThis, argument)', $this->getFoo());
-	}
+    /** @param T $foo */
+    public function __construct(\DateTimeInterface $foo)
+    {
+        assertType('T of DateTimeInterface (class PHPStan\Generics\FunctionsAssertType\GenericThis, argument)', $this->getFoo());
+    }
 
-	/** @return T */
-	public function getFoo()
-	{
-	}
+    /** @return T */
+    public function getFoo()
+    {
+    }
 }
 
 /**
@@ -839,21 +829,21 @@ class GenericThis
  */
 class Cache
 {
-	/**
-	 * @param T $t
-	 */
-	public function __construct($t)
-	{
-	}
+    /**
+     * @param T $t
+     */
+    public function __construct($t)
+    {
+    }
 
-	/**
-	 * Function Cache::get
-	 *
-	 * @return T
-	 */
-	public function get()
-	{
-	}
+    /**
+     * Function Cache::get
+     *
+     * @return T
+     */
+    public function get()
+    {
+    }
 }
 
 /**
@@ -863,9 +853,10 @@ class Cache
  *
  * @param T $t
  */
-function cache0($t): void {
-	$c = new Cache($t);
-	assertType('T (function PHPStan\Generics\FunctionsAssertType\cache0(), argument)', $c->get());
+function cache0($t): void
+{
+    $c = new Cache($t);
+    assertType('T (function PHPStan\Generics\FunctionsAssertType\cache0(), argument)', $c->get());
 }
 
 /**
@@ -875,15 +866,17 @@ function cache0($t): void {
  *
  * @param T $t
  */
-function cache1($t): void {
-	$c = new Cache($t);
-	assertType('T (function PHPStan\Generics\FunctionsAssertType\cache1(), argument)', $c->get());
+function cache1($t): void
+{
+    $c = new Cache($t);
+    assertType('T (function PHPStan\Generics\FunctionsAssertType\cache1(), argument)', $c->get());
 }
 
-function newHandling(): void {
-	assertType('PHPStan\Generics\FunctionsAssertType\C<mixed>', new C());
-	assertType('PHPStan\Generics\FunctionsAssertType\A<stdClass>', new A(new \stdClass()));
-	assertType('PHPStan\Generics\FunctionsAssertType\A<mixed>', new A());
+function newHandling(): void
+{
+    assertType('PHPStan\Generics\FunctionsAssertType\C<mixed>', new C());
+    assertType('PHPStan\Generics\FunctionsAssertType\A<stdClass>', new A(new \stdClass()));
+    assertType('PHPStan\Generics\FunctionsAssertType\A<mixed>', new A());
 }
 
 /**
@@ -892,76 +885,70 @@ function newHandling(): void {
  */
 class StdClassCollection
 {
+    /** @var array<TKey, TValue> */
+    private $list;
 
-	/** @var array<TKey, TValue> */
-	private $list;
+    /**
+     * @param array<TKey, TValue> $list
+     */
+    public function __construct(array $list)
+    {
+    }
 
-	/**
-	 * @param array<TKey, TValue> $list
-	 */
-	public function __construct(array $list)
-	{
+    /**
+     * @return array<TKey, TValue>
+     */
+    public function getAll(): array
+    {
+        return $this->list;
+    }
 
-	}
-
-	/**
-	 * @return array<TKey, TValue>
-	 */
-	public function getAll(): array
-	{
-		return $this->list;
-	}
-
-	/**
-	 * @return static
-	 */
-	public function returnStatic(): self
-	{
-
-	}
-
+    /**
+     * @return static
+     */
+    public function returnStatic(): self
+    {
+    }
 }
 
 function () {
-	$stdEmpty = new StdClassCollection([]);
-	assertType('PHPStan\Generics\FunctionsAssertType\StdClassCollection<mixed, stdClass>', $stdEmpty);
-	assertType('array<stdClass>', $stdEmpty->getAll());
+    $stdEmpty = new StdClassCollection([]);
+    assertType('PHPStan\Generics\FunctionsAssertType\StdClassCollection<mixed, stdClass>', $stdEmpty);
+    assertType('array<stdClass>', $stdEmpty->getAll());
 
-	$std = new StdClassCollection([new \stdClass()]);
-	assertType('PHPStan\Generics\FunctionsAssertType\StdClassCollection<int, stdClass>', $std);
-	assertType('PHPStan\Generics\FunctionsAssertType\StdClassCollection<int, stdClass>', $std->returnStatic());
-	assertType('array<int, stdClass>', $std->getAll());
+    $std = new StdClassCollection([new \stdClass()]);
+    assertType('PHPStan\Generics\FunctionsAssertType\StdClassCollection<int, stdClass>', $std);
+    assertType('PHPStan\Generics\FunctionsAssertType\StdClassCollection<int, stdClass>', $std->returnStatic());
+    assertType('array<int, stdClass>', $std->getAll());
 };
 
 class ClassWithMethodCachingIssue
 {
+    /**
+     * @template T
+     * @param T $a
+     */
+    public function doFoo($a)
+    {
+        assertType('T (method PHPStan\Generics\FunctionsAssertType\ClassWithMethodCachingIssue::doFoo(), argument)', $a);
 
-	/**
-	 * @template T
-	 * @param T $a
-	 */
-	public function doFoo($a)
-	{
-		assertType('T (method PHPStan\Generics\FunctionsAssertType\ClassWithMethodCachingIssue::doFoo(), argument)', $a);
+        /** @var T $b */
+        $b = doFoo();
+        assertType('T (method PHPStan\Generics\FunctionsAssertType\ClassWithMethodCachingIssue::doFoo(), argument)', $b);
+    }
 
-		/** @var T $b */
-		$b = doFoo();
-		assertType('T (method PHPStan\Generics\FunctionsAssertType\ClassWithMethodCachingIssue::doFoo(), argument)', $b);
-	}
+    /**
+     * @template T
+     * @param T $a
+     */
+    public function doBar($a)
+    {
+        assertType('T (method PHPStan\Generics\FunctionsAssertType\ClassWithMethodCachingIssue::doBar(), argument)', $a);
 
-	/**
-	 * @template T
-	 * @param T $a
-	 */
-	public function doBar($a)
-	{
-		assertType('T (method PHPStan\Generics\FunctionsAssertType\ClassWithMethodCachingIssue::doBar(), argument)', $a);
-
-		/** @var T $b */
-		$b = doFoo();
-		assertType('T (method PHPStan\Generics\FunctionsAssertType\ClassWithMethodCachingIssue::doBar(), argument)', $b);
-	}
-
+        /** @var T $b */
+        $b = doFoo();
+        assertType('T (method PHPStan\Generics\FunctionsAssertType\ClassWithMethodCachingIssue::doBar(), argument)', $b);
+    }
 }
 
 /**
@@ -969,23 +956,21 @@ class ClassWithMethodCachingIssue
  */
 function testReflectionClass($ref)
 {
-	assertType('class-string<PHPStan\Generics\FunctionsAssertType\Foo>', $ref->name);
-	assertType('class-string<PHPStan\Generics\FunctionsAssertType\Foo>', $ref->getName());
-	assertType('PHPStan\Generics\FunctionsAssertType\Foo', $ref->newInstanceWithoutConstructor());
+    assertType('class-string<PHPStan\Generics\FunctionsAssertType\Foo>', $ref->name);
+    assertType('class-string<PHPStan\Generics\FunctionsAssertType\Foo>', $ref->getName());
+    assertType('PHPStan\Generics\FunctionsAssertType\Foo', $ref->newInstanceWithoutConstructor());
 
-	assertType('ReflectionClass<PHPStan\Generics\FunctionsAssertType\Foo>', new \ReflectionClass(Foo::class));
+    assertType('ReflectionClass<PHPStan\Generics\FunctionsAssertType\Foo>', new \ReflectionClass(Foo::class));
 }
 
 class CreateClassReflectionOfStaticClass
 {
-
-	public function doFoo()
-	{
-		assertType('PHPStan\Generics\FunctionsAssertType\CreateClassReflectionOfStaticClass', (new \ReflectionClass(self::class))->newInstanceWithoutConstructor());
-		assertType('static(PHPStan\Generics\FunctionsAssertType\CreateClassReflectionOfStaticClass)', (new \ReflectionClass(static::class))->newInstanceWithoutConstructor());
-		assertType('class-string<static(PHPStan\Generics\FunctionsAssertType\CreateClassReflectionOfStaticClass)>', (new \ReflectionClass(static::class))->name);
-	}
-
+    public function doFoo()
+    {
+        assertType('PHPStan\Generics\FunctionsAssertType\CreateClassReflectionOfStaticClass', (new \ReflectionClass(self::class))->newInstanceWithoutConstructor());
+        assertType('static(PHPStan\Generics\FunctionsAssertType\CreateClassReflectionOfStaticClass)', (new \ReflectionClass(static::class))->newInstanceWithoutConstructor());
+        assertType('class-string<static(PHPStan\Generics\FunctionsAssertType\CreateClassReflectionOfStaticClass)>', (new \ReflectionClass(static::class))->name);
+    }
 }
 
 /**
@@ -994,14 +979,14 @@ class CreateClassReflectionOfStaticClass
  */
 function testIterateOverTraversable($t1, $t2)
 {
-	foreach ($t1 as $int) {
-		assertType('int', $int);
-	}
+    foreach ($t1 as $int) {
+        assertType('int', $int);
+    }
 
-	foreach ($t2 as $key => $value) {
-		assertType('int', $key);
-		assertType('stdClass', $value);
-	}
+    foreach ($t2 as $key => $value) {
+        assertType('int', $key);
+        assertType('stdClass', $value);
+    }
 }
 
 /**
@@ -1009,14 +994,14 @@ function testIterateOverTraversable($t1, $t2)
  */
 function getGenerator(): \Generator
 {
-	$stdClass = yield 'foo';
-	assertType(\stdClass::class, $stdClass);
+    $stdClass = yield 'foo';
+    assertType(\stdClass::class, $stdClass);
 }
 
 function testYieldFrom()
 {
-	$yield = yield from getGenerator();
-	assertType('Exception', $yield);
+    $yield = yield from getGenerator();
+    assertType('Exception', $yield);
 }
 
 /**
@@ -1024,27 +1009,25 @@ function testYieldFrom()
  */
 class StaticClassConstant
 {
+    public function doFoo()
+    {
+        $staticClassName = static::class;
+        assertType('class-string<static(PHPStan\Generics\FunctionsAssertType\StaticClassConstant)>', $staticClassName);
+        assertType('static(PHPStan\Generics\FunctionsAssertType\StaticClassConstant)', new $staticClassName());
+    }
 
-	public function doFoo()
-	{
-		$staticClassName = static::class;
-		assertType('class-string<static(PHPStan\Generics\FunctionsAssertType\StaticClassConstant)>', $staticClassName);
-		assertType('static(PHPStan\Generics\FunctionsAssertType\StaticClassConstant)', new $staticClassName);
-	}
+    /**
+     * @param class-string<T> $type
+     */
+    public function doBar(string $type)
+    {
+        if ($type !== Foo::class && $type !== C::class) {
+            assertType('class-string<T (class PHPStan\Generics\FunctionsAssertType\StaticClassConstant, argument)>', $type);
+            throw new \InvalidArgumentException();
+        }
 
-	/**
-	 * @param class-string<T> $type
-	 */
-	public function doBar(string $type)
-	{
-		if ($type !== Foo::class && $type !== C::class) {
-			assertType('class-string<T (class PHPStan\Generics\FunctionsAssertType\StaticClassConstant, argument)>', $type);
-			throw new \InvalidArgumentException;
-		}
-
-		assertType('\'PHPStan\\\\Generics\\\\FunctionsAssertType\\\\C\'|\'PHPStan\\\\Generics\\\\FunctionsAssertType\\\\Foo\'', $type);
-	}
-
+        assertType('\'PHPStan\\\\Generics\\\\FunctionsAssertType\\\\C\'|\'PHPStan\\\\Generics\\\\FunctionsAssertType\\\\Foo\'', $type);
+    }
 }
 
 /**
@@ -1055,8 +1038,8 @@ class StaticClassConstant
  */
 function testBounds($a, $b): void
 {
-	assertType('T of DateTime (function PHPStan\Generics\FunctionsAssertType\testBounds(), argument)', $a);
-	assertType('U of DateTime (function PHPStan\Generics\FunctionsAssertType\testBounds(), argument)', $b);
+    assertType('T of DateTime (function PHPStan\Generics\FunctionsAssertType\testBounds(), argument)', $a);
+    assertType('U of DateTime (function PHPStan\Generics\FunctionsAssertType\testBounds(), argument)', $b);
 }
 
 /**
@@ -1066,7 +1049,7 @@ function testBounds($a, $b): void
  */
 function testGenericObjectWithoutClassType($a)
 {
-	return $a;
+    return $a;
 }
 
 /**
@@ -1076,23 +1059,23 @@ function testGenericObjectWithoutClassType($a)
  */
 function testGenericObjectWithoutClassType2($a)
 {
-	assertType('T of object (function PHPStan\Generics\FunctionsAssertType\testGenericObjectWithoutClassType2(), argument)', $a);
-	assertType('T of object (function PHPStan\Generics\FunctionsAssertType\testGenericObjectWithoutClassType2(), argument)', testGenericObjectWithoutClassType($a));
-	$b = $a;
-	if ($b instanceof \stdClass) {
-		return $a;
-	}
+    assertType('T of object (function PHPStan\Generics\FunctionsAssertType\testGenericObjectWithoutClassType2(), argument)', $a);
+    assertType('T of object (function PHPStan\Generics\FunctionsAssertType\testGenericObjectWithoutClassType2(), argument)', testGenericObjectWithoutClassType($a));
+    $b = $a;
+    if ($b instanceof \stdClass) {
+        return $a;
+    }
 
-	assertType('T of object (function PHPStan\Generics\FunctionsAssertType\testGenericObjectWithoutClassType2(), argument)', $b);
+    assertType('T of object (function PHPStan\Generics\FunctionsAssertType\testGenericObjectWithoutClassType2(), argument)', $b);
 
-	return $a;
+    return $a;
 }
 
 function () {
-	$a = new \stdClass();
-	assertType('stdClass', testGenericObjectWithoutClassType($a));
-	assertType('stdClass', testGenericObjectWithoutClassType(testGenericObjectWithoutClassType($a)));
-	assertType('stdClass', testGenericObjectWithoutClassType2(testGenericObjectWithoutClassType($a)));
+    $a = new \stdClass();
+    assertType('stdClass', testGenericObjectWithoutClassType($a));
+    assertType('stdClass', testGenericObjectWithoutClassType(testGenericObjectWithoutClassType($a)));
+    assertType('stdClass', testGenericObjectWithoutClassType2(testGenericObjectWithoutClassType($a)));
 };
 
 /**
@@ -1101,12 +1084,10 @@ function () {
  */
 class GenericReflectionClass extends \ReflectionClass
 {
-
-	public function newInstanceWithoutConstructor()
-	{
-		return parent::newInstanceWithoutConstructor();
-	}
-
+    public function newInstanceWithoutConstructor()
+    {
+        return parent::newInstanceWithoutConstructor();
+    }
 }
 
 /**
@@ -1114,12 +1095,10 @@ class GenericReflectionClass extends \ReflectionClass
  */
 class SpecificReflectionClass extends \ReflectionClass
 {
-
-	public function newInstanceWithoutConstructor()
-	{
-		return parent::newInstanceWithoutConstructor();
-	}
-
+    public function newInstanceWithoutConstructor()
+    {
+        return parent::newInstanceWithoutConstructor();
+    }
 }
 
 /**
@@ -1127,8 +1106,8 @@ class SpecificReflectionClass extends \ReflectionClass
  */
 function testGenericReflectionClass($ref)
 {
-	assertType('class-string<stdClass>', $ref->name);
-	assertType('stdClass', $ref->newInstanceWithoutConstructor());
+    assertType('class-string<stdClass>', $ref->name);
+    assertType('stdClass', $ref->newInstanceWithoutConstructor());
 };
 
 /**
@@ -1136,8 +1115,8 @@ function testGenericReflectionClass($ref)
  */
 function testSpecificReflectionClass($ref)
 {
-	assertType('class-string<stdClass>', $ref->name);
-	assertType('stdClass', $ref->newInstanceWithoutConstructor());
+    assertType('class-string<stdClass>', $ref->name);
+    assertType('stdClass', $ref->newInstanceWithoutConstructor());
 };
 
 /**
@@ -1146,10 +1125,8 @@ function testSpecificReflectionClass($ref)
  */
 class PrefixedTemplateWins
 {
-
-	/** @var T */
-	public $name;
-
+    /** @var T */
+    public $name;
 }
 
 /**
@@ -1158,10 +1135,8 @@ class PrefixedTemplateWins
  */
 class PrefixedTemplateWins2
 {
-
-	/** @var T */
-	public $name;
-
+    /** @var T */
+    public $name;
 }
 
 /**
@@ -1171,10 +1146,8 @@ class PrefixedTemplateWins2
  */
 class PrefixedTemplateWins3
 {
-
-	/** @var T */
-	public $name;
-
+    /** @var T */
+    public $name;
 }
 
 /**
@@ -1183,10 +1156,8 @@ class PrefixedTemplateWins3
  */
 class PrefixedTemplateWins4
 {
-
-	/** @var T */
-	public $name;
-
+    /** @var T */
+    public $name;
 }
 
 /**
@@ -1195,25 +1166,22 @@ class PrefixedTemplateWins4
  */
 class PrefixedTemplateWins5
 {
-
-	/** @var T */
-	public $name;
-
+    /** @var T */
+    public $name;
 }
 
 function testPrefixed(
-	PrefixedTemplateWins $a,
-	PrefixedTemplateWins2 $b,
-	PrefixedTemplateWins3 $c,
-	PrefixedTemplateWins4 $d,
-	PrefixedTemplateWins5 $e
-
+    PrefixedTemplateWins $a,
+    PrefixedTemplateWins2 $b,
+    PrefixedTemplateWins3 $c,
+    PrefixedTemplateWins4 $d,
+    PrefixedTemplateWins5 $e
 ) {
-	assertType('PHPStan\Generics\FunctionsAssertType\Bar', $a->name);
-	assertType('PHPStan\Generics\FunctionsAssertType\Bar', $b->name);
-	assertType('PHPStan\Generics\FunctionsAssertType\Bar', $c->name);
-	assertType('PHPStan\Generics\FunctionsAssertType\Bar', $d->name);
-	assertType('PHPStan\Generics\FunctionsAssertType\Bar', $e->name);
+    assertType('PHPStan\Generics\FunctionsAssertType\Bar', $a->name);
+    assertType('PHPStan\Generics\FunctionsAssertType\Bar', $b->name);
+    assertType('PHPStan\Generics\FunctionsAssertType\Bar', $c->name);
+    assertType('PHPStan\Generics\FunctionsAssertType\Bar', $d->name);
+    assertType('PHPStan\Generics\FunctionsAssertType\Bar', $e->name);
 };
 
 /**
@@ -1223,25 +1191,22 @@ function testPrefixed(
  */
 function acceptsClassStringOfObject(string $classString)
 {
-
 }
 
 /**
  * @param class-string $classString
  */
 function testClassString(
-	string $classString
-)
-{
-	assertType('class-string', $classString);
-	assertType('object', acceptsClassString($classString));
-	assertType('Exception', acceptsClassStringUpperBound($classString));
-	assertType('object', acceptsClassStringOfObject($classString));
+    string $classString
+) {
+    assertType('class-string', $classString);
+    assertType('object', acceptsClassString($classString));
+    assertType('Exception', acceptsClassStringUpperBound($classString));
+    assertType('object', acceptsClassStringOfObject($classString));
 }
 
 class Bar extends Foo
 {
-
 }
 
 /**
@@ -1251,22 +1216,21 @@ class Bar extends Foo
  * @param class-string<Bar> $yetAnotherClassString
  */
 function returnStaticOnClassString(
-	string $classString,
-	string $anotherClassString,
-	string $yetAnotherClassString
-)
-{
-	assertType('T of PHPStan\Generics\FunctionsAssertType\Foo (function PHPStan\Generics\FunctionsAssertType\returnStaticOnClassString(), argument)', $classString::returnsStatic());
-	assertType('T of PHPStan\Generics\FunctionsAssertType\Foo (function PHPStan\Generics\FunctionsAssertType\returnStaticOnClassString(), argument)', $classString::instanceReturnsStatic());
-	assertType('T of PHPStan\Generics\FunctionsAssertType\Foo (function PHPStan\Generics\FunctionsAssertType\returnStaticOnClassString(), argument)', $classString::$staticProp);
+    string $classString,
+    string $anotherClassString,
+    string $yetAnotherClassString
+) {
+    assertType('T of PHPStan\Generics\FunctionsAssertType\Foo (function PHPStan\Generics\FunctionsAssertType\returnStaticOnClassString(), argument)', $classString::returnsStatic());
+    assertType('T of PHPStan\Generics\FunctionsAssertType\Foo (function PHPStan\Generics\FunctionsAssertType\returnStaticOnClassString(), argument)', $classString::instanceReturnsStatic());
+    assertType('T of PHPStan\Generics\FunctionsAssertType\Foo (function PHPStan\Generics\FunctionsAssertType\returnStaticOnClassString(), argument)', $classString::$staticProp);
 
-	assertType('PHPStan\Generics\FunctionsAssertType\Foo', $anotherClassString::instanceReturnsStatic());
-	assertType('PHPStan\Generics\FunctionsAssertType\Foo', $anotherClassString::returnsStatic());
-	assertType('PHPStan\Generics\FunctionsAssertType\Foo', $anotherClassString::$staticProp);
+    assertType('PHPStan\Generics\FunctionsAssertType\Foo', $anotherClassString::instanceReturnsStatic());
+    assertType('PHPStan\Generics\FunctionsAssertType\Foo', $anotherClassString::returnsStatic());
+    assertType('PHPStan\Generics\FunctionsAssertType\Foo', $anotherClassString::$staticProp);
 
-	assertType('PHPStan\Generics\FunctionsAssertType\Bar', $yetAnotherClassString::instanceReturnsStatic());
-	assertType('PHPStan\Generics\FunctionsAssertType\Bar', $yetAnotherClassString::returnsStatic());
-	assertType('PHPStan\Generics\FunctionsAssertType\Bar', $yetAnotherClassString::$staticProp);
+    assertType('PHPStan\Generics\FunctionsAssertType\Bar', $yetAnotherClassString::instanceReturnsStatic());
+    assertType('PHPStan\Generics\FunctionsAssertType\Bar', $yetAnotherClassString::returnsStatic());
+    assertType('PHPStan\Generics\FunctionsAssertType\Bar', $yetAnotherClassString::$staticProp);
 }
 
 /**
@@ -1274,7 +1238,7 @@ function returnStaticOnClassString(
  */
 function arrayOfGenericClassStrings(array $a): void
 {
-	assertType('array<class-string<PHPStan\Generics\FunctionsAssertType\Foo>>', $a);
+    assertType('array<class-string<PHPStan\Generics\FunctionsAssertType\Foo>>', $a);
 }
 
 /**
@@ -1292,34 +1256,34 @@ function arrayOfGenericClassStrings(array $a): void
  */
 function getClassOnTemplateType($a, $b, $c, $d, $object, $mixed, $tObject)
 {
-	assertType(
-		'class-string<T (function PHPStan\Generics\FunctionsAssertType\getClassOnTemplateType(), argument)>',
-		get_class($a)
-	);
-	assertType(
-		'class-string<U of Exception (function PHPStan\Generics\FunctionsAssertType\getClassOnTemplateType(), argument)>',
-		get_class($b)
-	);
-	assertType(
-		'class-string<U of Exception (function PHPStan\Generics\FunctionsAssertType\getClassOnTemplateType(), argument)>|' .
-		'class-string<V of DateTimeInterface (function PHPStan\Generics\FunctionsAssertType\getClassOnTemplateType(), argument)>',
-		get_class($c)
-	);
-	assertType('class-string<Iterator<mixed, DateTimeInterface>>', get_class($d));
+    assertType(
+        'class-string<T (function PHPStan\Generics\FunctionsAssertType\getClassOnTemplateType(), argument)>',
+        get_class($a)
+    );
+    assertType(
+        'class-string<U of Exception (function PHPStan\Generics\FunctionsAssertType\getClassOnTemplateType(), argument)>',
+        get_class($b)
+    );
+    assertType(
+        'class-string<U of Exception (function PHPStan\Generics\FunctionsAssertType\getClassOnTemplateType(), argument)>|' .
+        'class-string<V of DateTimeInterface (function PHPStan\Generics\FunctionsAssertType\getClassOnTemplateType(), argument)>',
+        get_class($c)
+    );
+    assertType('class-string<Iterator<mixed, DateTimeInterface>>', get_class($d));
 
-	$objectB = new $b;
-	assertType(
-		'U of Exception (function PHPStan\Generics\FunctionsAssertType\getClassOnTemplateType(), argument)',
-		$objectB
-	);
-	assertType(
-		'class-string<U of Exception (function PHPStan\Generics\FunctionsAssertType\getClassOnTemplateType(), argument)>',
-		get_class($objectB)
-	);
+    $objectB = new $b();
+    assertType(
+        'U of Exception (function PHPStan\Generics\FunctionsAssertType\getClassOnTemplateType(), argument)',
+        $objectB
+    );
+    assertType(
+        'class-string<U of Exception (function PHPStan\Generics\FunctionsAssertType\getClassOnTemplateType(), argument)>',
+        get_class($objectB)
+    );
 
-	assertType('class-string', get_class($object));
-	assertType('class-string', get_class($mixed));
-	assertType('class-string<W of object (function PHPStan\Generics\FunctionsAssertType\getClassOnTemplateType(), argument)>', get_class($tObject));
+    assertType('class-string', get_class($object));
+    assertType('class-string', get_class($mixed));
+    assertType('class-string<W of object (function PHPStan\Generics\FunctionsAssertType\getClassOnTemplateType(), argument)>', get_class($tObject));
 }
 
 /**
@@ -1327,14 +1291,16 @@ function getClassOnTemplateType($a, $b, $c, $d, $object, $mixed, $tObject)
  */
 class TagMergingGrandparent
 {
-	/** @var T */
-	public $property;
+    /** @var T */
+    public $property;
 
-	/**
-	 * @param T $one
-	 * @param int $two
-	 */
-	public function method($one, $two): void {}
+    /**
+     * @param T $one
+     * @param int $two
+     */
+    public function method($one, $two): void
+    {
+    }
 }
 
 /**
@@ -1343,10 +1309,12 @@ class TagMergingGrandparent
  */
 class TagMergingParent extends TagMergingGrandparent
 {
-	/**
-	 * @param TT $one
-	 */
-	public function method($one, $two): void {}
+    /**
+     * @param TT $one
+     */
+    public function method($one, $two): void
+    {
+    }
 }
 
 /**
@@ -1354,48 +1322,57 @@ class TagMergingParent extends TagMergingGrandparent
  */
 class TagMergingChild extends TagMergingParent
 {
-	public function method($one, $two): void
-	{
-		assertType('float', $one);
-		assertType('int', $two);
-		assertType('float', $this->property);
-	}
+    public function method($one, $two): void
+    {
+        assertType('float', $one);
+        assertType('int', $two);
+        assertType('float', $this->property);
+    }
 }
 
 /**
  * @template T
  */
-interface GeneralFactoryInterface {
-	/**
-	 * @return T
-	 */
-	public static function create();
+interface GeneralFactoryInterface
+{
+    /**
+     * @return T
+     */
+    public static function create();
 }
 
-class Car {}
+class Car
+{
+}
 
 /**
  * @implements GeneralFactoryInterface<Car>
  */
-class CarFactory implements GeneralFactoryInterface {
-	public static function create() { return new Car(); }
+class CarFactory implements GeneralFactoryInterface
+{
+    public static function create()
+    {
+        return new Car();
+    }
 }
 
-class CarFactoryProcessor {
-	/**
-	 * @param class-string<CarFactory> $class
-	 */
-	public function process($class): void {
-		$car = $class::create();
-		assertType(Car::class, $car);
-	}
+class CarFactoryProcessor
+{
+    /**
+     * @param class-string<CarFactory> $class
+     */
+    public function process($class): void
+    {
+        $car = $class::create();
+        assertType(Car::class, $car);
+    }
 }
 
 function (\Throwable $e): void {
-	assertType('mixed', $e->getCode());
+    assertType('mixed', $e->getCode());
 };
 
 function (): void {
-	$array = ['a' => 1, 'b' => 2];
-	assertType('array(\'a\' => int, \'b\' => int)', a($array));
+    $array = ['a' => 1, 'b' => 2];
+    assertType('array(\'a\' => int, \'b\' => int)', a($array));
 };

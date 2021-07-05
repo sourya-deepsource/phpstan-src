@@ -2,24 +2,23 @@
 
 namespace Bug2714;
 
-function (): void
-{
-	$list = [];
+function (): void {
+    $list = [];
 
-	// creation of unpredictable values at 'type' key
-	for ($i = 0; $i < 3; $i++) {
-		$list[] = [
-			'type' => str_repeat('a', rand(1, 10)),
-		];
-	}
+    // creation of unpredictable values at 'type' key
+    for ($i = 0; $i < 3; $i++) {
+        $list[] = [
+            'type' => str_repeat('a', rand(1, 10)),
+        ];
+    }
 
-	$list[] = [
-		'type' => 'x',
-	];
+    $list[] = [
+        'type' => 'x',
+    ];
 
-	foreach ($list as $item) {
-		if (in_array($item['type'], ['aaa', 'aaaa'], TRUE)) {
-			echo 'OK';
-		}
-	}
+    foreach ($list as $item) {
+        if (in_array($item['type'], ['aaa', 'aaaa'], true)) {
+            echo 'OK';
+        }
+    }
 };

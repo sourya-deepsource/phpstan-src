@@ -2,27 +2,22 @@
 
 class FooFunctionTypehints
 {
-
 }
 
 trait SomeTraitWithoutNamespace
 {
-
 }
 
 function fooWithoutNamespace(FooFunctionTypehints $foo, $bar, array $lorem): NonexistentClass
 {
-
 }
 
 function barWithoutNamespace(BarFunctionTypehints $bar): array
 {
-
 }
 
 function bazWithoutNamespace(...$bar): FooFunctionTypehints
 {
-
 }
 
 /**
@@ -30,12 +25,10 @@ function bazWithoutNamespace(...$bar): FooFunctionTypehints
  */
 function returnParentWithoutNamespace()
 {
-
 }
 
 function badCaseTypehintsWithoutNamespace(fOOFunctionTypehints $foo): fOOFunctionTypehintS
 {
-
 }
 
 /**
@@ -44,7 +37,6 @@ function badCaseTypehintsWithoutNamespace(fOOFunctionTypehints $foo): fOOFunctio
  */
 function badCaseInNativeAndPhpDocWithoutNamespace(FooFunctionTypehints $foo): FooFunctionTypehints
 {
-
 }
 
 /**
@@ -53,12 +45,10 @@ function badCaseInNativeAndPhpDocWithoutNamespace(FooFunctionTypehints $foo): Fo
  */
 function anotherBadCaseInNativeAndPhpDocWithoutNamespace(FOOFunctionTypehints $foo): FOOFunctionTypehints
 {
-
 }
 
 function referencesTraitsInNativeWithoutNamespace(SomeTraitWithoutNamespace $trait): SomeTraitWithoutNamespace
 {
-
 }
 
 /**
@@ -67,5 +57,4 @@ function referencesTraitsInNativeWithoutNamespace(SomeTraitWithoutNamespace $tra
  */
 function referencesTraitsInPhpDocWithoutNamespace($trait)
 {
-
 }
