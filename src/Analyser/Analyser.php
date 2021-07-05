@@ -39,7 +39,7 @@ $this->fileAnalyser = $fileAnalyser;
      * @return AnalyserResult
      */
     public function analyse(
-        array $files,
+ array $files,
         ?\Closure $preFileCallback = null,
         ?\Closure $postFileCallback = null,
         bool $debug = false,
