@@ -8,13 +8,13 @@ class Foo
 {
     public function __construct(
         public \stdClass $foo,
-        /** @var \stdClass */ 
+        /** @var \stdClass */
         public $bar,
         public SomeTrait $baz,
-        /** @var SomeTrait */ 
+        /** @var SomeTrait */
         public $lorem,
         public Bar $ipsum,
-        /** @var Bar */ 
+        /** @var Bar */
         public $dolor
     ) {
     }

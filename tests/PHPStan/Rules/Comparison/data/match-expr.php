@@ -77,7 +77,7 @@ class Foo
         };
 
         match ($i) {
-        // no break
+            // no break
             default => 1,
             1 => 2,
         };

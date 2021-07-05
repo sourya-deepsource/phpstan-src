@@ -8,7 +8,7 @@ class Foo
 {
     public function __construct(
         private int $foo = 'foo',
-        /** @var int */ 
+        /** @var int */
         private $foo = '',
         private int $baz = 1
     ) {

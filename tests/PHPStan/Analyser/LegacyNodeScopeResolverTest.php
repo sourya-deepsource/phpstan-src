@@ -10269,19 +10269,19 @@ class LegacyNodeScopeResolverTest extends TypeInferenceTestCase
         $this->processFile(
             $file,
             static function (\PhpParser\Node $node, Scope $scope) use ($file, $evaluatedPointExpression, $assertType): void {
-                    if ($node instanceof VirtualNode) {
-                        return;
-                    }
-                    $printer = new \PhpParser\PrettyPrinter\Standard();
-                    $printedNode = $printer->prettyPrint([$node]);
-                    if ($printedNode !== $evaluatedPointExpression) {
-                        return;
-                    }
+                if ($node instanceof VirtualNode) {
+                    return;
+                }
+                $printer = new \PhpParser\PrettyPrinter\Standard();
+                $printedNode = $printer->prettyPrint([$node]);
+                if ($printedNode !== $evaluatedPointExpression) {
+                    return;
+                }
 
-                    self::$assertTypesCache[$file][$evaluatedPointExpression] = $scope;
+                self::$assertTypesCache[$file][$evaluatedPointExpression] = $scope;
 
-                    $assertType($scope);
-                },
+                $assertType($scope);
+            },
             $dynamicMethodReturnTypeExtensions,
             $dynamicStaticMethodReturnTypeExtensions,
             $methodTypeSpecifyingExtensions,

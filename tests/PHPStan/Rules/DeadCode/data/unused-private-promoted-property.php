@@ -11,7 +11,7 @@ class Foo
         protected $bar,
         private $baz,
         private $lorem,
-        /** @get */ 
+        /** @get */
         private $ipsum
     ) {
     }

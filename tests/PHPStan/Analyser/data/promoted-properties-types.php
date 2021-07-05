@@ -21,17 +21,17 @@ class Foo
     public function __construct(
         public $noType,
         public int $nativeIntType,
-        /** @var array<int, string> */ 
+        /** @var array<int, string> */
         public $phpDocArray,
         public $anotherPhpDocArray,
-        /** @var array<int, string> */ 
+        /** @var array<int, string> */
         public array $yetAnotherPhpDocArray,
-        /** @var T */ 
+        /** @var T */
         public $templateProperty,
         public $anotherTemplateProperty,
-        /** @var int */ 
+        /** @var int */
         public $bothProperty,
-        /** @var array<int> */ 
+        /** @var array<int> */
         public $anotherBothProperty
     ) {
         assertType('array<int, string>', $phpDocArray);
