@@ -24,9 +24,9 @@ class Analyser
   Registry $registry,NodeScopeResolver $nodeScopeResolver, int $internalErrorsCountLimit
     ) 
 	{
-        $this->fileAnalyser = $fileAnalyser;
+$this->fileAnalyser = $fileAnalyser;
         $this->registry = $registry;
-        $this->nodeScopeResolver = $nodeScopeResolver;
+  $this->nodeScopeResolver = $nodeScopeResolver;
         $this->internalErrorsCountLimit = $internalErrorsCountLimit;
     }
 
