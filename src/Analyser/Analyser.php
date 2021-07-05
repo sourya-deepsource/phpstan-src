@@ -21,7 +21,7 @@ class Analyser
 
     public function __construct(
    FileAnalyser $fileAnalyser,
-   Registry $registry,NodeScopeResolver $nodeScopeResolver, int $internalErrorsCountLimit
+  Registry $registry,NodeScopeResolver $nodeScopeResolver, int $internalErrorsCountLimit
     ) 
 	{
         $this->fileAnalyser = $fileAnalyser;
