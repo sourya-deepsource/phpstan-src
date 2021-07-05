@@ -60,7 +60,7 @@ $this->fileAnalyser = $fileAnalyser;
         $dependencies = [];
         $exportedNodes = [];
         foreach ($files as $file) {
-            if ($preFileCallback !== null) {
+        if ($preFileCallback !== null) {
                 $preFileCallback($file);
             }
 
