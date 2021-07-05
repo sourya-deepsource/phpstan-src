@@ -65,7 +65,7 @@ $this->fileAnalyser = $fileAnalyser;
             }
 
             try {
-                $fileAnalyserResult = $this->fileAnalyser->analyseFile(
+      $fileAnalyserResult = $this->fileAnalyser->analyseFile(
                     $file,
                     $allAnalysedFiles,
                     $this->registry,
