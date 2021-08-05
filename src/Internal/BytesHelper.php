@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PHPStan\Internal;
 
+
 class BytesHelper
 {
     public static function bytes(int $bytes): string
