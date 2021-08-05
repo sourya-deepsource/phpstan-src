@@ -17,6 +17,7 @@ class BytesHelper
             $bytes /= 1024;
         }
 
+		// skipcq: PHP-W1040
         if (!isset($unit)) {
             throw new \PHPStan\ShouldNotHappenException();
         }
