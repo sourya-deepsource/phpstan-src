@@ -8,15 +8,15 @@ namespace Bug4415Rule;
  */
 interface CollectionInterface extends \IteratorAggregate
 {
-	/**
-	 * @param T $item
-	 */
-	public function has($item): bool;
+    /**
+     * @param T $item
+     */
+    public function has($item): bool;
 
-	/**
-	 * @return self<T>
-	 */
-	public function sort(): self;
+    /**
+     * @return self<T>
+     */
+    public function sort(): self;
 }
 
 /**
@@ -25,11 +25,11 @@ interface CollectionInterface extends \IteratorAggregate
  */
 interface MutableCollectionInterface extends CollectionInterface
 {
-	/**
-	 * @param T $item
-	 * @phpstan-return self<T>
-	 */
-	public function add($item): self;
+    /**
+     * @param T $item
+     * @phpstan-return self<T>
+     */
+    public function add($item): self;
 }
 
 /**
@@ -37,12 +37,12 @@ interface MutableCollectionInterface extends CollectionInterface
  */
 interface CategoryCollectionInterface extends CollectionInterface
 {
-	public function has($item): bool;
+    public function has($item): bool;
 
-	/**
-	 * @phpstan-return \Iterator<Category>
-	 */
-	public function getIterator(): \Iterator;
+    /**
+     * @phpstan-return \Iterator<Category>
+     */
+    public function getIterator(): \Iterator;
 }
 
 /**
@@ -54,34 +54,35 @@ interface MutableCategoryCollectionInterface extends CategoryCollectionInterface
 
 class CategoryCollection implements MutableCategoryCollectionInterface
 {
-	/** @var array<Category> */
-	private $categories = [];
+    /** @var array<Category> */
+    private $categories = [];
 
-	public function add($item): MutableCollectionInterface
-	{
-		$this->categories[$item->getName()] = $item;
-		return $this;
-	}
+    public function add($item): MutableCollectionInterface
+    {
+        $this->categories[$item->getName()] = $item;
+        return $this;
+    }
 
-	public function has($item): bool
-	{
-		return isset($this->categories[$item->getName()]);
-	}
+    public function has($item): bool
+    {
+        return isset($this->categories[$item->getName()]);
+    }
 
-	public function sort(): CollectionInterface
-	{
-		return $this;
-	}
+    public function sort(): CollectionInterface
+    {
+        return $this;
+    }
 
-	public function getIterator(): \Iterator
-	{
-		return new \ArrayIterator($this->categories);
-	}
+    public function getIterator(): \Iterator
+    {
+        return new \ArrayIterator($this->categories);
+    }
 }
 
-class Category {
-	public function getName(): string
-	{
-		return '';
-	}
+class Category
+{
+    public function getName(): string
+    {
+        return '';
+    }
 }

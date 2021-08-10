@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules;
 
@@ -10,15 +12,13 @@ use PHPStan\Analyser\Scope;
  */
 class DummyRule implements \PHPStan\Rules\Rule
 {
+    public function getNodeType(): string
+    {
+        return 'PhpParser\Node\Expr\FuncCall';
+    }
 
-	public function getNodeType(): string
-	{
-		return 'PhpParser\Node\Expr\FuncCall';
-	}
-
-	public function processNode(Node $node, Scope $scope): array
-	{
-		return [];
-	}
-
+    public function processNode(Node $node, Scope $scope): array
+    {
+        return [];
+    }
 }

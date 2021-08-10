@@ -4,7 +4,6 @@ namespace InternalAnnotations;
 
 function foo()
 {
-
 }
 
 /**
@@ -12,28 +11,23 @@ function foo()
  */
 function internalFoo()
 {
-
 }
 
 class Foo
 {
+    public const FOO = 'foo';
 
-	const FOO = 'foo';
+    public $foo;
 
-	public $foo;
+    public static $staticFoo;
 
-	public static $staticFoo;
+    public function foo()
+    {
+    }
 
-	public function foo()
-	{
-
-	}
-
-	public static function staticFoo()
-	{
-
-	}
-
+    public static function staticFoo()
+    {
+    }
 }
 
 /**
@@ -41,49 +35,43 @@ class Foo
  */
 class InternalFoo
 {
+    /**
+     * @internal
+     */
+    public const INTERNAL_FOO = 'internal_foo';
 
-	/**
-	 * @internal
-	 */
-	const INTERNAL_FOO = 'internal_foo';
+    /**
+     * @internal
+     */
+    public $internalFoo;
 
-	/**
-	 * @internal
-	 */
-	public $internalFoo;
+    /**
+     * @internal
+     */
+    public static $internalStaticFoo;
 
-	/**
-	 * @internal
-	 */
-	public static $internalStaticFoo;
+    /**
+     * @internal
+     */
+    public function internalFoo()
+    {
+    }
 
-	/**
-	 * @internal
-	 */
-	public function internalFoo()
-	{
-
-	}
-
-	/**
-	 * @internal
-	 */
-	public static function internalStaticFoo()
-	{
-
-	}
-
+    /**
+     * @internal
+     */
+    public static function internalStaticFoo()
+    {
+    }
 }
 
 interface FooInterface
 {
+    public const FOO = 'foo';
 
-	const FOO = 'foo';
+    public function foo();
 
-	public function foo();
-
-	public static function staticFoo();
-
+    public static function staticFoo();
 }
 
 /**
@@ -91,41 +79,35 @@ interface FooInterface
  */
 interface InternalFooInterface
 {
+    /**
+     * @internal
+     */
+    public const INTERNAL_FOO = 'internal_foo';
 
-	/**
-	 * @internal
-	 */
-	const INTERNAL_FOO = 'internal_foo';
+    /**
+     * @internal
+     */
+    public function internalFoo();
 
-	/**
-	 * @internal
-	 */
-	public function internalFoo();
-
-	/**
-	 * @internal
-	 */
-	public static function internalStaticFoo();
-
+    /**
+     * @internal
+     */
+    public static function internalStaticFoo();
 }
 
 trait FooTrait
 {
+    public $foo;
 
-	public $foo;
+    public static $staticFoo;
 
-	public static $staticFoo;
+    public function foo()
+    {
+    }
 
-	public function foo()
-	{
-
-	}
-
-	public static function staticFoo()
-	{
-
-	}
-
+    public static function staticFoo()
+    {
+    }
 }
 
 /**
@@ -133,31 +115,27 @@ trait FooTrait
  */
 trait InternalFooTrait
 {
+    /**
+     * @internal
+     */
+    public $internalFoo;
 
-	/**
-	 * @internal
-	 */
-	public $internalFoo;
+    /**
+     * @internal
+     */
+    public static $internalStaticFoo;
 
-	/**
-	 * @internal
-	 */
-	public static $internalStaticFoo;
+    /**
+     * @internal
+     */
+    public function internalFoo()
+    {
+    }
 
-	/**
-	 * @internal
-	 */
-	public function internalFoo()
-	{
-
-	}
-
-	/**
-	 * @internal
-	 */
-	public static function internalStaticFoo()
-	{
-
-	}
-
+    /**
+     * @internal
+     */
+    public static function internalStaticFoo()
+    {
+    }
 }

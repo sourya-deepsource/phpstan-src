@@ -4,25 +4,21 @@ namespace MethodPhpDocsTraitInSameFileAsClass;
 
 trait FooTrait
 {
-
-	/**
-	 * @return string
-	 */
-	public function getFoo()
-	{
-		return 'foo';
-	}
-
+    /**
+     * @return string
+     */
+    public function getFoo()
+    {
+        return 'foo';
+    }
 }
 
 class Foo
 {
+    use FooTrait;
 
-	use FooTrait;
-
-	public function bar()
-	{
-		die;
-	}
-
+    public function bar()
+    {
+        die;
+    }
 }

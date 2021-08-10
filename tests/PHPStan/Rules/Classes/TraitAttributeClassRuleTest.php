@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Classes;
 
@@ -10,23 +12,21 @@ use PHPStan\Testing\RuleTestCase;
  */
 class TraitAttributeClassRuleTest extends RuleTestCase
 {
+    protected function getRule(): Rule
+    {
+        return new TraitAttributeClassRule();
+    }
 
-	protected function getRule(): Rule
-	{
-		return new TraitAttributeClassRule();
-	}
-
-	public function testRule(): void
-	{
-		if (!self::$useStaticReflectionProvider && PHP_VERSION_ID < 80000) {
-			$this->markTestSkipped('Test requires PHP 8.0.');
-		}
-		$this->analyse([__DIR__ . '/data/non-class-attribute-class.php'], [
-			[
-				'Trait cannot be an Attribute class.',
-				11,
-			],
-		]);
-	}
-
+    public function testRule(): void
+    {
+        if (!self::$useStaticReflectionProvider && PHP_VERSION_ID < 80000) {
+            $this->markTestSkipped('Test requires PHP 8.0.');
+        }
+        $this->analyse([__DIR__ . '/data/non-class-attribute-class.php'], [
+            [
+                'Trait cannot be an Attribute class.',
+                11,
+            ],
+        ]);
+    }
 }

@@ -2,8 +2,6 @@
 
 class ClassWithUnknownPropertyType
 {
-
-	/** @var ClassWithUnknownParent|self */
-	protected $test;
-
+    /** @var ClassWithUnknownParent|self */
+    protected $test;
 }

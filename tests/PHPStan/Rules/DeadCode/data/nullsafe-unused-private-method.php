@@ -1,18 +1,17 @@
-<?php // lint >= 8.0
+<?php
+
+// lint >= 8.0
 
 namespace NullsafeUnusedPrivateMethod;
 
 class Foo
 {
+    public function doFoo(?self $self): void
+    {
+        $self?->doBar();
+    }
 
-	public function doFoo(?self $self): void
-	{
-		$self?->doBar();
-	}
-
-	private function doBar(): void
-	{
-
-	}
-
+    private function doBar(): void
+    {
+    }
 }

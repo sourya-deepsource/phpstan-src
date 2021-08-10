@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Dependency;
 
@@ -18,128 +20,126 @@ use Tests\Dependency\ParentClass;
 
 class DependencyDumperTest extends TestCase
 {
+    public function testDumpDependencies(): void
+    {
+        $container = self::getContainer();
 
-	public function testDumpDependencies(): void
-	{
-		$container = self::getContainer();
+        /** @var NodeScopeResolver $nodeScopeResolver */
+        $nodeScopeResolver = $container->getByType(NodeScopeResolver::class);
 
-		/** @var NodeScopeResolver $nodeScopeResolver */
-		$nodeScopeResolver = $container->getByType(NodeScopeResolver::class);
+        /** @var Parser $realParser */
+        $realParser = $container->getByType(Parser::class);
 
-		/** @var Parser $realParser */
-		$realParser = $container->getByType(Parser::class);
+        $mockParser = $this->createMock(Parser::class);
+        $mockParser->method('parseFile')
+            ->willReturnCallback(static function (string $file) use ($realParser): array {
+                if (file_exists($file)) {
+                    return $realParser->parseFile($file);
+                }
 
-		$mockParser = $this->createMock(Parser::class);
-		$mockParser->method('parseFile')
-			->willReturnCallback(static function (string $file) use ($realParser): array {
-				if (file_exists($file)) {
-					return $realParser->parseFile($file);
-				}
+                return [];
+            });
 
-				return [];
-			});
+        /** @var Broker $realBroker */
+        $realBroker = $container->getByType(Broker::class);
 
-		/** @var Broker $realBroker */
-		$realBroker = $container->getByType(Broker::class);
+        $fileHelper = new FileHelper(__DIR__);
 
-		$fileHelper = new FileHelper(__DIR__);
+        $mockBroker = $this->createMock(Broker::class);
+        $mockBroker->method('getClass')
+            ->willReturnCallback(function (string $class) use ($realBroker, $fileHelper): ClassReflection {
+                if (in_array($class, [
+                    GrandChild::class,
+                    Child::class,
+                    ParentClass::class,
+                ], true)) {
+                    return $realBroker->getClass($class);
+                }
 
-		$mockBroker = $this->createMock(Broker::class);
-		$mockBroker->method('getClass')
-			->willReturnCallback(function (string $class) use ($realBroker, $fileHelper): ClassReflection {
-				if (in_array($class, [
-					GrandChild::class,
-					Child::class,
-					ParentClass::class,
-				], true)) {
-					return $realBroker->getClass($class);
-				}
+                $nameParts = explode('\\', $class);
+                $shortClass = array_pop($nameParts);
 
-				$nameParts = explode('\\', $class);
-				$shortClass = array_pop($nameParts);
+                $classReflection = $this->createMock(ClassReflection::class);
+                $classReflection->method('getInterfaces')->willReturn([]);
+                $classReflection->method('getTraits')->willReturn([]);
+                $classReflection->method('getParentClass')->willReturn(false);
+                $classReflection->method('getFilename')->willReturn(
+                    $fileHelper->normalizePath(__DIR__ . '/data/' . $shortClass . '.php')
+                );
 
-				$classReflection = $this->createMock(ClassReflection::class);
-				$classReflection->method('getInterfaces')->willReturn([]);
-				$classReflection->method('getTraits')->willReturn([]);
-				$classReflection->method('getParentClass')->willReturn(false);
-				$classReflection->method('getFilename')->willReturn(
-					$fileHelper->normalizePath(__DIR__ . '/data/' . $shortClass . '.php')
-				);
+                return $classReflection;
+            });
 
-				return $classReflection;
-			});
+        $expectedDependencyTree = $this->getExpectedDependencyTree($fileHelper);
 
-		$expectedDependencyTree = $this->getExpectedDependencyTree($fileHelper);
+        /** @var ScopeFactory $scopeFactory */
+        $scopeFactory = $container->getByType(ScopeFactory::class);
 
-		/** @var ScopeFactory $scopeFactory */
-		$scopeFactory = $container->getByType(ScopeFactory::class);
+        /** @var FileFinder $fileFinder */
+        $fileFinder = $container->getService('fileFinderAnalyse');
 
-		/** @var FileFinder $fileFinder */
-		$fileFinder = $container->getService('fileFinderAnalyse');
+        $dumper = new DependencyDumper(
+            new DependencyResolver($fileHelper, $mockBroker, new ExportedNodeResolver(self::getContainer()->getByType(FileTypeMapper::class), new Standard())),
+            $nodeScopeResolver,
+            $mockParser,
+            $scopeFactory,
+            $fileFinder
+        );
 
-		$dumper = new DependencyDumper(
-			new DependencyResolver($fileHelper, $mockBroker, new ExportedNodeResolver(self::getContainer()->getByType(FileTypeMapper::class), new Standard())),
-			$nodeScopeResolver,
-			$mockParser,
-			$scopeFactory,
-			$fileFinder
-		);
+        $dependencies = $dumper->dumpDependencies(
+            array_merge(
+                [$fileHelper->normalizePath(__DIR__ . '/data/GrandChild.php')],
+                array_keys($expectedDependencyTree)
+            ),
+            static function (): void {
+            },
+            static function (): void {
+            },
+            null
+        );
 
-		$dependencies = $dumper->dumpDependencies(
-			array_merge(
-				[$fileHelper->normalizePath(__DIR__ . '/data/GrandChild.php')],
-				array_keys($expectedDependencyTree)
-			),
-			static function (): void {
-			},
-			static function (): void {
-			},
-			null
-		);
+        $this->assertCount(count($expectedDependencyTree), $dependencies);
+        foreach ($expectedDependencyTree as $file => $files) {
+            $this->assertArrayHasKey($file, $dependencies);
+            $this->assertSame($files, $dependencies[$file]);
+        }
+    }
 
-		$this->assertCount(count($expectedDependencyTree), $dependencies);
-		foreach ($expectedDependencyTree as $file => $files) {
-			$this->assertArrayHasKey($file, $dependencies);
-			$this->assertSame($files, $dependencies[$file]);
-		}
-	}
+    /**
+     * @param FileHelper $fileHelper
+     * @return string[][]
+     */
+    private function getExpectedDependencyTree(FileHelper $fileHelper): array
+    {
+        $tree = [
+            'Child.php' => [
+                'GrandChild.php',
+            ],
+            'Parent.php' => [
+                'GrandChild.php',
+                'Child.php',
+            ],
+            'MethodNativeReturnTypehint.php' => [
+                'GrandChild.php',
+            ],
+            'MethodPhpDocReturnTypehint.php' => [
+                'GrandChild.php',
+            ],
+            'ParamNativeReturnTypehint.php' => [
+                'GrandChild.php',
+            ],
+            'ParamPhpDocReturnTypehint.php' => [
+                'GrandChild.php',
+            ],
+        ];
 
-	/**
-	 * @param FileHelper $fileHelper
-	 * @return string[][]
-	 */
-	private function getExpectedDependencyTree(FileHelper $fileHelper): array
-	{
-		$tree = [
-			'Child.php' => [
-				'GrandChild.php',
-			],
-			'Parent.php' => [
-				'GrandChild.php',
-				'Child.php',
-			],
-			'MethodNativeReturnTypehint.php' => [
-				'GrandChild.php',
-			],
-			'MethodPhpDocReturnTypehint.php' => [
-				'GrandChild.php',
-			],
-			'ParamNativeReturnTypehint.php' => [
-				'GrandChild.php',
-			],
-			'ParamPhpDocReturnTypehint.php' => [
-				'GrandChild.php',
-			],
-		];
+        $expectedTree = [];
+        foreach ($tree as $file => $files) {
+            $expectedTree[$fileHelper->normalizePath(__DIR__ . '/data/' . $file)] = array_map(static function (string $file) use ($fileHelper): string {
+                return $fileHelper->normalizePath(__DIR__ . '/data/' . $file);
+            }, $files);
+        }
 
-		$expectedTree = [];
-		foreach ($tree as $file => $files) {
-			$expectedTree[$fileHelper->normalizePath(__DIR__ . '/data/' . $file)] = array_map(static function (string $file) use ($fileHelper): string {
-				return $fileHelper->normalizePath(__DIR__ . '/data/' . $file);
-			}, $files);
-		}
-
-		return $expectedTree;
-	}
-
+        return $expectedTree;
+    }
 }

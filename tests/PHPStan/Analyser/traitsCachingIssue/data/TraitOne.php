@@ -6,13 +6,11 @@ use stdClass as Foo;
 
 trait TraitOne
 {
-
-	/**
-	 * @return Foo
-	 */
-	public function doFoo()
-	{
-		return new Foo();
-	}
-
+    /**
+     * @return Foo
+     */
+    public function doFoo()
+    {
+        return new Foo();
+    }
 }

@@ -4,19 +4,17 @@ namespace Bug1903;
 
 class Test
 {
+    private $answersOrder = [];
 
-	private $answersOrder = [];
-
-	public function doFoo(string $qId): array
-	{
-		if (null !== $this->answersOrder[$qId]) {
-			return $this->answersOrder[$qId];
-		}
+    public function doFoo(string $qId): array
+    {
+        if (null !== $this->answersOrder[$qId]) {
+            return $this->answersOrder[$qId];
+        }
 
 
-		$this->answersOrder[$qId] = 5;
+        $this->answersOrder[$qId] = 5;
 
-		return $this->answersOrder[$qId];
-	}
-
+        return $this->answersOrder[$qId];
+    }
 }

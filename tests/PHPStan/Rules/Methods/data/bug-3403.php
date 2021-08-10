@@ -4,17 +4,12 @@ namespace Bug3403;
 
 interface Foo
 {
-
-	public function bar(...$baz): void;
-
+    public function bar(...$baz): void;
 }
 
 class AFoo implements Foo
 {
-
-	public function bar(...$baz): void
-	{
-
-	}
-
+    public function bar(...$baz): void
+    {
+    }
 }

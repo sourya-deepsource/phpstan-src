@@ -1,11 +1,15 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\Test\C;
 
 /** @template T */
-interface Invariant {
+interface Invariant
+{
 }
 
 /** @template-covariant T */
-interface Covariant {
+interface Covariant
+{
 }

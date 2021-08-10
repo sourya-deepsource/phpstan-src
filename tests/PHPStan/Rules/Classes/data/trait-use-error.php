@@ -4,26 +4,22 @@ namespace TraitUseError;
 
 class Foo
 {
-
-	use FooTrait;
-
+    use FooTrait;
 }
 
 trait BarTrait
 {
-
-	use Foo, FooTrait;
-
+    use Foo;
+    use FooTrait;
 }
 
 interface Baz
 {
+    use BarTrait;
 
-	use BarTrait;
+    }
 
-}
-
-new class {
-	use FooTrait;
-	use Baz;
+new class() {
+    use FooTrait;
+    use Baz;
 };

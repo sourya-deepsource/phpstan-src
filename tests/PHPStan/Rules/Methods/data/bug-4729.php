@@ -5,10 +5,10 @@ namespace Bug4729;
 /** @template T of int */
 interface I
 {
-	/**
-	 * @return static
-	 */
-	function get(): I;
+    /**
+     * @return static
+     */
+    public function get(): I;
 }
 
 /**
@@ -17,10 +17,10 @@ interface I
  */
 final class B implements I
 {
-	function get(): I
-	{
-		return $this;
-	}
+    public function get(): I
+    {
+        return $this;
+    }
 }
 
 /**
@@ -29,8 +29,8 @@ final class B implements I
  */
 class C implements I
 {
-	function get(): I
-	{
-		return $this;
-	}
+    public function get(): I
+    {
+        return $this;
+    }
 }

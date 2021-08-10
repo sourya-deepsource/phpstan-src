@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Functions;
 
@@ -11,32 +13,30 @@ use PHPStan\Testing\RuleTestCase;
  */
 class ReturnNullsafeByRefRuleTest extends RuleTestCase
 {
+    protected function getRule(): Rule
+    {
+        return new ReturnNullsafeByRefRule(new NullsafeCheck());
+    }
 
-	protected function getRule(): Rule
-	{
-		return new ReturnNullsafeByRefRule(new NullsafeCheck());
-	}
+    public function testRule(): void
+    {
+        if (!self::$useStaticReflectionProvider) {
+            $this->markTestSkipped('Test requires static reflection.');
+        }
 
-	public function testRule(): void
-	{
-		if (!self::$useStaticReflectionProvider) {
-			$this->markTestSkipped('Test requires static reflection.');
-		}
-
-		$this->analyse([__DIR__ . '/data/return-null-safe-by-ref.php'], [
-			[
-				'Nullsafe cannot be returned by reference.',
-				15,
-			],
-			[
-				'Nullsafe cannot be returned by reference.',
-				25,
-			],
-			[
-				'Nullsafe cannot be returned by reference.',
-				36,
-			],
-		]);
-	}
-
+        $this->analyse([__DIR__ . '/data/return-null-safe-by-ref.php'], [
+            [
+                'Nullsafe cannot be returned by reference.',
+                15,
+            ],
+            [
+                'Nullsafe cannot be returned by reference.',
+                25,
+            ],
+            [
+                'Nullsafe cannot be returned by reference.',
+                36,
+            ],
+        ]);
+    }
 }

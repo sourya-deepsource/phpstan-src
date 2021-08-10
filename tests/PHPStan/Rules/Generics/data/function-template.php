@@ -7,7 +7,6 @@ namespace FunctionTemplateType;
  */
 function foo()
 {
-
 }
 
 /**
@@ -15,7 +14,6 @@ function foo()
  */
 function bar()
 {
-
 }
 
 /**
@@ -23,7 +21,6 @@ function bar()
  */
 function baz()
 {
-
 }
 
 /**
@@ -31,5 +28,4 @@ function baz()
  */
 function lorem()
 {
-
 }

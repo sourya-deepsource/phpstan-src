@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace TimecopRegressionTest;
 
@@ -6,18 +8,16 @@ use DateTimeImmutable;
 
 class TimecopRegression
 {
+    /** @var DateTimeImmutable */
+    private $bar;
 
-	/** @var DateTimeImmutable */
-	private $bar;
+    public function __construct(DateTimeImmutable $bar)
+    {
+        $this->bar = $bar;
+    }
 
-	public function __construct(DateTimeImmutable $bar)
-	{
-		$this->bar = $bar;
-	}
-
-	public static function create(): self
-	{
-		return new self(new DateTimeImmutable());
-	}
-
+    public static function create(): self
+    {
+        return new self(new DateTimeImmutable());
+    }
 }

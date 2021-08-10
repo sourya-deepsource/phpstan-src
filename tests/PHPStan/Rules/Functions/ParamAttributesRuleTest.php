@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Functions;
 
@@ -16,39 +18,37 @@ use PHPStan\Testing\RuleTestCase;
  */
 class ParamAttributesRuleTest extends RuleTestCase
 {
+    protected function getRule(): Rule
+    {
+        $reflectionProvider = $this->createReflectionProvider();
+        return new ParamAttributesRule(
+            new AttributesCheck(
+                $reflectionProvider,
+                new FunctionCallParametersCheck(
+                    new RuleLevelHelper($reflectionProvider, true, false, true),
+                    new NullsafeCheck(),
+                    new PhpVersion(80000),
+                    true,
+                    true,
+                    true,
+                    true
+                ),
+                new ClassCaseSensitivityCheck($reflectionProvider, false)
+            )
+        );
+    }
 
-	protected function getRule(): Rule
-	{
-		$reflectionProvider = $this->createReflectionProvider();
-		return new ParamAttributesRule(
-			new AttributesCheck(
-				$reflectionProvider,
-				new FunctionCallParametersCheck(
-					new RuleLevelHelper($reflectionProvider, true, false, true),
-					new NullsafeCheck(),
-					new PhpVersion(80000),
-					true,
-					true,
-					true,
-					true
-				),
-				new ClassCaseSensitivityCheck($reflectionProvider, false)
-			)
-		);
-	}
+    public function testRule(): void
+    {
+        if (!self::$useStaticReflectionProvider && PHP_VERSION_ID < 80000) {
+            $this->markTestSkipped('Test requires PHP 8.0.');
+        }
 
-	public function testRule(): void
-	{
-		if (!self::$useStaticReflectionProvider && PHP_VERSION_ID < 80000) {
-			$this->markTestSkipped('Test requires PHP 8.0.');
-		}
-
-		$this->analyse([__DIR__ . '/data/param-attributes.php'], [
-			[
-				'Attribute class ParamAttributes\Foo does not have the parameter target.',
-				27,
-			],
-		]);
-	}
-
+        $this->analyse([__DIR__ . '/data/param-attributes.php'], [
+            [
+                'Attribute class ParamAttributes\Foo does not have the parameter target.',
+                27,
+            ],
+        ]);
+    }
 }

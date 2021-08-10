@@ -3,227 +3,211 @@
 function foo()
 {
 
-	/** @var string|null $alwaysDefinedNullable */
-	$alwaysDefinedNullable = doFoo();
+    /** @var string|null $alwaysDefinedNullable */
+    $alwaysDefinedNullable = doFoo();
 
-	if (isset($alwaysDefinedNullable)) { // fine, checking for nullability
+    if (isset($alwaysDefinedNullable)) { // fine, checking for nullability
+    }
 
-	}
+    $alwaysDefinedNotNullable = 'string';
+    if (isset($alwaysDefinedNotNullable)) { // always true
+    }
 
-	$alwaysDefinedNotNullable = 'string';
-	if (isset($alwaysDefinedNotNullable)) { // always true
+    if (doFoo()) {
+        $sometimesDefinedVariable = 1;
+    }
 
-	}
+    if (isset(
+        $sometimesDefinedVariable, // fine, this is what's isset() is for
+        $neverDefinedVariable // always false
+    )) {
+    }
 
-	if (doFoo()) {
-		$sometimesDefinedVariable = 1;
-	}
+    /** @var string|null $anotherAlwaysDefinedNullable */
+    $anotherAlwaysDefinedNullable = doFoo();
 
-	if (isset(
-		$sometimesDefinedVariable, // fine, this is what's isset() is for
-		$neverDefinedVariable // always false
-	)) {
+    if (isset($anotherAlwaysDefinedNullable['test']['test'])) { // fine, checking for nullability
+    }
 
-	}
+    $anotherAlwaysDefinedNotNullable = 'string';
 
-	/** @var string|null $anotherAlwaysDefinedNullable */
-	$anotherAlwaysDefinedNullable = doFoo();
+    if (isset($anotherAlwaysDefinedNotNullable['test']['test'])) { // fine, variable always exists, but what about the array index?
+    }
 
-	if (isset($anotherAlwaysDefinedNullable['test']['test'])) { // fine, checking for nullability
+    if (isset($anotherNeverDefinedVariable['test']['test']->test['test']['test'])) { // always false
+    }
 
-	}
+    if (isset($yetAnotherNeverDefinedVariable::$test['test'])) { // always false
+    }
 
-	$anotherAlwaysDefinedNotNullable = 'string';
+    if (isset($_COOKIE['test'])) { // fine
+    }
 
-	if (isset($anotherAlwaysDefinedNotNullable['test']['test'])) { // fine, variable always exists, but what about the array index?
+    if (something()) {
+    } elseif (isset($yetYetAnotherNeverDefinedVariableInIsset)) { // always false
+    }
 
-	}
+    if (doFoo()) {
+        $yetAnotherVariableThatSometimesExists = 1;
+    }
 
-	if (isset($anotherNeverDefinedVariable['test']['test']->test['test']['test'])) { // always false
+    if (something()) {
+    } elseif (isset($yetAnotherVariableThatSometimesExists)) { // fine
+    }
 
-	}
+    /** @var string|null $nullableVariableUsedInTernary */
+    $nullableVariableUsedInTernary = doFoo();
+    echo isset($nullableVariableUsedInTernary) ? 'foo' : 'bar'; // fine
 
-	if (isset($yetAnotherNeverDefinedVariable::$test['test'])) { // always false
+    /** @var int|null $forVariableInit */
+    $forVariableInit = doFoo();
 
-	}
+    /** @var int|null $forVariableCond */
+    $forVariableCond = doFoo();
 
-	if (isset($_COOKIE['test'])) { // fine
+    /** @var int|null $forVariableLoop */
+    $forVariableLoop = doFoo();
 
-	}
+    for ($i = 0, $init = isset($forVariableInit); $i < 10 && isset($forVariableCond); $i++, $loop = isset($forVariableLoop)) {
+    }
 
-	if (something()) {
+    if (something()) {
+        $variableInWhile = 1;
+    }
 
-	} elseif (isset($yetYetAnotherNeverDefinedVariableInIsset)) { // always false
+    while (isset($variableInWhile)) {
+        unset($variableInWhile);
+    }
 
-	}
+    if (something()) {
+        $variableInDoWhile = 1;
+    }
 
-	if (doFoo()) {
-		$yetAnotherVariableThatSometimesExists = 1;
-	}
+    do {
+        $anotherVariableInDoWhile = 1;
+        echo isset($yetAnotherVariableInDoWhile); // fine
+    } while (
+        isset($variableInDoWhile) // fine
+        && isset($anotherVariableInDoWhile) // always defined
+        && ($yetAnotherVariableInDoWhile = 1)
+    );
 
-	if (something()) {
+    switch (true) {
+        case $variableInFirstCase = true:
+            isset($variableInSecondCase); // does not exist yet
+            // no break
+        case $variableInSecondCase = true:
+            isset($variableInFirstCase); // always defined
+            $variableAssignedInSecondCase = true;
+            break;
+        case whatever():
+            isset($variableInFirstCase); // always defined
+            isset($variableInSecondCase); // always defined
+            $variableInFallthroughCase = true;
+            isset($variableAssignedInSecondCase); // surely undefined
+            // no break
+        case foo():
+            isset($variableInFallthroughCase); // fine
+            // no break
+        default:
 
-	} elseif (isset($yetAnotherVariableThatSometimesExists)) { // fine
+    }
 
-	}
+    if (foo()) {
+        $mightBeUndefinedForSwitchCondition = 1;
+        $mightBeUndefinedForCaseNodeCondition = 1;
+    }
 
-	/** @var string|null $nullableVariableUsedInTernary */
-	$nullableVariableUsedInTernary = doFoo();
-	echo isset($nullableVariableUsedInTernary) ? 'foo' : 'bar'; // fine
+    switch (isset($mightBeUndefinedForSwitchCondition)) { // fine
+        case isset($mightBeUndefinedForCaseNodeCondition): // fine
+            break;
+    }
 
-	/** @var int|null $forVariableInit */
-	$forVariableInit = doFoo();
+    $alwaysDefinedForSwitchCondition = 1;
+    $alwaysDefinedForCaseNodeCondition = 1;
 
-	/** @var int|null $forVariableCond */
-	$forVariableCond = doFoo();
-
-	/** @var int|null $forVariableLoop */
-	$forVariableLoop = doFoo();
-
-	for ($i = 0, $init = isset($forVariableInit); $i < 10 && isset($forVariableCond); $i++, $loop = isset($forVariableLoop)) {
-
-	}
-
-	if (something()) {
-		$variableInWhile = 1;
-	}
-
-	while (isset($variableInWhile)) {
-		unset($variableInWhile);
-	}
-
-	if (something()) {
-		$variableInDoWhile = 1;
-	}
-
-	do {
-		$anotherVariableInDoWhile = 1;
-		echo isset($yetAnotherVariableInDoWhile); // fine
-	} while (
-		isset($variableInDoWhile) // fine
-		&& isset($anotherVariableInDoWhile) // always defined
-		&& ($yetAnotherVariableInDoWhile = 1)
-	);
-
-	switch (true) {
-		case $variableInFirstCase = true:
-			isset($variableInSecondCase); // does not exist yet
-		case $variableInSecondCase = true:
-			isset($variableInFirstCase); // always defined
-			$variableAssignedInSecondCase = true;
-			break;
-		case whatever():
-			isset($variableInFirstCase); // always defined
-			isset($variableInSecondCase); // always defined
-			$variableInFallthroughCase = true;
-			isset($variableAssignedInSecondCase); // surely undefined
-		case foo():
-			isset($variableInFallthroughCase); // fine
-		default:
-
-	}
-
-	if (foo()) {
-		$mightBeUndefinedForSwitchCondition = 1;
-		$mightBeUndefinedForCaseNodeCondition = 1;
-	}
-
-	switch (isset($mightBeUndefinedForSwitchCondition)) { // fine
-		case isset($mightBeUndefinedForCaseNodeCondition): // fine
-			break;
-	}
-
-	$alwaysDefinedForSwitchCondition = 1;
-	$alwaysDefinedForCaseNodeCondition = 1;
-
-	switch (isset($alwaysDefinedForSwitchCondition)) {
-		case isset($alwaysDefinedForCaseNodeCondition):
-			break;
-	}
-
+    switch (isset($alwaysDefinedForSwitchCondition)) {
+        case isset($alwaysDefinedForCaseNodeCondition):
+            break;
+    }
 }
 
 function () {
-	$alwaysDefinedNotNullable = 'string';
-	if (doFoo()) {
-		$sometimesDefinedVariable = 1;
-	}
+    $alwaysDefinedNotNullable = 'string';
+    if (doFoo()) {
+        $sometimesDefinedVariable = 1;
+    }
 
-	if (isset(
-		$alwaysDefinedNotNullable, // always true
-		$sometimesDefinedVariable, // fine, this is what's isset() is for
-		$neverDefinedVariable // always false
-	)) {
-
-	}
+    if (isset(
+        $alwaysDefinedNotNullable, // always true
+        $sometimesDefinedVariable, // fine, this is what's isset() is for
+        $neverDefinedVariable // always false
+    )) {
+    }
 };
 
 function () {
-	try {
-		if (something()) {
-			throw new \Exception();
-		}
-		$test = 'fooo';
-	} finally {
-		if (isset($test)) {
-
-		}
-	}
+    try {
+        if (something()) {
+            throw new \Exception();
+        }
+        $test = 'fooo';
+    } finally {
+        if (isset($test)) {
+        }
+    }
 };
 
 function () {
-	/** @var string[] $strings */
-	$strings = doFoo();
-	foreach ($strings as $string) {
+    /** @var string[] $strings */
+    $strings = doFoo();
+    foreach ($strings as $string) {
+    }
 
-	}
-
-	if (isset($string)) {
-
-	}
+    if (isset($string)) {
+    }
 };
 
 function () {
-	/** @var mixed $bar */
-	$bar = $this->get('bar');
-	if (isset($bar)) {
-		$bar = (int) $bar;
-	}
-	if (isset($bar)) {
-		echo $bar;
-	}
+    /** @var mixed $bar */
+    $bar = $this->get('bar');
+    if (isset($bar)) {
+        $bar = (int) $bar;
+    }
+    if (isset($bar)) {
+        echo $bar;
+    }
 };
 
 function () {
-	while (true) {
-		if (rand() === 1) {
-			$a = 'a';
-			continue;
-		}
+    while (true) {
+        if (rand() === 1) {
+            $a = 'a';
+            continue;
+        }
 
-		if (!isset($a)) {
-			continue;
-		}
+        if (!isset($a)) {
+            continue;
+        }
 
-		unset($a);
-	}
+        unset($a);
+    }
 };
 
 function () {
-	($a = rand(0, 5)) && rand(0, 1);
-	isset($a);
+    ($a = rand(0, 5)) && rand(0, 1);
+    isset($a);
 };
 
 
 function () {
-	rand(0, 1) && ($a = rand(0, 5));
-	isset($a);
+    rand(0, 1) && ($a = rand(0, 5));
+    isset($a);
 };
 
 function () {
     $null = null;
     if (isset($null)) { // always false
-
     }
 };
 

@@ -6,11 +6,11 @@ namespace Bug2648Rule;
 $foo = $_GET['bar'];
 
 if (count($foo) > 0) {
-	foreach ($foo as $key => $value) {
-		unset($foo[$key]);
-	}
+    foreach ($foo as $key => $value) {
+        unset($foo[$key]);
+    }
 
-	if(count($foo) > 0) {
-		// $foo is actually empty now
-	}
+    if (count($foo) > 0) {
+        // $foo is actually empty now
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\TooWideTypehints;
 
@@ -10,20 +12,18 @@ use PHPStan\Testing\RuleTestCase;
  */
 class TooWideClosureReturnTypehintRuleTest extends RuleTestCase
 {
+    protected function getRule(): Rule
+    {
+        return new TooWideClosureReturnTypehintRule();
+    }
 
-	protected function getRule(): Rule
-	{
-		return new TooWideClosureReturnTypehintRule();
-	}
-
-	public function testRule(): void
-	{
-		$this->analyse([__DIR__ . '/data/tooWideClosureReturnType.php'], [
-			[
-				'Anonymous function never returns null so it can be removed from the return typehint.',
-				20,
-			],
-		]);
-	}
-
+    public function testRule(): void
+    {
+        $this->analyse([__DIR__ . '/data/tooWideClosureReturnType.php'], [
+            [
+                'Anonymous function never returns null so it can be removed from the return typehint.',
+                20,
+            ],
+        ]);
+    }
 }

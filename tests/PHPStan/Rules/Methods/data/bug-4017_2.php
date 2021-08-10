@@ -4,7 +4,6 @@ namespace Bug4017_2;
 
 class Foo
 {
-
 }
 
 /**
@@ -12,15 +11,12 @@ class Foo
  */
 class Bar
 {
-
-	/**
-	 * @param T $a
-	 */
-	public function doFoo($a)
-	{
-
-	}
-
+    /**
+     * @param T $a
+     */
+    public function doFoo($a)
+    {
+    }
 }
 
 /**
@@ -28,15 +24,12 @@ class Bar
  */
 class Baz extends Bar
 {
-
-	/**
-	 * @param Foo $a
-	 */
-	public function doFoo($a)
-	{
-
-	}
-
+    /**
+     * @param Foo $a
+     */
+    public function doFoo($a)
+    {
+    }
 }
 
 /**
@@ -44,13 +37,10 @@ class Baz extends Bar
  */
 class Lorem extends Bar
 {
-
-	/**
-	 * @param Foo $a
-	 */
-	public function doFoo($a)
-	{
-
-	}
-
+    /**
+     * @param Foo $a
+     */
+    public function doFoo($a)
+    {
+    }
 }

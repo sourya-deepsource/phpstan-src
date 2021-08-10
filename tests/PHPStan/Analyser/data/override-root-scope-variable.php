@@ -11,23 +11,23 @@ assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
 assertVariableCertainty(TrinaryLogic::createYes(), $foo);
 
 function (): void {
-	assertVariableCertainty(TrinaryLogic::createNo(), $foo);
+    assertVariableCertainty(TrinaryLogic::createNo(), $foo);
 
-	/** @var Foo $foo */
+    /** @var Foo $foo */
 
-	assertVariableCertainty(TrinaryLogic::createNo(), $foo);
+    assertVariableCertainty(TrinaryLogic::createNo(), $foo);
 };
 
 function (): void {
-	if (rand(0, 1) === 0) {
-		$foo = doFoo();
-	}
+    if (rand(0, 1) === 0) {
+        $foo = doFoo();
+    }
 
-	assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
+    assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
 
-	/** @var Foo $foo */
+    /** @var Foo $foo */
 
-	assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
+    assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
 };
 
 assertVariableCertainty(TrinaryLogic::createMaybe(), $bar);
@@ -35,11 +35,11 @@ assert($bar instanceof Foo);
 assertVariableCertainty(TrinaryLogic::createYes(), $bar);
 
 function (): void {
-	assertVariableCertainty(TrinaryLogic::createNo(), $bar);
+    assertVariableCertainty(TrinaryLogic::createNo(), $bar);
 
-	assert($bar instanceof Foo);
+    assert($bar instanceof Foo);
 
-	assertVariableCertainty(TrinaryLogic::createYes(), $bar);
+    assertVariableCertainty(TrinaryLogic::createYes(), $bar);
 };
 
 /** @var Foo $lorem */

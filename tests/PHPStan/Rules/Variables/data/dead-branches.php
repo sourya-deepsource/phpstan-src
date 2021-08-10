@@ -1,95 +1,76 @@
 <?php
 
 function () {
+    if (true) {
+        $test = 1;
+    }
 
-	if (true) {
-		$test = 1;
-	}
-
-	echo $test;
-
+    echo $test;
 };
 
 function () {
+    if (true) {
+    } else {
+        $test = 1;
+    }
 
-	if (true) {
-
-	} else {
-		$test = 1;
-	}
-
-	echo $test;
-
+    echo $test;
 };
 
 function () {
+    if (false) {
+        $test = 1;
+    } else {
+    }
 
-	if (false) {
-		$test = 1;
-	} else {
-
-	}
-
-	echo $test;
+    echo $test;
 };
 
 function () {
+    if (false) {
+    } else {
+        $test = 1;
+    }
 
-	if (false) {
-
-	} else {
-		$test = 1;
-	}
-
-	echo $test;
+    echo $test;
 };
 
 function (string $str) {
+    if (true) {
+    } elseif ($str) {
+        $test = 1;
+    }
 
-	if (true) {
-
-	} elseif ($str) {
-		$test = 1;
-	}
-
-	echo $test;
-
+    echo $test;
 };
 
 function (string $str) {
-	if ($str) {
+    if ($str) {
+    } elseif (false) {
+        $test = 1;
+    }
 
-	} elseif (false) {
-		$test = 1;
-	}
-
-	echo $test;
+    echo $test;
 };
 
 function (string $str) {
-	if (false) {
+    if (false) {
+    } elseif (false) {
+    } elseif (true) {
+        $test = 1;
+    } else {
+    }
 
-	} elseif (false) {
-
-	} elseif (true) {
-		$test = 1;
-	} else {
-
-	}
-
-	echo $test;
+    echo $test;
 };
 
 function (string $str) {
-	if (false) {
+    if (false) {
+    } elseif (false) {
+    } elseif (true) {
+    } else {
+        $test = 1;
+    }
 
-	} elseif (false) {
-
-	} elseif (true) {
-
-	} else {
-		$test = 1;
-	}
-
-	echo $test;
+    echo $test;
 };

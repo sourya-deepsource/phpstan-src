@@ -18,49 +18,44 @@ interface Collection extends \IteratorAggregate
  */
 interface Member extends Collection
 {
-
 }
 
 class MemberImpl implements Member
 {
-
-	/**
-	 * @return \Iterator<int,Member>
-	 */
-	public function getIterator(): \Iterator
-	{
-		return new \ArrayIterator([$this]);
-	}
-
+    /**
+     * @return \Iterator<int,Member>
+     */
+    public function getIterator(): \Iterator
+    {
+        return new \ArrayIterator([$this]);
+    }
 }
 
 class CollectionImpl implements Collection
 {
+    /**
+     * @var array<int,Member>
+     */
+    private $members;
 
-	/**
-	 * @var array<int,Member>
-	 */
-	private $members;
+    public function __construct(Member ...$members)
+    {
+        $this->members = $members;
+    }
 
-	public function __construct(Member ...$members)
-	{
-		$this->members = $members;
-	}
+    /**
+     * @return Member
+     */
+    public function getMember(): Member
+    {
+        return new MemberImpl();
+    }
 
-	/**
-	 * @return Member
-	 */
-	public function getMember(): Member
-	{
-		return new MemberImpl();
-	}
-
-	/**
-	 * @return \Iterator<int,Member>
-	 */
-	public function getIterator(): \Iterator
-	{
-		return new \ArrayIterator($this->members);
-	}
-
+    /**
+     * @return \Iterator<int,Member>
+     */
+    public function getIterator(): \Iterator
+    {
+        return new \ArrayIterator($this->members);
+    }
 }

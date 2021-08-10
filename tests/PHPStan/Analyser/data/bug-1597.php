@@ -7,7 +7,7 @@ use function PHPStan\Testing\assertType;
 $date = '';
 
 try {
-	$date = new \DateTime($date);
+    $date = new \DateTime($date);
 } catch (\Exception $e) {
-	assertType('\'\'', $date);
+    assertType('\'\'', $date);
 }

@@ -2,7 +2,7 @@
 
 namespace InvalidPhpDoc;
 
-function noDoc() : void
+function noDoc(): void
 {
 }
 
@@ -114,6 +114,6 @@ function exceptionTemplateThrows()
 
 function inlineThrows()
 {
-	/** @throws \stdClass */
-	$i = 1;
+    /** @throws \stdClass */
+    $i = 1;
 }

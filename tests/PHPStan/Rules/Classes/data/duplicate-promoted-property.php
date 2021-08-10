@@ -1,19 +1,17 @@
-<?php // lint >= 8.0
+<?php
+
+// lint >= 8.0
 
 namespace DuplicatedPromotedProperty;
 
 class Foo
 {
+    private $foo;
 
-	private $foo;
-
-	public function __construct(
-		private $foo,
-		private $bar,
-		private $bar
-	)
-	{
-
-	}
-
+    public function __construct(
+        private $foo,
+        private $bar,
+        private $bar
+    ) {
+    }
 }

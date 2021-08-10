@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Bug4731;
 
@@ -37,8 +39,8 @@ namespace Bug4731;
  */
 class HelloWorld
 {
-	public function sayHello(\DateTimeImmutable $date): void
-	{
-		echo 'Hello, ' . $date->format('j. n. Y');
-	}
+    public function sayHello(\DateTimeImmutable $date): void
+    {
+        echo 'Hello, ' . $date->format('j. n. Y');
+    }
 }

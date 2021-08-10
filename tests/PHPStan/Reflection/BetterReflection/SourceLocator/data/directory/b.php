@@ -2,34 +2,29 @@
 
 class BFoo
 {
-
-	function doBar()
-	{
-
-	}
-
+    public function doBar()
+    {
+    }
 }
 
 function doBar()
 {
-
 }
 
 function doBaz()
 {
-
 }
 
 function &get_smarty()
 {
-	global $smarty;
+    global $smarty;
 
-	return $smarty;
+    return $smarty;
 }
 
 function & get_smarty2()
 {
-	global $smarty;
+    global $smarty;
 
-	return $smarty;
+    return $smarty;
 }

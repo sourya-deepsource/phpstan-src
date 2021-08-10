@@ -7,19 +7,19 @@ use function PHPStan\Testing\assertType;
 
 class HelloWorld
 {
-	private $a;
+    private $a;
 
-	/**
-	 * @return \DateTimeInterface|null
-	 */
-	public function getA()
-	{
-		return $this->a;
-	}
+    /**
+     * @return \DateTimeInterface|null
+     */
+    public function getA()
+    {
+        return $this->a;
+    }
 }
 
 function (HelloWorld $class): void {
-	if ($class->getA()) {
-		assertType(DateTimeInterface::class, $class->getA());
-	}
+    if ($class->getA()) {
+        assertType(DateTimeInterface::class, $class->getA());
+    }
 };

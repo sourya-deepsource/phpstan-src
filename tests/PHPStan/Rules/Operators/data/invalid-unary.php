@@ -1,26 +1,26 @@
 <?php
 
 function (
-	int $i,
-	string $str
+    int $i,
+    string $str
 ) {
-	+$i;
-	-$i;
-	~$i;
+    +$i;
+    -$i;
+    ~$i;
 
-	+$str;
-	-$str;
-	~$str;
+    +$str;
+    -$str;
+    ~$str;
 
-	+'123';
-	-'123';
-	~'123';
+    +'123';
+    -'123';
+    ~'123';
 
-	+'bla';
-	-'bla';
-	~'123';
+    +'bla';
+    -'bla';
+    ~'123';
 
-	$array = [];
-	~$array;
-	~1.1;
+    $array = [];
+    ~$array;
+    ~1.1;
 };

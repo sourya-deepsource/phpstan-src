@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Command\ErrorFormatter;
 
@@ -7,23 +9,22 @@ use PHPStan\Testing\ErrorFormatterTestCase;
 
 class GitlabFormatterTest extends ErrorFormatterTestCase
 {
+    public function dataFormatterOutputProvider(): iterable
+    {
+        yield [
+            'No errors',
+            0,
+            0,
+            0,
+            '[]',
+        ];
 
-	public function dataFormatterOutputProvider(): iterable
-	{
-		yield [
-			'No errors',
-			0,
-			0,
-			0,
-			'[]',
-		];
-
-		yield [
-			'One file error',
-			1,
-			1,
-			0,
-			'[
+        yield [
+            'One file error',
+            1,
+            1,
+            0,
+            '[
     {
         "description": "Foo",
         "fingerprint": "e82b7e1f1d4255352b19ecefa9116a12f129c7edb4351cf2319285eccdb1565e",
@@ -36,14 +37,14 @@ class GitlabFormatterTest extends ErrorFormatterTestCase
         }
     }
 ]',
-		];
+        ];
 
-		yield [
-			'One generic error',
-			1,
-			0,
-			1,
-			'[
+        yield [
+            'One generic error',
+            1,
+            0,
+            1,
+            '[
     {
         "description": "first generic error",
         "fingerprint": "53ed216d77c9a9b21d9535322457ca7d7b037d6596d76484b3481f161adfd96f",
@@ -56,14 +57,14 @@ class GitlabFormatterTest extends ErrorFormatterTestCase
         }
     }
 ]',
-		];
+        ];
 
-		yield [
-			'Multiple file errors',
-			1,
-			4,
-			0,
-			'[
+        yield [
+            'Multiple file errors',
+            1,
+            4,
+            0,
+            '[
     {
         "description": "Bar\nBar2",
         "fingerprint": "034b4afbfb347494c14e396ed8327692f58be4cd27e8aff5f19f4194934db7c9",
@@ -109,14 +110,14 @@ class GitlabFormatterTest extends ErrorFormatterTestCase
         }
     }
 ]',
-		];
+        ];
 
-		yield [
-			'Multiple generic errors',
-			1,
-			0,
-			2,
-			'[
+        yield [
+            'Multiple generic errors',
+            1,
+            0,
+            2,
+            '[
     {
         "description": "first generic error",
         "fingerprint": "53ed216d77c9a9b21d9535322457ca7d7b037d6596d76484b3481f161adfd96f",
@@ -140,14 +141,14 @@ class GitlabFormatterTest extends ErrorFormatterTestCase
         }
     }
 ]',
-		];
+        ];
 
-		yield [
-			'Multiple file, multiple generic errors',
-			1,
-			4,
-			2,
-			'[
+        yield [
+            'Multiple file, multiple generic errors',
+            1,
+            4,
+            2,
+            '[
     {
         "description": "Bar\nBar2",
         "fingerprint": "034b4afbfb347494c14e396ed8327692f58be4cd27e8aff5f19f4194934db7c9",
@@ -215,35 +216,33 @@ class GitlabFormatterTest extends ErrorFormatterTestCase
         }
     }
 ]',
-		];
-	}
+        ];
+    }
 
-	/**
-	 * @dataProvider dataFormatterOutputProvider
-	 *
-	 * @param string $message
-	 * @param int    $exitCode
-	 * @param int    $numFileErrors
-	 * @param int    $numGenericErrors
-	 * @param string $expected
-	 *
-	 */
-	public function testFormatErrors(
-		string $message,
-		int $exitCode,
-		int $numFileErrors,
-		int $numGenericErrors,
-		string $expected
-	): void
-	{
-		$formatter = new GitlabErrorFormatter(new SimpleRelativePathHelper('/data/folder'));
+    /**
+     * @dataProvider dataFormatterOutputProvider
+     *
+     * @param string $message
+     * @param int    $exitCode
+     * @param int    $numFileErrors
+     * @param int    $numGenericErrors
+     * @param string $expected
+     *
+     */
+    public function testFormatErrors(
+        string $message,
+        int $exitCode,
+        int $numFileErrors,
+        int $numGenericErrors,
+        string $expected
+    ): void {
+        $formatter = new GitlabErrorFormatter(new SimpleRelativePathHelper('/data/folder'));
 
-		$this->assertSame($exitCode, $formatter->formatErrors(
-			$this->getAnalysisResult($numFileErrors, $numGenericErrors),
-			$this->getOutput()
-		), sprintf('%s: response code do not match', $message));
+        $this->assertSame($exitCode, $formatter->formatErrors(
+            $this->getAnalysisResult($numFileErrors, $numGenericErrors),
+            $this->getOutput()
+        ), sprintf('%s: response code do not match', $message));
 
-		$this->assertJsonStringEqualsJsonString($expected, $this->getOutputContent(), sprintf('%s: output do not match', $message));
-	}
-
+        $this->assertJsonStringEqualsJsonString($expected, $this->getOutputContent(), sprintf('%s: output do not match', $message));
+    }
 }

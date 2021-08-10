@@ -4,10 +4,8 @@ namespace BaselineIntegration;
 
 trait FooTrait
 {
-
-	public function doBar(): string
-	{
-		return 1;
-	}
-
+    public function doBar(): string
+    {
+        return 1;
+    }
 }

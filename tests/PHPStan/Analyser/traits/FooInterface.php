@@ -4,5 +4,4 @@ namespace AnonymousTraitClass;
 
 interface FooInterface
 {
-
 }

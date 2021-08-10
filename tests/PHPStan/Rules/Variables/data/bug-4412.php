@@ -7,14 +7,14 @@ namespace Bug4412;
  */
 class B
 {
-	/** @var self<\Exception> $a */
-	public $a;
+    /** @var self<\Exception> $a */
+    public $a;
 
-	/**
-	 * @phpstan-return T
-	 */
-	public function get() {
-		return $a->get();
-	}
-
+    /**
+     * @phpstan-return T
+     */
+    public function get()
+    {
+        return $a->get();
+    }
 }

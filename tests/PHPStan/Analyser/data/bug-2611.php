@@ -10,21 +10,21 @@ use function PHPStan\Testing\assertType;
  */
 function flatten($collection)
 {
-	$stack = [$collection];
-	$result = [];
+    $stack = [$collection];
+    $result = [];
 
-	while (!empty($stack)) {
-		$item = \array_shift($stack);
-		assertType('mixed', $item);
+    while (!empty($stack)) {
+        $item = \array_shift($stack);
+        assertType('mixed', $item);
 
-		if (\is_array($item) || $item instanceof \Traversable) {
-			foreach ($item as $element) {
-				\array_unshift($stack, $element);
-			}
-		} else {
-			\array_unshift($result, $item);
-		}
-	}
+        if (\is_array($item) || $item instanceof \Traversable) {
+            foreach ($item as $element) {
+                \array_unshift($stack, $element);
+            }
+        } else {
+            \array_unshift($result, $item);
+        }
+    }
 
-	return $result;
+    return $result;
 }

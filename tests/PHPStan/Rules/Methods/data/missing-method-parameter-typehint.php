@@ -4,27 +4,20 @@ namespace MissingMethodParameterTypehint;
 
 interface FooInterface
 {
-
     public function getFoo($p1): void;
-
 }
 
 class FooParent
 {
-
     public function getBar($p2)
     {
-
     }
-
 }
 
 class Foo extends FooParent implements FooInterface
 {
-
     public function getFoo($p1): void
     {
-
     }
 
     /**
@@ -32,7 +25,6 @@ class Foo extends FooParent implements FooInterface
      */
     public function getBar($p2)
     {
-
     }
 
     /**
@@ -52,14 +44,12 @@ class Foo extends FooParent implements FooInterface
         return false;
     }
 
-	/**
-	 * @param \stdClass|array|int|null $a
-	 */
-	public function unionTypeWithUnknownArrayValueTypehint($a)
-	{
-
-	}
-
+    /**
+     * @param \stdClass|array|int|null $a
+     */
+    public function unionTypeWithUnknownArrayValueTypehint($a)
+    {
+    }
 }
 
 /**
@@ -68,12 +58,10 @@ class Foo extends FooParent implements FooInterface
  */
 interface GenericInterface
 {
-
 }
 
 class NonGenericClass
 {
-
 }
 
 /**
@@ -82,118 +70,93 @@ class NonGenericClass
  */
 class GenericClass
 {
-
 }
 
 class Bar
 {
+    public function acceptsGenericInterface(GenericInterface $i)
+    {
+    }
 
-	public function acceptsGenericInterface(GenericInterface $i)
-	{
+    public function acceptsNonGenericClass(NonGenericClass $c)
+    {
+    }
 
-	}
-
-	public function acceptsNonGenericClass(NonGenericClass $c)
-	{
-
-	}
-
-	public function acceptsGenericClass(GenericClass $c)
-	{
-
-	}
-
+    public function acceptsGenericClass(GenericClass $c)
+    {
+    }
 }
 
 class CollectionIterableAndGeneric
 {
+    public function acceptsCollection(\DoctrineIntersectionTypeIsSupertypeOf\Collection $collection): void
+    {
+    }
 
-	public function acceptsCollection(\DoctrineIntersectionTypeIsSupertypeOf\Collection $collection): void
-	{
+    /**
+     * @param \DoctrineIntersectionTypeIsSupertypeOf\Collection<FooInterface> $collection
+     */
+    public function acceptsCollection2(\DoctrineIntersectionTypeIsSupertypeOf\Collection $collection): void
+    {
+    }
 
-	}
-
-	/**
-	 * @param \DoctrineIntersectionTypeIsSupertypeOf\Collection<FooInterface> $collection
-	 */
-	public function acceptsCollection2(\DoctrineIntersectionTypeIsSupertypeOf\Collection $collection): void
-	{
-
-	}
-
-	/**
-	 * @param \DoctrineIntersectionTypeIsSupertypeOf\Collection<int, FooInterface> $collection
-	 */
-	public function acceptsCollection3(\DoctrineIntersectionTypeIsSupertypeOf\Collection $collection): void
-	{
-
-	}
-
+    /**
+     * @param \DoctrineIntersectionTypeIsSupertypeOf\Collection<int, FooInterface> $collection
+     */
+    public function acceptsCollection3(\DoctrineIntersectionTypeIsSupertypeOf\Collection $collection): void
+    {
+    }
 }
 
 class TraversableInTemplateBound
 {
-
-	/**
-	 * @template T of \Iterator
-	 * @param T $it
-	 */
-	public function doFoo($it)
-	{
-
-	}
-
+    /**
+     * @template T of \Iterator
+     * @param T $it
+     */
+    public function doFoo($it)
+    {
+    }
 }
 
 class GenericClassInTemplateBound
 {
-
-	/**
-	 * @template T of GenericClass
-	 * @param T $obj
-	 */
-	public function doFoo($obj)
-	{
-
-	}
-
+    /**
+     * @template T of GenericClass
+     * @param T $obj
+     */
+    public function doFoo($obj)
+    {
+    }
 }
 
 class SerializableImpl implements \Serializable
 {
+    public function serialize(): string
+    {
+        return serialize([]);
+    }
 
-	public function serialize(): string
-	{
-		return serialize([]);
-	}
-
-	public function unserialize($serialized): void
-	{
-
-	}
-
+    public function unserialize($serialized): void
+    {
+    }
 }
 
 class CallableSignature
 {
-
-	public function doFoo(callable $cb): void
-	{
-
-	}
+    public function doFoo(callable $cb): void
+    {
+    }
 }
 
 class SerializableImpl2 implements \Serializable
 {
+    public function serialize(): string
+    {
+        return serialize([]);
+    }
 
-	public function serialize(): string
-	{
-		return serialize([]);
-	}
-
-	public function unserialize($data): void
-	{
-
-	}
-
+    public function unserialize($data): void
+    {
+    }
 }

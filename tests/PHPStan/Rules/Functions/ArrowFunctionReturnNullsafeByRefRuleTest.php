@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Functions;
 
@@ -11,24 +13,22 @@ use PHPStan\Testing\RuleTestCase;
  */
 class ArrowFunctionReturnNullsafeByRefRuleTest extends RuleTestCase
 {
+    protected function getRule(): Rule
+    {
+        return new ArrowFunctionReturnNullsafeByRefRule(new NullsafeCheck());
+    }
 
-	protected function getRule(): Rule
-	{
-		return new ArrowFunctionReturnNullsafeByRefRule(new NullsafeCheck());
-	}
+    public function testRule(): void
+    {
+        if (!self::$useStaticReflectionProvider) {
+            $this->markTestSkipped('Test requires static reflection.');
+        }
 
-	public function testRule(): void
-	{
-		if (!self::$useStaticReflectionProvider) {
-			$this->markTestSkipped('Test requires static reflection.');
-		}
-
-		$this->analyse([__DIR__ . '/data/arrow-function-nullsafe-by-ref.php'], [
-			[
-				'Nullsafe cannot be returned by reference.',
-				6,
-			],
-		]);
-	}
-
+        $this->analyse([__DIR__ . '/data/arrow-function-nullsafe-by-ref.php'], [
+            [
+                'Nullsafe cannot be returned by reference.',
+                6,
+            ],
+        ]);
+    }
 }

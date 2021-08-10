@@ -8,11 +8,11 @@ use function PHPStan\Testing\assertType;
 $object = null;
 
 try {
-	if ($object === null) {
-		throw new \InvalidArgumentException();
-	}
+    if ($object === null) {
+        throw new \InvalidArgumentException();
+    }
 
-	throw new \RuntimeException();
+    throw new \RuntimeException();
 } catch (\Throwable $e) {
-	assertType('stdClass|null', $object);
+    assertType('stdClass|null', $object);
 }

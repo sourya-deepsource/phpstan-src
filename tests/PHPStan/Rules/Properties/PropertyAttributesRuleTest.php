@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Properties;
 
@@ -16,39 +18,37 @@ use PHPStan\Testing\RuleTestCase;
  */
 class PropertyAttributesRuleTest extends RuleTestCase
 {
+    protected function getRule(): Rule
+    {
+        $reflectionProvider = $this->createReflectionProvider();
+        return new PropertyAttributesRule(
+            new AttributesCheck(
+                $reflectionProvider,
+                new FunctionCallParametersCheck(
+                    new RuleLevelHelper($reflectionProvider, true, false, true),
+                    new NullsafeCheck(),
+                    new PhpVersion(80000),
+                    true,
+                    true,
+                    true,
+                    true
+                ),
+                new ClassCaseSensitivityCheck($reflectionProvider, false)
+            )
+        );
+    }
 
-	protected function getRule(): Rule
-	{
-		$reflectionProvider = $this->createReflectionProvider();
-		return new PropertyAttributesRule(
-			new AttributesCheck(
-				$reflectionProvider,
-				new FunctionCallParametersCheck(
-					new RuleLevelHelper($reflectionProvider, true, false, true),
-					new NullsafeCheck(),
-					new PhpVersion(80000),
-					true,
-					true,
-					true,
-					true
-				),
-				new ClassCaseSensitivityCheck($reflectionProvider, false)
-			)
-		);
-	}
+    public function testRule(): void
+    {
+        if (!self::$useStaticReflectionProvider && PHP_VERSION_ID < 80000) {
+            $this->markTestSkipped('Test requires PHP 8.0.');
+        }
 
-	public function testRule(): void
-	{
-		if (!self::$useStaticReflectionProvider && PHP_VERSION_ID < 80000) {
-			$this->markTestSkipped('Test requires PHP 8.0.');
-		}
-
-		$this->analyse([__DIR__ . '/data/property-attributes.php'], [
-			[
-				'Attribute class PropertyAttributes\Foo does not have the property target.',
-				26,
-			],
-		]);
-	}
-
+        $this->analyse([__DIR__ . '/data/property-attributes.php'], [
+            [
+                'Attribute class PropertyAttributes\Foo does not have the property target.',
+                26,
+            ],
+        ]);
+    }
 }

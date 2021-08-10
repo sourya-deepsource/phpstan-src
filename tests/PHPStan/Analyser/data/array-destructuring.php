@@ -1,4 +1,5 @@
 <?php
+
 function () {
     /** @var mixed $array */
     $array = getMixed();
@@ -13,15 +14,12 @@ function () {
     [$u1, $u2, $u3] = $unionArray;
 
     foreach ([[1, [false]]] as [$foreachInt, [$foreachBool, $foreachNestedNever], $foreachNever]) {
-
     }
 
     foreach ([[1, [false]]] as list($foreachIntList, list($foreachBoolList, $foreachNestedNeverList), $foreachNeverList)) {
-
     }
 
     foreach ([$unionArray] as [$foreachU1, $foreachU2, $foreachU3]) {
-
     }
 
     /** @var string[] $stringArray */
@@ -30,11 +28,9 @@ function () {
     list($firstStringArrayList, $secondStringArrayList, list($thirdStringArrayList), $fourthStringArrayList) = $stringArray;
 
     foreach ($stringArray as [$firstStringArrayForeach, $secondStringArrayForeach, [$thirdStringArrayForeach], $fourthStringArrayForeach]) {
-
     }
 
     foreach ($stringArray as list($firstStringArrayForeachList, $secondStringArrayForeachList, list($thirdStringArrayForeachList), $fourthStringArrayForeachList)) {
-
     }
 
     /** @var int $dayInt */
@@ -65,13 +61,11 @@ function () {
     [$fooKey => $dynamicAssocKey, $stringKey => $dynamicAssocStrings, $mixedKey => $dynamicAssocMixed] = $constantAssocArray;
 
     foreach ([$constantAssocArray] as [$fooKey => $dynamicAssocKeyForeach, $stringKey => $dynamicAssocStringsForeach, $mixedKey => $dynamicAssocMixedForeach]) {
-
     }
 
     /** @var iterable<array<string>> $iterableOverStringArrays */
     $iterableOverStringArrays = doFoo();
     foreach ($iterableOverStringArrays as [$stringFromIterable]) {
-
     }
 
     /** @var string $stringWithVarAnnotation  */
@@ -79,7 +73,6 @@ function () {
 
     /** @var string $stringWithVarAnnotationInForeach */
     foreach (doFoo() as [$stringWithVarAnnotationInForeach]) {
-
     }
 
     die;

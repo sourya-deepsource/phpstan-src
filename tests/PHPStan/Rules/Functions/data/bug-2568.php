@@ -8,6 +8,7 @@ namespace Bug2568;
  * @param array<T, mixed> $arr
  * @return array<int, T>
  */
-function my_array_keys($arr) {
-	return array_keys($arr);
+function my_array_keys($arr)
+{
+    return array_keys($arr);
 }

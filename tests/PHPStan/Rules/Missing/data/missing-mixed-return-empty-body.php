@@ -4,13 +4,10 @@ namespace MissingMixedReturnEmptyBody;
 
 class HelloWorld
 {
-
-	/**
-	 * @return mixed
-	 */
-	public function doFoo()
-	{
-
-	}
-
+    /**
+     * @return mixed
+     */
+    public function doFoo()
+    {
+    }
 }

@@ -10,12 +10,12 @@ use function PHPStan\Testing\assertType;
  */
 interface QueryHandlerInterface
 {
-	/**
-	 * @param TQuery $query
-	 *
-	 * @return TResult
-	 */
-	public function handle(QueryInterface $query);
+    /**
+     * @param TQuery $query
+     *
+     * @return TResult
+     */
+    public function handle(QueryInterface $query);
 }
 
 /**
@@ -52,13 +52,13 @@ final class BarQueryResult
  */
 final class FooQueryHandler implements QueryHandlerInterface
 {
-	public function handle(QueryInterface $query)
-	{
-		return new FooQueryResult();
-	}
+    public function handle(QueryInterface $query)
+    {
+        return new FooQueryResult();
+    }
 }
 
 function (FooQueryHandler $h): void {
-	assertType(FooQueryResult::class, $h->handle(new FooQuery()));
-	assertType(FooQueryResult::class, $h->handle(new BarQuery()));
+    assertType(FooQueryResult::class, $h->handle(new FooQuery()));
+    assertType(FooQueryResult::class, $h->handle(new BarQuery()));
 };

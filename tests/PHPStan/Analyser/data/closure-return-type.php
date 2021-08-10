@@ -6,154 +6,151 @@ use function PHPStan\Testing\assertType;
 
 class Foo
 {
+    public function doFoo(int $i): void
+    {
+        $f = function () {
+        };
+        assertType('void', $f());
 
-	public function doFoo(int $i): void
-	{
-		$f = function () {
+        $f = function () {
+            return;
+        };
+        assertType('void', $f());
 
-		};
-		assertType('void', $f());
+        $f = function () {
+            return 1;
+        };
+        assertType('1', $f());
 
-		$f = function () {
-			return;
-		};
-		assertType('void', $f());
+        $f = function (): array {
+            return ['foo' => 'bar'];
+        };
+        assertType('array(\'foo\' => \'bar\')', $f());
 
-		$f = function () {
-			return 1;
-		};
-		assertType('1', $f());
+        $f = function (string $s) {
+            return $s;
+        };
+        assertType('string', $f('foo'));
 
-		$f = function (): array {
-			return ['foo' => 'bar'];
-		};
-		assertType('array(\'foo\' => \'bar\')', $f());
+        $f = function () use ($i) {
+            return $i;
+        };
+        assertType('int', $f());
 
-		$f = function (string $s) {
-			return $s;
-		};
-		assertType('string', $f('foo'));
+        $f = function () use ($i) {
+            if (rand(0, 1)) {
+                return $i;
+            }
 
-		$f = function () use ($i) {
-			return $i;
-		};
-		assertType('int', $f());
+            return null;
+        };
+        assertType('int|null', $f());
 
-		$f = function () use ($i) {
-			if (rand(0, 1)) {
-				return $i;
-			}
+        $f = function () use ($i) {
+            if (rand(0, 1)) {
+                return $i;
+            }
 
-			return null;
-		};
-		assertType('int|null', $f());
+            return;
+        };
+        assertType('int|null', $f());
 
-		$f = function () use ($i) {
-			if (rand(0, 1)) {
-				return $i;
-			}
+        $f = function () {
+            yield 1;
+            return 2;
+        };
+        assertType('Generator<int, 1, mixed, 2>', $f());
 
-			return;
-		};
-		assertType('int|null', $f());
+        $g = function () use ($f) {
+            yield from $f();
+        };
+        assertType('Generator<int, 1, mixed, void>', $g());
 
-		$f = function () {
-			yield 1;
-			return 2;
-		};
-		assertType('Generator<int, 1, mixed, 2>', $f());
+        $h = function (): \Generator {
+            yield 1;
+            return 2;
+        };
+        assertType('Generator<int, 1, mixed, 2>', $h());
+    }
 
-		$g = function () use ($f) {
-			yield from $f();
-		};
-		assertType('Generator<int, 1, mixed, void>', $g());
+    public function doBar(): void
+    {
+        $f = function () {
+            if (rand(0, 1)) {
+                return 1;
+            }
 
-		$h = function (): \Generator {
-			yield 1;
-			return 2;
-		};
-		assertType('Generator<int, 1, mixed, 2>', $h());
-	}
+            function () {
+                return 'foo';
+            };
 
-	public function doBar(): void
-	{
-		$f = function () {
-			if (rand(0, 1)) {
-				return 1;
-			}
+            $c = new class() {
+                public function doFoo()
+                {
+                    return 2.0;
+                }
+            };
 
-			function () {
-				return 'foo';
-			};
+            return 2;
+        };
 
-			$c = new class() {
-				public function doFoo() {
-					return 2.0;
-				}
-			};
+        assertType('1|2', $f());
+    }
 
-			return 2;
-		};
+    /**
+     * @return never
+     */
+    public function returnNever(): void
+    {
+    }
 
-		assertType('1|2', $f());
-	}
+    public function doBaz(): void
+    {
+        $f = function () {
+            $this->returnNever();
+        };
+        assertType('*NEVER*', $f());
 
-	/**
-	 * @return never
-	 */
-	public function returnNever(): void
-	{
+        $f = function (): void {
+            $this->returnNever();
+        };
+        assertType('*NEVER*', $f());
 
-	}
+        $f = function () {
+            if (rand(0, 1)) {
+                return;
+            }
 
-	public function doBaz(): void
-	{
-		$f = function() {
-			$this->returnNever();
-		};
-		assertType('*NEVER*', $f());
+            $this->returnNever();
+        };
+        assertType('void', $f());
 
-		$f = function(): void {
-			$this->returnNever();
-		};
-		assertType('*NEVER*', $f());
+        $f = function (array $a) {
+            foreach ($a as $v) {
+                continue;
+            }
 
-		$f = function() {
-			if (rand(0, 1)) {
-				return;
-			}
+            $this->returnNever();
+        };
+        assertType('*NEVER*', $f([]));
 
-			$this->returnNever();
-		};
-		assertType('void', $f());
+        $f = function (array $a) {
+            foreach ($a as $v) {
+                $this->returnNever();
+            }
+        };
+        assertType('void', $f([]));
 
-		$f = function(array $a) {
-			foreach ($a as $v) {
-				continue;
-			}
+        $f = function () {
+            foreach ([1, 2, 3] as $v) {
+                $this->returnNever();
+            }
+        };
+        assertType('*NEVER*', $f());
 
-			$this->returnNever();
-		};
-		assertType('*NEVER*', $f([]));
-
-		$f = function(array $a) {
-			foreach ($a as $v) {
-				$this->returnNever();
-			}
-		};
-		assertType('void', $f([]));
-
-		$f = function() {
-			foreach ([1, 2, 3] as $v) {
-				$this->returnNever();
-			}
-		};
-		assertType('*NEVER*', $f());
-
-		$f = function (): \stdClass {
-			throw new \Exception();
-		};
-		assertType('stdClass', $f());
-	}
-
+        $f = function (): \stdClass {
+            throw new \Exception();
+        };
+        assertType('stdClass', $f());
+    }
 }

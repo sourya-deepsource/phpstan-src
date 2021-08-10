@@ -10,13 +10,13 @@ assertVariableCertainty(TrinaryLogic::createMaybe(), $city);
 assertType('mixed', $city);
 
 if ($city ?? false) {
-	assertVariableCertainty(TrinaryLogic::createYes(), $city);
-	assertType('mixed~null', $city);
+    assertVariableCertainty(TrinaryLogic::createYes(), $city);
+    assertType('mixed~null', $city);
 }
 
 function (?string $s): void {
-	if ($s ?? false) {
-		assertVariableCertainty(TrinaryLogic::createYes(), $s);
-		assertType('string' ,$s);
-	}
+    if ($s ?? false) {
+        assertVariableCertainty(TrinaryLogic::createYes(), $s);
+        assertType('string', $s);
+    }
 };

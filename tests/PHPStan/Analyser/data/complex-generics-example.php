@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace ComplexGenericsExample;
 
@@ -17,12 +19,12 @@ interface VariantInterface
 
 interface VariantRetrieverInterface
 {
-	/**
-	 * @template TVariant of VariantInterface
-	 * @param ExperimentInterface<TVariant> $experiment
-	 * @return TVariant
-	 */
-	public function getVariant(ExperimentInterface $experiment): VariantInterface;
+    /**
+     * @template TVariant of VariantInterface
+     * @param ExperimentInterface<TVariant> $experiment
+     * @return TVariant
+     */
+    public function getVariant(ExperimentInterface $experiment): VariantInterface;
 }
 
 /**
@@ -38,15 +40,15 @@ class SomeVariant implements VariantInterface
 
 class SomeClass
 {
-	private $variantRetriever;
+    private $variantRetriever;
 
-	public function __construct(VariantRetrieverInterface $variantRetriever)
-	{
-		$this->variantRetriever = $variantRetriever;
-	}
+    public function __construct(VariantRetrieverInterface $variantRetriever)
+    {
+        $this->variantRetriever = $variantRetriever;
+    }
 
-	public function someFunction(): void
-	{
-		assertType('ComplexGenericsExample\SomeVariant', $this->variantRetriever->getVariant(new SomeExperiment()));
-	}
+    public function someFunction(): void
+    {
+        assertType('ComplexGenericsExample\SomeVariant', $this->variantRetriever->getVariant(new SomeExperiment()));
+    }
 }

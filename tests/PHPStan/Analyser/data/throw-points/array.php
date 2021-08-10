@@ -8,60 +8,60 @@ use function ThrowPoints\Helpers\doesntThrow;
 use function ThrowPoints\Helpers\maybeThrows;
 
 function () {
-	try {
-		[];
-		$foo = 1;
-	} finally {
-		assertVariableCertainty(TrinaryLogic::createYes(), $foo);
-	}
+    try {
+        [];
+        $foo = 1;
+    } finally {
+        assertVariableCertainty(TrinaryLogic::createYes(), $foo);
+    }
 };
 
 function () {
-	try {
-		[doesntThrow()];
-		$foo = 1;
-	} finally {
-		assertVariableCertainty(TrinaryLogic::createYes(), $foo);
-	}
+    try {
+        [doesntThrow()];
+        $foo = 1;
+    } finally {
+        assertVariableCertainty(TrinaryLogic::createYes(), $foo);
+    }
 };
 
 function () {
-	try {
-		[maybeThrows()];
-		$foo = 1;
-	} finally {
-		assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
-	}
+    try {
+        [maybeThrows()];
+        $foo = 1;
+    } finally {
+        assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
+    }
 };
 
 function () {
-	try {
-		[doesntThrow(), $foo = 1];
-	} finally {
-		assertVariableCertainty(TrinaryLogic::createYes(), $foo);
-	}
+    try {
+        [doesntThrow(), $foo = 1];
+    } finally {
+        assertVariableCertainty(TrinaryLogic::createYes(), $foo);
+    }
 };
 
 function () {
-	try {
-		[maybeThrows(), $foo = 1];
-	} finally {
-		assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
-	}
+    try {
+        [maybeThrows(), $foo = 1];
+    } finally {
+        assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
+    }
 };
 
 function () {
-	try {
-		[doesntThrow() => 1, $foo = 1];
-	} finally {
-		assertVariableCertainty(TrinaryLogic::createYes(), $foo);
-	}
+    try {
+        [doesntThrow() => 1, $foo = 1];
+    } finally {
+        assertVariableCertainty(TrinaryLogic::createYes(), $foo);
+    }
 };
 
 function () {
-	try {
-		[maybeThrows() => 1, $foo = 1];
-	} finally {
-		assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
-	}
+    try {
+        [maybeThrows() => 1, $foo = 1];
+    } finally {
+        assertVariableCertainty(TrinaryLogic::createMaybe(), $foo);
+    }
 };

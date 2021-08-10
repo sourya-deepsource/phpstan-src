@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Functions;
 
@@ -10,85 +12,83 @@ use PHPStan\Rules\RuleLevelHelper;
  */
 class ClosureReturnTypeRuleTest extends \PHPStan\Testing\RuleTestCase
 {
+    protected function getRule(): \PHPStan\Rules\Rule
+    {
+        return new ClosureReturnTypeRule(new FunctionReturnTypeCheck(new RuleLevelHelper($this->createReflectionProvider(), true, false, true, false)));
+    }
 
-	protected function getRule(): \PHPStan\Rules\Rule
-	{
-		return new ClosureReturnTypeRule(new FunctionReturnTypeCheck(new RuleLevelHelper($this->createReflectionProvider(), true, false, true, false)));
-	}
+    public function testClosureReturnTypeRule(): void
+    {
+        $this->analyse([__DIR__ . '/data/closureReturnTypes.php'], [
+            [
+                'Anonymous function should return int but returns string.',
+                21,
+            ],
+            [
+                'Anonymous function should return string but returns int.',
+                28,
+            ],
+            [
+                'Anonymous function should return ClosureReturnTypes\Foo but returns ClosureReturnTypes\Bar.',
+                35,
+            ],
+            [
+                'Anonymous function should return SomeOtherNamespace\Foo but returns ClosureReturnTypes\Foo.',
+                39,
+            ],
+            [
+                'Anonymous function should return SomeOtherNamespace\Baz but returns ClosureReturnTypes\Foo.',
+                46,
+            ],
+            [
+                'Anonymous function should return array()|null but empty return statement found.',
+                88,
+            ],
+            [
+                'Anonymous function should return string but returns int.',
+                105,
+            ],
+            [
+                'Anonymous function should return string but returns int.',
+                115,
+            ],
+            [
+                'Anonymous function should return string but returns int.',
+                118,
+            ],
+        ]);
+    }
 
-	public function testClosureReturnTypeRule(): void
-	{
-		$this->analyse([__DIR__ . '/data/closureReturnTypes.php'], [
-			[
-				'Anonymous function should return int but returns string.',
-				21,
-			],
-			[
-				'Anonymous function should return string but returns int.',
-				28,
-			],
-			[
-				'Anonymous function should return ClosureReturnTypes\Foo but returns ClosureReturnTypes\Bar.',
-				35,
-			],
-			[
-				'Anonymous function should return SomeOtherNamespace\Foo but returns ClosureReturnTypes\Foo.',
-				39,
-			],
-			[
-				'Anonymous function should return SomeOtherNamespace\Baz but returns ClosureReturnTypes\Foo.',
-				46,
-			],
-			[
-				'Anonymous function should return array()|null but empty return statement found.',
-				88,
-			],
-			[
-				'Anonymous function should return string but returns int.',
-				105,
-			],
-			[
-				'Anonymous function should return string but returns int.',
-				115,
-			],
-			[
-				'Anonymous function should return string but returns int.',
-				118,
-			],
-		]);
-	}
+    public function testClosureReturnTypeRulePhp70(): void
+    {
+        $this->analyse([__DIR__ . '/data/closureReturnTypes-7.0.php'], [
+            [
+                'Anonymous function should return int but empty return statement found.',
+                4,
+            ],
+            [
+                'Anonymous function should return string but empty return statement found.',
+                8,
+            ],
+        ]);
+    }
 
-	public function testClosureReturnTypeRulePhp70(): void
-	{
-		$this->analyse([__DIR__ . '/data/closureReturnTypes-7.0.php'], [
-			[
-				'Anonymous function should return int but empty return statement found.',
-				4,
-			],
-			[
-				'Anonymous function should return string but empty return statement found.',
-				8,
-			],
-		]);
-	}
+    public function testClosureReturnTypePhp71Typehints(): void
+    {
+        $this->analyse([__DIR__ . '/data/closure-7.1ReturnTypes.php'], [
+            [
+                'Anonymous function should return int|null but returns string.',
+                9,
+            ],
+            [
+                'Anonymous function should return iterable but returns string.',
+                22,
+            ],
+        ]);
+    }
 
-	public function testClosureReturnTypePhp71Typehints(): void
-	{
-		$this->analyse([__DIR__ . '/data/closure-7.1ReturnTypes.php'], [
-			[
-				'Anonymous function should return int|null but returns string.',
-				9,
-			],
-			[
-				'Anonymous function should return iterable but returns string.',
-				22,
-			],
-		]);
-	}
-
-	public function testBug3891(): void
-	{
-		$this->analyse([__DIR__ . '/data/bug-3891.php'], []);
-	}
-
+    public function testBug3891(): void
+    {
+        $this->analyse([__DIR__ . '/data/bug-3891.php'], []);
+    }
 }

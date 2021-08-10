@@ -4,19 +4,14 @@ namespace TraitUseCase;
 
 trait FooTrait
 {
-
 }
 
 class Foo
 {
-
-	use FOOTrait;
-
+    use FOOTrait;
 }
 
 class Bar
 {
-
-	use FooTrait;
-
+    use FooTrait;
 }

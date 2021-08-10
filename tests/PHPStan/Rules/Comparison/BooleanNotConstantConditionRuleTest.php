@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Comparison;
 
@@ -7,109 +9,107 @@ namespace PHPStan\Rules\Comparison;
  */
 class BooleanNotConstantConditionRuleTest extends \PHPStan\Testing\RuleTestCase
 {
+    /** @var bool */
+    private $treatPhpDocTypesAsCertain;
 
-	/** @var bool */
-	private $treatPhpDocTypesAsCertain;
+    protected function getRule(): \PHPStan\Rules\Rule
+    {
+        return new BooleanNotConstantConditionRule(
+            new ConstantConditionRuleHelper(
+                new ImpossibleCheckTypeHelper(
+                    $this->createReflectionProvider(),
+                    $this->getTypeSpecifier(),
+                    [],
+                    $this->treatPhpDocTypesAsCertain
+                ),
+                $this->treatPhpDocTypesAsCertain
+            ),
+            $this->treatPhpDocTypesAsCertain
+        );
+    }
 
-	protected function getRule(): \PHPStan\Rules\Rule
-	{
-		return new BooleanNotConstantConditionRule(
-			new ConstantConditionRuleHelper(
-				new ImpossibleCheckTypeHelper(
-					$this->createReflectionProvider(),
-					$this->getTypeSpecifier(),
-					[],
-					$this->treatPhpDocTypesAsCertain
-				),
-				$this->treatPhpDocTypesAsCertain
-			),
-			$this->treatPhpDocTypesAsCertain
-		);
-	}
+    protected function shouldTreatPhpDocTypesAsCertain(): bool
+    {
+        return $this->treatPhpDocTypesAsCertain;
+    }
 
-	protected function shouldTreatPhpDocTypesAsCertain(): bool
-	{
-		return $this->treatPhpDocTypesAsCertain;
-	}
+    public function testRule(): void
+    {
+        $this->treatPhpDocTypesAsCertain = true;
+        $this->analyse([__DIR__ . '/data/boolean-not.php'], [
+            [
+                'Negated boolean expression is always false.',
+                13,
+            ],
+            [
+                'Negated boolean expression is always true.',
+                18,
+            ],
+            [
+                'Negated boolean expression is always false.',
+                33,
+            ],
+            [
+                'Negated boolean expression is always false.',
+                40,
+            ],
+            [
+                'Negated boolean expression is always true.',
+                46,
+            ],
+            [
+                'Negated boolean expression is always false.',
+                50,
+            ],
+        ]);
+    }
 
-	public function testRule(): void
-	{
-		$this->treatPhpDocTypesAsCertain = true;
-		$this->analyse([__DIR__ . '/data/boolean-not.php'], [
-			[
-				'Negated boolean expression is always false.',
-				13,
-			],
-			[
-				'Negated boolean expression is always true.',
-				18,
-			],
-			[
-				'Negated boolean expression is always false.',
-				33,
-			],
-			[
-				'Negated boolean expression is always false.',
-				40,
-			],
-			[
-				'Negated boolean expression is always true.',
-				46,
-			],
-			[
-				'Negated boolean expression is always false.',
-				50,
-			],
-		]);
-	}
+    public function testDoNotReportPhpDoc(): void
+    {
+        $this->treatPhpDocTypesAsCertain = false;
+        $this->analyse([__DIR__ . '/data/boolean-not-not-phpdoc.php'], [
+            [
+                'Negated boolean expression is always false.',
+                16,
+            ],
+        ]);
+    }
 
-	public function testDoNotReportPhpDoc(): void
-	{
-		$this->treatPhpDocTypesAsCertain = false;
-		$this->analyse([__DIR__ . '/data/boolean-not-not-phpdoc.php'], [
-			[
-				'Negated boolean expression is always false.',
-				16,
-			],
-		]);
-	}
+    public function testReportPhpDoc(): void
+    {
+        $this->treatPhpDocTypesAsCertain = true;
+        $this->analyse([__DIR__ . '/data/boolean-not-not-phpdoc.php'], [
+            [
+                'Negated boolean expression is always false.',
+                16,
+            ],
+            [
+                'Negated boolean expression is always false.',
+                20,
+                'Because the type is coming from a PHPDoc, you can turn off this check by setting <fg=cyan>treatPhpDocTypesAsCertain: false</> in your <fg=cyan>%configurationFile%</>.',
+            ],
+        ]);
+    }
 
-	public function testReportPhpDoc(): void
-	{
-		$this->treatPhpDocTypesAsCertain = true;
-		$this->analyse([__DIR__ . '/data/boolean-not-not-phpdoc.php'], [
-			[
-				'Negated boolean expression is always false.',
-				16,
-			],
-			[
-				'Negated boolean expression is always false.',
-				20,
-				'Because the type is coming from a PHPDoc, you can turn off this check by setting <fg=cyan>treatPhpDocTypesAsCertain: false</> in your <fg=cyan>%configurationFile%</>.',
-			],
-		]);
-	}
+    public function dataTreatPhpDocTypesAsCertainRegression(): array
+    {
+        return [
+            [
+                true,
+            ],
+            [
+                false,
+            ],
+        ];
+    }
 
-	public function dataTreatPhpDocTypesAsCertainRegression(): array
-	{
-		return [
-			[
-				true,
-			],
-			[
-				false,
-			],
-		];
-	}
-
-	/**
-	 * @dataProvider dataTreatPhpDocTypesAsCertainRegression
-	 * @param bool $treatPhpDocTypesAsCertain
-	 */
-	public function testTreatPhpDocTypesAsCertainRegression(bool $treatPhpDocTypesAsCertain): void
-	{
-		$this->treatPhpDocTypesAsCertain = $treatPhpDocTypesAsCertain;
-		$this->analyse([__DIR__ . '/../DeadCode/data/bug-without-issue-1.php'], []);
-	}
-
+    /**
+     * @dataProvider dataTreatPhpDocTypesAsCertainRegression
+     * @param bool $treatPhpDocTypesAsCertain
+     */
+    public function testTreatPhpDocTypesAsCertainRegression(bool $treatPhpDocTypesAsCertain): void
+    {
+        $this->treatPhpDocTypesAsCertain = $treatPhpDocTypesAsCertain;
+        $this->analyse([__DIR__ . '/../DeadCode/data/bug-without-issue-1.php'], []);
+    }
 }

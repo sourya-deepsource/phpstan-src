@@ -7,9 +7,8 @@ namespace NewOffsetStub;
  */
 abstract class Foo implements \ArrayAccess
 {
-
 }
 
 function (Foo $foo): void {
-	$foo[] = new \stdClass();
+    $foo[] = new \stdClass();
 };

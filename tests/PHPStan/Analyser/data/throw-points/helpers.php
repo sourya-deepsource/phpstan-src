@@ -29,49 +29,49 @@ function doesntThrow(...$args)
 
 class ThrowPointTestObject
 {
-	/**
-	 * @return mixed
-	 * @throws Exception
-	 */
-	public function throws(...$args)
-	{
-	}
+    /**
+     * @return mixed
+     * @throws Exception
+     */
+    public function throws(...$args)
+    {
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function maybeThrows(...$args)
-	{
-	}
+    /**
+     * @return mixed
+     */
+    public function maybeThrows(...$args)
+    {
+    }
 
-	/**
-	 * @return mixed
-	 * @throws void
-	 */
-	public function doesntThrow(...$args)
-	{
-	}
+    /**
+     * @return mixed
+     * @throws void
+     */
+    public function doesntThrow(...$args)
+    {
+    }
 
-	/**
-	 * @return mixed
-	 * @throws Exception
-	 */
-	public static function staticThrows(...$args)
-	{
-	}
+    /**
+     * @return mixed
+     * @throws Exception
+     */
+    public static function staticThrows(...$args)
+    {
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public static function staticMaybeThrows(...$args)
-	{
-	}
+    /**
+     * @return mixed
+     */
+    public static function staticMaybeThrows(...$args)
+    {
+    }
 
-	/**
-	 * @return mixed
-	 * @throws void
-	 */
-	public static function staticDoesntThrow(...$args)
-	{
-	}
+    /**
+     * @return mixed
+     * @throws void
+     */
+    public static function staticDoesntThrow(...$args)
+    {
+    }
 }

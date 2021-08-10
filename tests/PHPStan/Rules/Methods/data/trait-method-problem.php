@@ -4,16 +4,14 @@ namespace TraitProblem;
 
 trait X
 {
-
-	abstract public static function a(self $b): void;
-
+    abstract public static function a(self $b): void;
 }
 
 class Y
 {
+    use X;
 
-	use X;
-
-	public static function a(self $b): void {}
-
+    public static function a(self $b): void
+    {
+    }
 }

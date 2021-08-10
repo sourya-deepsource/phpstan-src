@@ -6,7 +6,8 @@ $array[] = 10;
 $array[][] = 10;
 $array[];
 var_dump($array[]);
-while ($foo = $array[]) {}
+while ($foo = $array[]) {
+}
 
 $array['foo']['bar'];
 $array['foo'][];
@@ -14,7 +15,8 @@ $array[]['bar'];
 $array[][];
 
 $firstElement = &$array[];
-(function ($ref) {})($array[]);
+(function ($ref) {
+})($array[]);
 //(function (&$ref) {})($array[]); // Should work but doesn't
 
 // Technically works but makes no sense

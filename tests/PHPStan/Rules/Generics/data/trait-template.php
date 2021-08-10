@@ -7,7 +7,6 @@ namespace TraitTemplateType;
  */
 trait Foo
 {
-
 }
 
 /**
@@ -15,7 +14,6 @@ trait Foo
  */
 trait Bar
 {
-
 }
 
 /**
@@ -23,7 +21,6 @@ trait Bar
  */
 trait Baz
 {
-
 }
 
 /**
@@ -32,7 +29,6 @@ trait Baz
  */
 trait Lorem
 {
-
 }
 
 /**
@@ -44,5 +40,4 @@ trait Lorem
  */
 trait Ipsum
 {
-
 }

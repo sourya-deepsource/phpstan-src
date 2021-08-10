@@ -3,11 +3,13 @@
 namespace FunctionSignatureVariance;
 
 /** @template-covariant T */
-interface Out {
+interface Out
+{
 }
 
 /** @template T */
-interface Invariant {
+interface Invariant
+{
 }
 
 /**
@@ -17,6 +19,7 @@ interface Invariant {
  * @param T $c
  * @return T
  */
-function f($a, $b, $c) {
-	return $c;
+function f($a, $b, $c)
+{
+    return $c;
 }

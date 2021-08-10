@@ -6,108 +6,93 @@ use SomeNamespace\Amet as Dolor;
 
 interface FooInterface
 {
-
-	/**
-	 * @return void
-	 */
-	public function phpDocVoidMethodFromInterface();
-
+    /**
+     * @return void
+     */
+    public function phpDocVoidMethodFromInterface();
 }
 
 class FooParentParent
 {
+    /**
+     * @return void
+     */
+    public function phpDocVoidParentMethod()
+    {
+    }
 
-	/**
-	 * @return void
-	 */
-	public function phpDocVoidParentMethod()
-	{
-
-	}
-
-	/**
-	 * @return void
-	 */
-	public function phpDocWithoutCurlyBracesVoidParentMethod()
-	{
-
-	}
-
+    /**
+     * @return void
+     */
+    public function phpDocWithoutCurlyBracesVoidParentMethod()
+    {
+    }
 }
 
 abstract class FooParent extends FooParentParent implements FooInterface
 {
+    /**
+     * @return Static
+     */
+    public function doLorem()
+    {
+    }
 
-	/**
-	 * @return Static
-	 */
-	public function doLorem()
-	{
+    /**
+     * @return static
+     */
+    public function doIpsum(): self
+    {
+    }
 
-	}
+    /**
+     * @return $this
+     */
+    public function doThis()
+    {
+        return $this;
+    }
 
-	/**
-	 * @return static
-	 */
-	public function doIpsum(): self
-	{
+    /**
+     * @return $this|null
+     */
+    public function doThisNullable()
+    {
+        return $this;
+    }
 
-	}
+    /**
+     * @return $this|Bar|null
+     */
+    public function doThisUnion()
+    {
+    }
 
-	/**
-	 * @return $this
-	 */
-	public function doThis()
-	{
-		return $this;
-	}
+    /**
+     * @return void
+     */
+    public function phpDocVoidMethod()
+    {
+    }
 
-	/**
-	 * @return $this|null
-	 */
-	public function doThisNullable()
-	{
-		return $this;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function phpDocVoidParentMethod()
+    {
+    }
 
-	/**
-	 * @return $this|Bar|null
-	 */
-	public function doThisUnion()
-	{
+    /**
+     * @inheritDoc
+     */
+    public function phpDocWithoutCurlyBracesVoidParentMethod()
+    {
+    }
 
-	}
-
-	/**
-	 * @return void
-	 */
-	public function phpDocVoidMethod()
-	{
-
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function phpDocVoidParentMethod()
-	{
-
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function phpDocWithoutCurlyBracesVoidParentMethod()
-	{
-
-	}
-
-	/**
-	 * @return string[]
-	 */
-	private function privateMethodWithPhpDoc()
-	{
-
-	}
-
+    /**
+     * @return string[]
+     */
+    private function privateMethodWithPhpDoc()
+    {
+    }
 }

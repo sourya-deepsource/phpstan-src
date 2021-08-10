@@ -13,46 +13,51 @@ use PHPStan\Rules\RuleError;
  *
  * @template T
  */
-class A {
-	/** @var T */
-	private $a;
+class A
+{
+    /** @var T */
+    private $a;
 
-	/** @var T */
-	public $b;
+    /** @var T */
+    public $b;
 
-	/** @param T $a */
-	public function __construct($a) {
-		$this->a = $a;
-		$this->b = $a;
-	}
+    /** @param T $a */
+    public function __construct($a)
+    {
+        $this->a = $a;
+        $this->b = $a;
+    }
 
-	/**
-	 * @return T
-	 */
-	public function get(int $i) {
-		if ($i === 0) {
-			return 1;
-		}
+    /**
+     * @return T
+     */
+    public function get(int $i)
+    {
+        if ($i === 0) {
+            return 1;
+        }
 
-		return $this->a;
-	}
+        return $this->a;
+    }
 
-	/**
-	 * @param T $a
-	 */
-	public function set($a): void {
-		$this->a = $a;
-	}
-
+    /**
+     * @param T $a
+     */
+    public function set($a): void
+    {
+        $this->a = $a;
+    }
 }
 
 /**
  * @extends A<\DateTime>
  */
-class AOfDateTime extends A {
-	public function __construct() {
-		parent::__construct(new \DateTime());
-	}
+class AOfDateTime extends A
+{
+    public function __construct()
+    {
+        parent::__construct(new \DateTime());
+    }
 }
 
 /**
@@ -62,34 +67,37 @@ class AOfDateTime extends A {
  *
  * @extends A<T>
  */
-class B extends A {
-	/**
-	 * B::__construct()
-	 *
-	 * @param T $a
-	 */
-	public function __construct($a) {
-		parent::__construct($a);
-	}
+class B extends A
+{
+    /**
+     * B::__construct()
+     *
+     * @param T $a
+     */
+    public function __construct($a)
+    {
+        parent::__construct($a);
+    }
 }
 
 /**
  * @template T
  */
-interface I {
-	/**
-	 * I::set()
-	 *
-	 * @param T $a
-	 */
-	function set($a): void;
+interface I
+{
+    /**
+     * I::set()
+     *
+     * @param T $a
+     */
+    public function set($a): void;
 
-	/**
-	 * I::get()
-	 *
-	 * @return T
-	 */
-	function get();
+    /**
+     * I::get()
+     *
+     * @return T
+     */
+    public function get();
 }
 
 /**
@@ -97,17 +105,20 @@ interface I {
  *
  * @implements I<int>
  */
-class C implements I {
-	/** @var int */
-	private $a;
+class C implements I
+{
+    /** @var int */
+    private $a;
 
-	public function set($a): void {
-		$this->a = $a;
-	}
+    public function set($a): void
+    {
+        $this->a = $a;
+    }
 
-	public function get() {
-		return $this->a;
-	}
+    public function get()
+    {
+        return $this->a;
+    }
 }
 
 /**
@@ -115,13 +126,14 @@ class C implements I {
  *
  * @template T
  */
-interface SuperIfaceA {
-	/**
-	 * SuperIfaceA::get()
-	 *
-	 * @return T
-	 */
-	public function getA();
+interface SuperIfaceA
+{
+    /**
+     * SuperIfaceA::get()
+     *
+     * @return T
+     */
+    public function getA();
 }
 
 /**
@@ -129,13 +141,14 @@ interface SuperIfaceA {
  *
  * @template T
  */
-interface SuperIfaceB {
-	/**
-	 * SuperIfaceB::get()
-	 *
-	 * @return T
-	 */
-	public function getB();
+interface SuperIfaceB
+{
+    /**
+     * SuperIfaceB::get()
+     *
+     * @return T
+     */
+    public function getB();
 }
 
 /**
@@ -146,7 +159,8 @@ interface SuperIfaceB {
  * @extends SuperIfaceA<int>
  * @extends SuperIfaceB<T>
  */
-interface IfaceAB extends SuperIfaceA, SuperIfaceB {
+interface IfaceAB extends SuperIfaceA, SuperIfaceB
+{
 }
 
 /**
@@ -154,37 +168,44 @@ interface IfaceAB extends SuperIfaceA, SuperIfaceB {
  *
  * @implements IfaceAB<\DateTime>
  */
-class ABImpl implements IfaceAB {
-	public function getA() {
-		throw new \Exception();
-	}
-	public function getB() {
-		throw new \Exception();
-	}
+class ABImpl implements IfaceAB
+{
+    public function getA()
+    {
+        throw new \Exception();
+    }
+    public function getB()
+    {
+        throw new \Exception();
+    }
 }
 
 /**
  * @param A<\DateTimeInterface> $a
  */
-function acceptAofDateTimeInterface($a): void {
+function acceptAofDateTimeInterface($a): void
+{
 }
 
 /**
  * @param SuperIfaceA<int> $a
  */
-function acceptSuperIFaceAOfInt($a): void {
+function acceptSuperIFaceAOfInt($a): void
+{
 }
 
 /**
  * @param SuperIfaceB<\DateTime> $a
  */
-function acceptSuperIFaceBOfDateTime($a): void {
+function acceptSuperIFaceBOfDateTime($a): void
+{
 }
 
 /**
  * @param SuperIfaceB<int> $a
  */
-function acceptSuperIFaceBOfInt($a): void {
+function acceptSuperIFaceBOfInt($a): void
+{
 }
 
 /**
@@ -192,24 +213,22 @@ function acceptSuperIFaceBOfInt($a): void {
  */
 interface GenericRule
 {
+    /**
+     * @return class-string<TNodeType>
+     */
+    public function getNodeType(): string;
 
-	/**
-	 * @return class-string<TNodeType>
-	 */
-	public function getNodeType(): string;
+    /**
+     * @return TNodeType
+     */
+    public function getNodeInstance(): Node;
 
-	/**
-	 * @return TNodeType
-	 */
-	public function getNodeInstance(): Node;
-
-	/**
-	 * @param TNodeType $node
-	 * @param \PHPStan\Analyser\Scope $scope
-	 * @return RuleError[] errors
-	 */
-	public function processNode(\PhpParser\Node $node, Scope $scope): array;
-
+    /**
+     * @param TNodeType $node
+     * @param \PHPStan\Analyser\Scope $scope
+     * @return RuleError[] errors
+     */
+    public function processNode(\PhpParser\Node $node, Scope $scope): array;
 }
 
 /**
@@ -217,22 +236,20 @@ interface GenericRule
  */
 class SomeRule implements GenericRule
 {
+    public function getNodeType(): string
+    {
+        return \PhpParser\Node\Expr\StaticCall::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return \PhpParser\Node\Expr\StaticCall::class;
-	}
+    public function getNodeInstance(): Node
+    {
+        return new StaticCall(new Name(\stdClass::class), '__construct');
+    }
 
-	public function getNodeInstance(): Node
-	{
-		return new StaticCall(new Name(\stdClass::class), '__construct');
-	}
-
-	public function processNode(\PhpParser\Node $node, Scope $scope): array
-	{
-		return [];
-	}
-
+    public function processNode(\PhpParser\Node $node, Scope $scope): array
+    {
+        return [];
+    }
 }
 
 /**
@@ -242,43 +259,44 @@ class SomeRule implements GenericRule
  */
 class GenericThis
 {
-	/** @param T $foo */
-	public function __construct(\DateTimeInterface $foo)
-	{
-		$this->setFoo($foo);
-	}
+    /** @param T $foo */
+    public function __construct(\DateTimeInterface $foo)
+    {
+        $this->setFoo($foo);
+    }
 
-	/** @param T $foo */
-	public function setFoo(\DateTimeInterface $foo): void
-	{
-	}
+    /** @param T $foo */
+    public function setFoo(\DateTimeInterface $foo): void
+    {
+    }
 }
 
-function testClasses(): void {
-	$a = new A(1);
-	$a->set(2);
-	$a->set($a->get(0));
-	$a->set('');
+function testClasses(): void
+{
+    $a = new A(1);
+    $a->set(2);
+    $a->set($a->get(0));
+    $a->set('');
 
-	$a = new AOfDateTime();
-	$a->set(new \DateTime());
-	$a->set($a->get(0));
-	$a->set(1);
+    $a = new AOfDateTime();
+    $a->set(new \DateTime());
+    $a->set($a->get(0));
+    $a->set(1);
 
-	$b = new B(1);
-	$b->set(2);
-	$b->set($b->get(0));
-	$b->set('');
+    $b = new B(1);
+    $b->set(2);
+    $b->set($b->get(0));
+    $b->set('');
 
-	$c = new C();
-	$c->set(2);
-	$c->set($c->get());
-	$c->set('');
+    $c = new C();
+    $c->set(2);
+    $c->set($c->get());
+    $c->set('');
 
-	$ab = new ABImpl();
-	acceptSuperIFaceAOfInt($ab);
-	acceptSuperIFaceBOfDateTime($ab);
-	acceptSuperIFaceBOfInt($ab);
+    $ab = new ABImpl();
+    acceptSuperIFaceAOfInt($ab);
+    acceptSuperIFaceBOfDateTime($ab);
+    acceptSuperIFaceBOfInt($ab);
 
-	new SomeRule();
+    new SomeRule();
 }

@@ -4,11 +4,8 @@ namespace InheritDocTemplateTypeResolution;
 
 class Foo extends \SimpleXMLElement
 {
-
-	public function removeThis(): void
-	{
-		unset($this[0]);
-
-	}
-
+    public function removeThis(): void
+    {
+        unset($this[0]);
+    }
 }

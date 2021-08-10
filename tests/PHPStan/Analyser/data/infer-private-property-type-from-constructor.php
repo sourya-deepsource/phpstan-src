@@ -4,50 +4,47 @@ namespace InferPrivatePropertyTypeFromConstructor;
 
 class Foo
 {
+    /** @var int */
+    private $intProp;
 
-	/** @var int */
-	private $intProp;
+    private $stringProp;
 
-	private $stringProp;
+    private $unionProp;
 
-	private $unionProp;
+    private $stdClassProp;
 
-	private $stdClassProp;
+    /** @ORM\Column */
+    private $unrelatedDocComment;
 
-	/** @ORM\Column */
-	private $unrelatedDocComment;
+    /** @var mixed */
+    private $explicitMixed;
 
-	/** @var mixed */
-	private $explicitMixed;
+    private $bool;
 
-	private $bool;
+    private $array;
 
-	private $array;
+    /**
+     * @param self|Bar $unionProp
+     */
+    public function __construct(
+        string $intProp,
+        string $stringProp,
+        $unionProp,
+        \stdClass $unrelatedDocComment,
+        \stdClass $explicitMixed
+    ) {
+        $this->intProp = $intProp;
+        $this->stringProp = $stringProp;
+        $this->unionProp = $unionProp;
+        $this->stdClassProp = new \stdClass();
+        $this->unrelatedDocComment = $unrelatedDocComment;
+        $this->explicitMixed = $explicitMixed;
+        $this->bool = false;
+        $this->array = [];
+    }
 
-	/**
-	 * @param self|Bar $unionProp
-	 */
-	public function __construct(
-		string $intProp,
-		string $stringProp,
-		$unionProp,
-		\stdClass $unrelatedDocComment,
-		\stdClass $explicitMixed
-	)
-	{
-		$this->intProp = $intProp;
-		$this->stringProp = $stringProp;
-		$this->unionProp = $unionProp;
-		$this->stdClassProp = new \stdClass();
-		$this->unrelatedDocComment = $unrelatedDocComment;
-		$this->explicitMixed = $explicitMixed;
-		$this->bool = false;
-		$this->array = [];
-	}
-
-	public function doFoo()
-	{
-		die;
-	}
-
+    public function doFoo()
+    {
+        die;
+    }
 }

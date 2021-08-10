@@ -4,153 +4,127 @@ namespace UnusedPrivateMethod;
 
 class Foo
 {
+    private function doFoo()
+    {
+        $this->doFoo();
+    }
 
-	private function doFoo()
-	{
-		$this->doFoo();
-	}
+    private function doBar()
+    {
+        $this->doBaz();
+    }
 
-	private function doBar()
-	{
-		$this->doBaz();
-	}
+    private function doBaz()
+    {
+        self::calledStatically();
+    }
 
-	private function doBaz()
-	{
-		self::calledStatically();
-	}
+    private function calledStatically()
+    {
+    }
 
-	private function calledStatically()
-	{
+    private function __construct()
+    {
+        $this->staticMethod();
+        self::anotherStaticMethod();
+    }
 
-	}
+    private static function staticMethod()
+    {
+    }
 
-	private function __construct()
-	{
-		$this->staticMethod();
-		self::anotherStaticMethod();
-	}
+    private static function anotherStaticMethod()
+    {
+    }
 
-	private static function staticMethod()
-	{
-
-	}
-
-	private static function anotherStaticMethod()
-	{
-
-	}
-
-	private static function unusedStaticMethod()
-	{
-
-	}
-
+    private static function unusedStaticMethod()
+    {
+    }
 }
 
 class Bar
 {
+    private function doFoo()
+    {
+    }
 
-	private function doFoo()
-	{
+    private function doBaz()
+    {
+        $cb = [$this, 'doBaz'];
+        $cb();
+    }
 
-	}
-
-	private function doBaz()
-	{
-		$cb = [$this, 'doBaz'];
-		$cb();
-	}
-
-	public function doBar()
-	{
-		$cb = [$this, 'doFoo'];
-		$cb();
-	}
-
+    public function doBar()
+    {
+        $cb = [$this, 'doFoo'];
+        $cb();
+    }
 }
 
 class Baz
 {
+    private function doFoo()
+    {
+    }
 
-	private function doFoo()
-	{
-
-	}
-
-	public function doBar(string $name)
-	{
-		$cb = [$this, $name];
-		$cb();
-	}
-
+    public function doBar(string $name)
+    {
+        $cb = [$this, $name];
+        $cb();
+    }
 }
 
 class Lorem
 {
+    private function doFoo()
+    {
+    }
 
-	private function doFoo()
-	{
+    private function doBaz()
+    {
+    }
 
-	}
-
-	private function doBaz()
-	{
-
-	}
-
-	public function doBar()
-	{
-		$m = 'doFoo';
-		$this->{$m}();
-	}
-
+    public function doBar()
+    {
+        $m = 'doFoo';
+        $this->{$m}();
+    }
 }
 
 class Ipsum
 {
+    private function doFoo()
+    {
+    }
 
-	private function doFoo()
-	{
-
-	}
-
-	public function doBar(string $s)
-	{
-		$this->{$s}();
-	}
-
+    public function doBar(string $s)
+    {
+        $this->{$s}();
+    }
 }
 
 trait FooTrait
 {
+    private function doFoo()
+    {
+    }
 
-	private function doFoo()
-	{
+    private function doBar()
+    {
+    }
 
-	}
-
-	private function doBar()
-	{
-
-	}
-
-	public function doBaz()
-	{
-		$this->doFoo();
-		$this->doLorem();
-	}
-
+    public function doBaz()
+    {
+        $this->doFoo();
+        $this->doLorem();
+    }
 }
 
 class UsingFooTrait
 {
+    use FooTrait;
 
-	use FooTrait;
-
-	private function doLorem()
-	{
-
-	}
-
+    private function doLorem()
+    {
+    }
 }

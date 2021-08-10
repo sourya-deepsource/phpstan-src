@@ -3,10 +3,10 @@
 namespace PHPStan;
 
 function (array $a) {
-	if ($a === []) {
-		return;
-	}
+    if ($a === []) {
+        return;
+    }
 
-	dumpType($a);
-	dumpType();
+    dumpType($a);
+    dumpType();
 };

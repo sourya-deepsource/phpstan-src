@@ -4,36 +4,30 @@ namespace ParentClass;
 
 class Foo
 {
-
-	public function doFoo()
-	{
-		'inParentClass';
-	}
-
+    public function doFoo()
+    {
+        'inParentClass';
+    }
 }
 
 class Bar extends Foo
 {
+    use FooTrait;
 
-	use FooTrait;
-
-	public function doBar()
-	{
-		'inChildClass';
-	}
-
+    public function doBar()
+    {
+        'inChildClass';
+    }
 }
 
 function (string $s) {
-	die;
+    die;
 };
 
 trait FooTrait
 {
-
-	public function doBaz()
-	{
-		'inTrait';
-	}
-
+    public function doBaz()
+    {
+        'inTrait';
+    }
 }

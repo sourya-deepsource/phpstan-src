@@ -6,19 +6,17 @@ use function PHPStan\Testing\assertType;
 
 class HelloWorld
 {
+    public function sayHello(): void
+    {
+        $lengths = [0];
+        foreach ([1] as $row) {
+            $lengths[] = self::getInt();
+        }
+        assertType('array<int, int>&nonEmpty', $lengths);
+    }
 
-	public function sayHello(): void
-	{
-		$lengths = [0];
-		foreach ([1] as $row) {
-			$lengths[] = self::getInt();
-		}
-		assertType('array<int, int>&nonEmpty', $lengths);
-	}
-
-	public static function getInt(): int
-	{
-		return 5;
-	}
-
+    public static function getInt(): int
+    {
+        return 5;
+    }
 }

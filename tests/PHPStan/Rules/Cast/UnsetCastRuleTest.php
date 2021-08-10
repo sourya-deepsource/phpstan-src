@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Cast;
 
@@ -11,43 +13,41 @@ use PHPStan\Testing\RuleTestCase;
  */
 class UnsetCastRuleTest extends RuleTestCase
 {
+    /** @var int */
+    private $phpVersion;
 
-	/** @var int */
-	private $phpVersion;
+    protected function getRule(): Rule
+    {
+        return new UnsetCastRule(new PhpVersion($this->phpVersion));
+    }
 
-	protected function getRule(): Rule
-	{
-		return new UnsetCastRule(new PhpVersion($this->phpVersion));
-	}
+    public function dataRule(): array
+    {
+        return [
+            [
+                70400,
+                [],
+            ],
+            [
+                80000,
+                [
+                    [
+                        'The (unset) cast is no longer supported in PHP 8.0 and later.',
+                        6,
+                    ],
+                ],
+            ],
+        ];
+    }
 
-	public function dataRule(): array
-	{
-		return [
-			[
-				70400,
-				[],
-			],
-			[
-				80000,
-				[
-					[
-						'The (unset) cast is no longer supported in PHP 8.0 and later.',
-						6,
-					],
-				],
-			],
-		];
-	}
-
-	/**
-	 * @dataProvider dataRule
-	 * @param int $phpVersion
-	 * @param mixed[] $errors
-	 */
-	public function testRule(int $phpVersion, array $errors): void
-	{
-		$this->phpVersion = $phpVersion;
-		$this->analyse([__DIR__ . '/data/unset-cast.php'], $errors);
-	}
-
+    /**
+     * @dataProvider dataRule
+     * @param int $phpVersion
+     * @param mixed[] $errors
+     */
+    public function testRule(int $phpVersion, array $errors): void
+    {
+        $this->phpVersion = $phpVersion;
+        $this->analyse([__DIR__ . '/data/unset-cast.php'], $errors);
+    }
 }

@@ -6,17 +6,21 @@ use function PHPStan\Testing\assertType;
 
 class Customer
 {
-	public function getName(): string { return 'customer'; }
+    public function getName(): string
+    {
+        return 'customer';
+    }
 }
 
 /**
  * @template T
  */
-interface Link {
-	/**
-	 * @return T
-	 */
-	public function getItem();
+interface Link
+{
+    /**
+     * @return T
+     */
+    public function getItem();
 }
 
 /**
@@ -24,32 +28,34 @@ interface Link {
  */
 class CustomerLink implements Link
 {
-	/**
-	 * @var Customer
-	 */
-	public $item;
+    /**
+     * @var Customer
+     */
+    public $item;
 
-	/**
-	 * @param Customer $item
-	 */
-	public function __construct($item) {
-		$this->item = $item;
-	}
+    /**
+     * @param Customer $item
+     */
+    public function __construct($item)
+    {
+        $this->item = $item;
+    }
 
-	/**
-	 * @return Customer
-	 */
-	public function getItem()
-	{
-		return $this->item;
-	}
+    /**
+     * @return Customer
+     */
+    public function getItem()
+    {
+        return $this->item;
+    }
 }
 
 /**
  * @return CustomerLink[]
  */
-function get_links(): array {
-	return [new CustomerLink(new Customer())];
+function get_links(): array
+{
+    return [new CustomerLink(new Customer())];
 }
 
 /**
@@ -57,13 +63,15 @@ function get_links(): array {
  * @param Link<T>[] $links
  * @return T
  */
-function process_customers(array $links) {
-	// no-op
+function process_customers(array $links)
+{
+    // no-op
 }
 
-class Runner {
-	public function run(): void
-	{
-		assertType('Bug4209Two\Customer', process_customers(get_links()));
-	}
+class Runner
+{
+    public function run(): void
+    {
+        assertType('Bug4209Two\Customer', process_customers(get_links()));
+    }
 }

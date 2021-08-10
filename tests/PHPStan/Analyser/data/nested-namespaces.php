@@ -1,21 +1,28 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace x {
-	class boo {}
+    class boo
+    {
+    }
 }
 
 namespace y {
-	use x\{boo, baz};
+    use x\boo;
+use x\baz;
 
-	class x {
-		/** @var \x\boo */
-		private $boo;
+    class x
+    {
+        /** @var \x\boo */
+        private $boo;
 
-		/** @var \x\baz */
-		private $baz;
-		public function __construct(boo $boo, baz $baz) {
-			$this->boo = $boo;
-			$this->baz = $baz;
-		}
-	}
+        /** @var \x\baz */
+        private $baz;
+        public function __construct(boo $boo, baz $baz)
+        {
+            $this->boo = $boo;
+            $this->baz = $baz;
+        }
+    }
 }

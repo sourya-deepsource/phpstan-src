@@ -1,4 +1,6 @@
-<?php // lint >= 7.4
+<?php
+
+// lint >= 7.4
 
 namespace RequiredAfterOptional;
 

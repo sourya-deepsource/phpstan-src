@@ -8,10 +8,8 @@ interface FooInterface extends BarInterface
 
 interface BarInterface
 {
-
-	/**
-	 * @param int $int
-	 */
-	public function doBar($int);
-
+    /**
+     * @param int $int
+     */
+    public function doBar($int);
 }

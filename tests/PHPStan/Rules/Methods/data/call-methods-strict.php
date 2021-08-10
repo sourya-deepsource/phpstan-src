@@ -1,8 +1,10 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Test;
 
 function () {
-	$foo = new ClassWithToString();
-	$foo->acceptsString($foo);
+    $foo = new ClassWithToString();
+    $foo->acceptsString($foo);
 };

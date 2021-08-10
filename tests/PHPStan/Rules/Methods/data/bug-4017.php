@@ -7,17 +7,16 @@ namespace Bug4017;
  */
 interface DoctrineEntityRepository
 {
-
 }
 
 interface DoctrineEntityManagerInterface
 {
-	/**
-	 * @template T
-	 * @param class-string<T> $className
-	 * @return DoctrineEntityRepository<T>
-	 */
-	public function getRepository(string $className): DoctrineEntityRepository;
+    /**
+     * @template T
+     * @param class-string<T> $className
+     * @return DoctrineEntityRepository<T>
+     */
+    public function getRepository(string $className): DoctrineEntityRepository;
 }
 
 
@@ -31,10 +30,10 @@ interface MyEntityRepositoryInterface extends DoctrineEntityRepository
 
 interface MyEntityManagerInterface extends DoctrineEntityManagerInterface
 {
-	/**
-	 * @template T
-	 * @param class-string<T> $className
-	 * @return MyEntityRepositoryInterface<T>
-	 */
-	public function getRepository(string $className): MyEntityRepositoryInterface;
+    /**
+     * @template T
+     * @param class-string<T> $className
+     * @return MyEntityRepositoryInterface<T>
+     */
+    public function getRepository(string $className): MyEntityRepositoryInterface;
 }

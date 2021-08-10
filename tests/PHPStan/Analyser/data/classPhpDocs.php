@@ -15,9 +15,13 @@ use function PHPStan\Testing\assertType;
  */
 class Foo
 {
-    public function __call($name, $arguments){}
+    public function __call($name, $arguments)
+    {
+    }
 
-    public static function __callStatic($name, $arguments){}
+    public static function __callStatic($name, $arguments)
+    {
+    }
 
     public function doFoo()
     {
@@ -41,4 +45,3 @@ class Child extends Foo
         assertType('int', static::overrodeStaticMethod());
     }
 }
-

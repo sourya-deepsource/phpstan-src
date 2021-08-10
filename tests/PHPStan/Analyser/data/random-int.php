@@ -3,22 +3,22 @@
 use function PHPStan\Testing\assertType;
 
 function (int $min) {
-	\assert($min === 10 || $min === 15);
-	assertType('int<10, 20>', random_int($min, 20));
+    \assert($min === 10 || $min === 15);
+    assertType('int<10, 20>', random_int($min, 20));
 };
 
 function (int $min) {
-	\assert($min <= 0);
-	assertType('int<min, 20>', random_int($min, 20));
+    \assert($min <= 0);
+    assertType('int<min, 20>', random_int($min, 20));
 };
 
 function (int $max) {
-	\assert($min >= 0);
-	assertType('int<0, max>', random_int(0, $max));
+    \assert($min >= 0);
+    assertType('int<0, max>', random_int(0, $max));
 };
 
 function (int $i) {
-	assertType('int', random_int($i, $i));
+    assertType('int', random_int($i, $i));
 };
 
 assertType('0', random_int(0, 0));

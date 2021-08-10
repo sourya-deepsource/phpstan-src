@@ -4,44 +4,41 @@ namespace MissingPropertyTypehint;
 
 class MyClass
 {
-	private $prop1;
+    private $prop1;
 
-	protected $prop2 = null;
+    protected $prop2 = null;
 
-	/**
-	 * @var
-	 */
-	public $prop3;
+    /**
+     * @var
+     */
+    public $prop3;
 }
 
 class ChildClass extends MyClass
 {
-	/**
-	 * @var int
-	 */
-	protected $prop1;
+    /**
+     * @var int
+     */
+    protected $prop1;
 
-	/**
-	 * @var null
-	 */
-	protected $prop2;
+    /**
+     * @var null
+     */
+    protected $prop2;
 
-	/**
-	 * @var \stdClass|array|int|null
-	 */
-	private $unionProp;
-
+    /**
+     * @var \stdClass|array|int|null
+     */
+    private $unionProp;
 }
 
 class PrefixedTags
 {
+    /** @phpstan-var int */
+    private $fooPhpstan;
 
-	/** @phpstan-var int */
-	private $fooPhpstan;
-
-	/** @psalm-var int */
-	private $fooPsalm;
-
+    /** @psalm-var int */
+    private $fooPsalm;
 }
 
 /**
@@ -50,12 +47,10 @@ class PrefixedTags
  */
 interface GenericInterface
 {
-
 }
 
 class NonGenericClass
 {
-
 }
 
 /**
@@ -64,32 +59,27 @@ class NonGenericClass
  */
 class GenericClass
 {
-
 }
 
 class Bar
 {
+    /** @var \MissingPropertyTypehint\GenericInterface */
+    private $foo;
 
-	/** @var \MissingPropertyTypehint\GenericInterface */
-	private $foo;
+    /** @var \MissingPropertyTypehint\NonGenericClass */
+    private $bar;
 
-	/** @var \MissingPropertyTypehint\NonGenericClass */
-	private $bar;
-
-	/** @var \MissingPropertyTypehint\GenericClass */
-	private $baz;
-
+    /** @var \MissingPropertyTypehint\GenericClass */
+    private $baz;
 }
 
 $foo = new class() {
-	/** @var float */
-	private $dateTime;
+    /** @var float */
+    private $dateTime;
 };
 
 class CallableSignature
 {
-
-	/** @var callable */
-	private $cb;
-
+    /** @var callable */
+    private $cb;
 }

@@ -7,15 +7,13 @@ namespace Bug3443;
  */
 interface CollectionInterface
 {
-
-	/**
-	 * @param mixed $data
-	 * @param mixed ...$parameters
-	 *
-	 * @return mixed
-	 */
-	public static function with($data = [], ...$parameters);
-
+    /**
+     * @param mixed $data
+     * @param mixed ...$parameters
+     *
+     * @return mixed
+     */
+    public static function with($data = [], ...$parameters);
 }
 
 
@@ -24,27 +22,24 @@ interface CollectionInterface
  */
 final class Collection implements CollectionInterface
 {
-
-	public static function with($data = [], ...$parameters)
-	{
-		return new self();
-	}
-
+    public static function with($data = [], ...$parameters)
+    {
+        return new self();
+    }
 }
 
-interface TranslatorInterface{
-
-	/**
-	 * @param array<int,mixed> $additionalParametersToInjectIntoTranslation
-	 */
-	public function translate(string $translationKey, bool $upperCaseFirst = true, ...$additionalParametersToInjectIntoTranslation) : string;
+interface TranslatorInterface
+{
+    /**
+     * @param array<int,mixed> $additionalParametersToInjectIntoTranslation
+     */
+    public function translate(string $translationKey, bool $upperCaseFirst = true, ...$additionalParametersToInjectIntoTranslation): string;
 }
 
 class Translator implements TranslatorInterface
 {
-
-	public function translate(string $translationKey, bool $upperCaseFirst = true, ...$additionalParametersToInjectIntoTranslation) : string
-	{
-		return 'some fancy translation with possibly some parameters injected';
-	}
+    public function translate(string $translationKey, bool $upperCaseFirst = true, ...$additionalParametersToInjectIntoTranslation): string
+    {
+        return 'some fancy translation with possibly some parameters injected';
+    }
 }

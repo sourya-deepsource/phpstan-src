@@ -2,10 +2,7 @@
 
 class CFoo
 {
-
-	public function doBaz()
-	{
-
-	}
-
+    public function doBaz()
+    {
+    }
 }

@@ -1,78 +1,82 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PropertiesFromArrayIntoStaticObject;
 
 class Foo
 {
-	/**
-	 * @var string
-	 */
-	public static $foo = '';
+    /**
+     * @var string
+     */
+    public static $foo = '';
 
-	/**
-	 * @var null|\stdClass
-	 */
-	public static $lall;
+    /**
+     * @var null|\stdClass
+     */
+    public static $lall;
 
-	/**
-	 * @phpstan-return array{foo: 'bar', lall: string, noop: int}
-	 */
-	public function data(): array
-	{
-		return ['foo' => 'bar', 'lall' => 'lall', 'noop' => 1];
-	}
+    /**
+     * @phpstan-return array{foo: 'bar', lall: string, noop: int}
+     */
+    public function data(): array
+    {
+        return ['foo' => 'bar', 'lall' => 'lall', 'noop' => 1];
+    }
 
-	public function create(): self {
-		$self = new self();
+    public function create(): self
+    {
+        $self = new self();
 
-		foreach($this->data() as $property => $value) {
-			self::${$property} = $value;
+        foreach ($this->data() as $property => $value) {
+            self::${$property} = $value;
 
-			if ($property === 'lall') {
-				self::${$property} = null;
-			}
+            if ($property === 'lall') {
+                self::${$property} = null;
+            }
 
-			if ($property === 'foo') {
-				self::${$property} = 1.1;
-			}
-		}
+            if ($property === 'foo') {
+                self::${$property} = 1.1;
+            }
+        }
 
-		return $self;
-	}
+        return $self;
+    }
 }
 
 class FooBar
 {
-	/**
-	 * @var string
-	 */
-	public static $foo = '';
+    /**
+     * @var string
+     */
+    public static $foo = '';
 
-	/**
-	 * @var null|\stdClass
-	 */
-	public static $lall;
+    /**
+     * @var null|\stdClass
+     */
+    public static $lall;
 
-	public function data(): array
-	{
-		return ['foo' => 'bar', 'lall' => 'lall', 'noop' => 1];
-	}
+    public function data(): array
+    {
+        return ['foo' => 'bar', 'lall' => 'lall', 'noop' => 1];
+    }
 
-	public function create(): self {
-		$self = new self();
+    public function create(): self
+    {
+        $self = new self();
 
-		foreach($this->data() as $property => $value) {
-			self::${$property} = $value;
+        foreach ($this->data() as $property => $value) {
+            self::${$property} = $value;
 
-			if ($property === 'lall') {
-				self::${$property} = null;
-			}
+            if ($property === 'lall') {
+                self::${$property} = null;
+            }
 
-			if ($property === 'foo') {
-				self::${$property} = 1.1;
-			}
-		}
+            if ($property === 'foo') {
+                self::${$property} = 1.1;
+            }
+        }
 
-		return $self;
-	}
+        return $self;
+    }
 }

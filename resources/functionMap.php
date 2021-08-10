@@ -1,4 +1,6 @@
-<?php // @codingStandardsIgnoreFile (phpcs runs out of memory)
+<?php
+
+// @codingStandardsIgnoreFile (phpcs runs out of memory)
 
 /**
  * Copied over from https://github.com/phan/phan/blob/dbb7ea9bd049ebd116c0b08b043794c697486801/src/Phan/Language/Internal/FunctionSignatureMap.php

@@ -4,7 +4,6 @@ namespace ThrowsAnnotations;
 
 function withoutThrows()
 {
-
 }
 
 /**
@@ -12,115 +11,96 @@ function withoutThrows()
  */
 function throwsRuntime()
 {
-
 }
 
 class Foo
 {
+    public function withoutThrows()
+    {
+    }
 
-	public function withoutThrows()
-	{
+    /**
+     * @throws \RuntimeException
+     */
+    public function throwsRuntime()
+    {
+    }
 
-	}
-
-	/**
-	 * @throws \RuntimeException
-	 */
-	public function throwsRuntime()
-	{
-
-	}
-
-	/**
-	 * @throws \RuntimeException
-	 */
-	public static function staticThrowsRuntime()
-	{
-
-	}
-
+    /**
+     * @throws \RuntimeException
+     */
+    public static function staticThrowsRuntime()
+    {
+    }
 }
 
 class PhpstanFoo
 {
-	/**
-	 * @throws \RuntimeException
-	 *
-	 * @phpstan-throws void
-	 */
-	public function withoutThrows()
-	{
+    /**
+     * @throws \RuntimeException
+     *
+     * @phpstan-throws void
+     */
+    public function withoutThrows()
+    {
+    }
 
-	}
+    /**
+     * @throws \Exception
+     *
+     * @phpstan-throws \RuntimeException
+     */
+    public function throwsRuntime()
+    {
+    }
 
-	/**
-	 * @throws \Exception
-	 *
-	 * @phpstan-throws \RuntimeException
-	 */
-	public function throwsRuntime()
-	{
-
-	}
-
-	/**
-	 * @throws \Exception
-	 *
-	 * @phpstan-throws \RuntimeException
-	 */
-	public static function staticThrowsRuntime()
-	{
-
-	}
-
+    /**
+     * @throws \Exception
+     *
+     * @phpstan-throws \RuntimeException
+     */
+    public static function staticThrowsRuntime()
+    {
+    }
 }
 
 interface FooInterface
 {
+    public function withoutThrows();
 
-	public function withoutThrows();
+    /**
+     * @throws \RuntimeException
+     */
+    public function throwsRuntime();
 
-	/**
-	 * @throws \RuntimeException
-	 */
-	public function throwsRuntime();
-
-	/**
-	 * @throws \RuntimeException
-	 */
-	public static function staticThrowsRuntime();
-
+    /**
+     * @throws \RuntimeException
+     */
+    public static function staticThrowsRuntime();
 }
 
 trait FooTrait
 {
+    public function withoutThrows()
+    {
+    }
 
-	public function withoutThrows()
-	{
+    /**
+     * @throws \RuntimeException
+     */
+    public function throwsRuntime()
+    {
+    }
 
-	}
-
-	/**
-	 * @throws \RuntimeException
-	 */
-	public function throwsRuntime()
-	{
-
-	}
-
-	/**
-	 * @throws \RuntimeException
-	 */
-	public static function staticThrowsRuntime()
-	{
-
-	}
-
+    /**
+     * @throws \RuntimeException
+     */
+    public static function staticThrowsRuntime()
+    {
+    }
 }
 
 trait BarTrait
 {
-
-	use FooTrait;
-
+    use FooTrait;
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Bug2003;
 
@@ -7,19 +9,19 @@ use function PHPStan\Testing\assertType;
 use function PHPStan\Testing\assertVariableCertainty;
 
 function (array $list): void {
-	foreach ($list as $part) {
-		switch (true) {
-			case isset($list['magic']):
-				$key = 'to-success';
-				break;
+    foreach ($list as $part) {
+        switch (true) {
+            case isset($list['magic']):
+                $key = 'to-success';
+                break;
 
-			default:
-				continue 2;
-		}
+            default:
+                continue 2;
+        }
 
-		assertType('\'to-success\'', $key);
-		assertVariableCertainty(TrinaryLogic::createYes(), $key);
+        assertType('\'to-success\'', $key);
+        assertVariableCertainty(TrinaryLogic::createYes(), $key);
 
-		echo $key;
-	}
+        echo $key;
+    }
 };

@@ -4,18 +4,15 @@ namespace AssignmentInCondition;
 
 class Foo
 {
+    public function doFoo(): ?self
+    {
+    }
 
-	public function doFoo(): ?self
-	{
-
-	}
-
-	public function doBar()
-	{
-		$foo = new self();
-		if (null !== $bar = $foo->doFoo()) {
-			die;
-		}
-	}
-
+    public function doBar()
+    {
+        $foo = new self();
+        if (null !== $bar = $foo->doFoo()) {
+            die;
+        }
+    }
 }

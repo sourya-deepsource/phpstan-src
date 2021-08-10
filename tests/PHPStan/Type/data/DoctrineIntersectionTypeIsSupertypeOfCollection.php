@@ -14,5 +14,4 @@ use IteratorAggregate;
  */
 interface Collection extends Countable, IteratorAggregate, ArrayAccess
 {
-
 }

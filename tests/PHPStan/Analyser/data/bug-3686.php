@@ -8,32 +8,30 @@ namespace Bug3686;
  */
 function fred($request)
 {
-	$keys = '';
-	foreach ($request as $index)
-	{
-		foreach ($index as $field)
-		{
-			if (isset($keys[$field]))
-			{
-				$keys[$field] = 0;
-			}
-		}
-	}
+    $keys = '';
+    foreach ($request as $index) {
+        foreach ($index as $field) {
+            if (isset($keys[$field])) {
+                $keys[$field] = 0;
+            }
+        }
+    }
 }
 
 /**
  * @param int[][] $a
  */
-function replaceStringWithZero(array $a) : string {
-	$keys = 'agfsdafsafdrew1231414';
+function replaceStringWithZero(array $a): string
+{
+    $keys = 'agfsdafsafdrew1231414';
 
-	foreach ($a as $b) {
-		foreach ($b as $c) {
-			if (isset($keys[$c])) {
-				$keys[$c] = "0";
-			}
-		}
-	}
+    foreach ($a as $b) {
+        foreach ($b as $c) {
+            if (isset($keys[$c])) {
+                $keys[$c] = "0";
+            }
+        }
+    }
 
-	return $keys;
+    return $keys;
 }

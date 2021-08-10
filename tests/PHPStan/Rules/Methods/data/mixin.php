@@ -4,12 +4,9 @@ namespace MixinMethods;
 
 class Foo
 {
-
-	public function doFoo()
-	{
-
-	}
-
+    public function doFoo()
+    {
+    }
 }
 
 /**
@@ -17,27 +14,23 @@ class Foo
  */
 class Bar
 {
-
-	public function doBar()
-	{
-
-	}
-
+    public function doBar()
+    {
+    }
 }
 
 function (Bar $bar): void {
-	$bar->doFoo();
-	$bar->doFoo(1);
+    $bar->doFoo();
+    $bar->doFoo(1);
 };
 
 class Baz extends Bar
 {
-
 }
 
 function (Baz $baz): void {
-	$baz->doFoo();
-	$baz->doFoo(1);
+    $baz->doFoo();
+    $baz->doFoo(1);
 };
 
 /**
@@ -46,20 +39,17 @@ function (Baz $baz): void {
  */
 class GenericFoo
 {
-
 }
 
 class Test
 {
-
-	/**
-	 * @param GenericFoo<\Exception> $foo
-	 */
-	public function doFoo(GenericFoo $foo): void
-	{
-		echo $foo->getMessage();
-		echo $foo->getMessage(1);
-		echo $foo->getMessagee();
-	}
-
+    /**
+     * @param GenericFoo<\Exception> $foo
+     */
+    public function doFoo(GenericFoo $foo): void
+    {
+        echo $foo->getMessage();
+        echo $foo->getMessage(1);
+        echo $foo->getMessagee();
+    }
 }

@@ -7,17 +7,17 @@ define('GLOBAL_DYNAMIC_CONSTANT', false);
 
 class DynamicConstantClass
 {
-	const DYNAMIC_CONSTANT_IN_CLASS = 'abcdef';
-	const PURE_CONSTANT_IN_CLASS = 'abc123def';
+    public const DYNAMIC_CONSTANT_IN_CLASS = 'abcdef';
+    public const PURE_CONSTANT_IN_CLASS = 'abc123def';
 }
 
 class NoDynamicConstantClass
 {
-	// constant name is same as in DynamicConstantClass, just to test
-	const DYNAMIC_CONSTANT_IN_CLASS = 'xyz';
+    // constant name is same as in DynamicConstantClass, just to test
+    public const DYNAMIC_CONSTANT_IN_CLASS = 'xyz';
 
-	private function rip()
-	{
-		die;
-	}
+    private function rip()
+    {
+        die;
+    }
 }

@@ -4,7 +4,6 @@ namespace InvalidPhpDocDefinitions;
 
 class Foo
 {
-
 }
 
 /**
@@ -13,5 +12,4 @@ class Foo
  */
 class FooGeneric
 {
-
 }

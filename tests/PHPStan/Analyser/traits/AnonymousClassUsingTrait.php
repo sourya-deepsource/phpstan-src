@@ -2,8 +2,6 @@
 
 namespace AnonymousTraitClass;
 
-new class implements FooInterface {
-
-	use TraitWithTypeSpecification;
-
+new class() implements FooInterface {
+    use TraitWithTypeSpecification;
 };

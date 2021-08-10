@@ -4,13 +4,11 @@ namespace UnusedPrivateProperty;
 
 class TestExtension
 {
+    private $unused;
 
-	private $unused;
+    private $read;
 
-	private $read;
+    private $written;
 
-	private $written;
-
-	private $used;
-
+    private $used;
 }

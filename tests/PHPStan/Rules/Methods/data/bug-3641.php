@@ -4,10 +4,10 @@ namespace Bug3641;
 
 class Foo
 {
-	public function bar(): int
-	{
-		return 5;
-	}
+    public function bar(): int
+    {
+        return 5;
+    }
 }
 
 /**
@@ -15,19 +15,19 @@ class Foo
  */
 class Bar
 {
-	/**
-	 * @param  mixed[]  $args
-	 * @return mixed
-	 */
-	public static function __callStatic(string $method, $args)
-	{
-		$instance = new Foo;
+    /**
+     * @param  mixed[]  $args
+     * @return mixed
+     */
+    public static function __callStatic(string $method, $args)
+    {
+        $instance = new Foo();
 
-		return $instance->$method(...$args);
-	}
+        return $instance->$method(...$args);
+    }
 }
 
 function (): void {
-	Bar::bar();
-	Bar::bar(1);
+    Bar::bar();
+    Bar::bar(1);
 };

@@ -2,10 +2,8 @@
 
 class SingleFileSourceLocatorTestClass
 {
-
 }
 
 function singleFileSourceLocatorTestFunction()
 {
-
 }

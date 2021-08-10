@@ -7,82 +7,68 @@ use SomeNamespace\Consecteur;
 
 class FooWithTrait extends FooParent
 {
+    use FooTrait;
 
-	use FooTrait;
+    /**
+     * @return Bar
+     */
+    public static function doSomethingStatic()
+    {
+    }
 
-	/**
-	 * @return Bar
-	 */
-	public static function doSomethingStatic()
-	{
+    /**
+     * @return self[]
+     */
+    public function doBar(): array
+    {
+    }
 
-	}
+    public function returnParent(): parent
+    {
+    }
 
-	/**
-	 * @return self[]
-	 */
-	public function doBar(): array
-	{
+    /**
+     * @return parent
+     */
+    public function returnPhpDocParent()
+    {
+    }
 
-	}
+    /**
+     * @return NULL[]
+     */
+    public function returnNulls(): array
+    {
+    }
 
-	public function returnParent(): parent
-	{
+    public function returnObject(): object
+    {
+    }
 
-	}
+    public function phpDocVoidMethod(): self
+    {
+    }
 
-	/**
-	 * @return parent
-	 */
-	public function returnPhpDocParent()
-	{
+    public function phpDocVoidMethodFromInterface(): self
+    {
+    }
 
-	}
+    public function phpDocVoidParentMethod(): self
+    {
+    }
 
-	/**
-	 * @return NULL[]
-	 */
-	public function returnNulls(): array
-	{
+    public function phpDocWithoutCurlyBracesVoidParentMethod(): self
+    {
+    }
 
-	}
+    /**
+     * @return string[]
+     */
+    public function returnsStringArray(): array
+    {
+    }
 
-	public function returnObject(): object
-	{
-
-	}
-
-	public function phpDocVoidMethod(): self
-	{
-
-	}
-
-	public function phpDocVoidMethodFromInterface(): self
-	{
-
-	}
-
-	public function phpDocVoidParentMethod(): self
-	{
-
-	}
-
-	public function phpDocWithoutCurlyBracesVoidParentMethod(): self
-	{
-
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function returnsStringArray(): array
-	{
-
-	}
-
-	private function privateMethodWithPhpDoc()
-	{
-
-	}
-
+    private function privateMethodWithPhpDoc()
+    {
+    }
 }

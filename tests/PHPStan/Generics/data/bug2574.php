@@ -2,11 +2,13 @@
 
 namespace Generics\Bug2574;
 
-abstract class Model {
-	/** @return static */
-	public function newInstance() {
-		return new static();
-	}
+abstract class Model
+{
+    /** @return static */
+    public function newInstance()
+    {
+        return new static();
+    }
 }
 
 /**
@@ -14,6 +16,7 @@ abstract class Model {
  * @param T $m
  * @return T
  */
-function foo(Model $m) : Model {
-	return $m->newInstance();
+function foo(Model $m): Model
+{
+    return $m->newInstance();
 }

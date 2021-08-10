@@ -8,7 +8,6 @@ namespace InterfaceAncestorsExtends;
  */
 interface FooGeneric
 {
-
 }
 
 /**
@@ -17,7 +16,6 @@ interface FooGeneric
  */
 interface FooGeneric2
 {
-
 }
 
 /**
@@ -26,7 +24,6 @@ interface FooGeneric2
  */
 interface FooGeneric3
 {
-
 }
 
 /**
@@ -34,7 +31,6 @@ interface FooGeneric3
  */
 interface FooDoesNotImplementAnything
 {
-
 }
 
 /**
@@ -43,7 +39,6 @@ interface FooDoesNotImplementAnything
  */
 interface FooInvalidImplementsTags extends FooGeneric
 {
-
 }
 
 /**
@@ -51,7 +46,6 @@ interface FooInvalidImplementsTags extends FooGeneric
  */
 interface FooWrongClassImplemented extends FooGeneric, FooGeneric3
 {
-
 }
 
 /**
@@ -59,7 +53,6 @@ interface FooWrongClassImplemented extends FooGeneric, FooGeneric3
  */
 interface FooWrongTypeInImplementsTag extends FooGeneric
 {
-
 }
 
 /**
@@ -67,7 +60,6 @@ interface FooWrongTypeInImplementsTag extends FooGeneric
  */
 interface FooCorrect extends FooGeneric
 {
-
 }
 
 /**
@@ -75,7 +67,6 @@ interface FooCorrect extends FooGeneric
  */
 interface FooNotEnough extends FooGeneric
 {
-
 }
 
 /**
@@ -83,7 +74,6 @@ interface FooNotEnough extends FooGeneric
  */
 interface FooExtraTypes extends FooGeneric
 {
-
 }
 
 /**
@@ -91,7 +81,6 @@ interface FooExtraTypes extends FooGeneric
  */
 interface FooNotSubtype extends FooGeneric
 {
-
 }
 
 /**
@@ -99,7 +88,6 @@ interface FooNotSubtype extends FooGeneric
  */
 interface FooAlsoNotSubtype extends FooGeneric
 {
-
 }
 
 /**
@@ -107,7 +95,6 @@ interface FooAlsoNotSubtype extends FooGeneric
  */
 interface FooUnknowninterface extends FooGeneric
 {
-
 }
 
 /**
@@ -116,7 +103,6 @@ interface FooUnknowninterface extends FooGeneric
  */
 interface FooGenericGeneric extends FooGeneric
 {
-
 }
 
 /**
@@ -125,7 +111,6 @@ interface FooGenericGeneric extends FooGeneric
  */
 interface FooGenericGeneric2 extends FooGeneric
 {
-
 }
 
 
@@ -135,7 +120,6 @@ interface FooGenericGeneric2 extends FooGeneric
  */
 interface FooGenericGeneric3 extends FooGeneric
 {
-
 }
 
 /**
@@ -144,7 +128,6 @@ interface FooGenericGeneric3 extends FooGeneric
  */
 interface FooGenericGeneric4 extends FooGeneric
 {
-
 }
 
 /**
@@ -153,7 +136,6 @@ interface FooGenericGeneric4 extends FooGeneric
  */
 interface FooGenericGeneric5 extends FooGeneric
 {
-
 }
 
 /**
@@ -162,7 +144,6 @@ interface FooGenericGeneric5 extends FooGeneric
  */
 interface FooGenericGeneric6 extends FooGeneric
 {
-
 }
 
 /**
@@ -171,7 +152,6 @@ interface FooGenericGeneric6 extends FooGeneric
  */
 interface FooGenericGeneric7 extends FooGeneric
 {
-
 }
 
 /**
@@ -181,22 +161,18 @@ interface FooGenericGeneric7 extends FooGeneric
  */
 interface FooGenericGeneric8 extends FooGeneric, FooGeneric2
 {
-
 }
 
 interface NonGenericInterface
 {
-
 }
 
 interface ExtendsNonGenericInterface extends NonGenericInterface
 {
-
 }
 
 interface ExtendsGenericInterface extends FooGeneric
 {
-
 }
 
 /**
@@ -205,7 +181,6 @@ interface ExtendsGenericInterface extends FooGeneric
  */
 interface FooGeneric9
 {
-
 }
 
 /**
@@ -214,5 +189,4 @@ interface FooGeneric9
  */
 interface FooGeneric10 extends FooGeneric9
 {
-
 }

@@ -6,20 +6,20 @@ use function PHPStan\Testing\assertType;
 
 abstract class Foo
 {
-	/**
-	 * @var int
-	 */
-	protected $foo;
+    /**
+     * @var int
+     */
+    protected $foo;
 }
 
 trait Bar
 {
-	/**
-	 * @var int
-	 */
-	protected $bar;
+    /**
+     * @var int
+     */
+    protected $bar;
 
-	protected $untypedBar;
+    protected $untypedBar;
 }
 
 /**
@@ -29,18 +29,16 @@ trait Bar
  */
 class Baz extends Foo
 {
-
-	public function __construct()
-	{
-		assertType('string', $this->foo);
-		assertType('string', $this->bar);
-		assertType('string', $this->untypedBar);
-	}
-
+    public function __construct()
+    {
+        assertType('string', $this->foo);
+        assertType('string', $this->bar);
+        assertType('string', $this->untypedBar);
+    }
 }
 
 function (Baz $baz): void {
-	assertType('string', $baz->foo);
-	assertType('string', $baz->bar);
-	assertType('string', $baz->untypedBar);
+    assertType('string', $baz->foo);
+    assertType('string', $baz->bar);
+    assertType('string', $baz->untypedBar);
 };

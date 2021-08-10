@@ -4,10 +4,8 @@ namespace ParallelAnalyserIntegrationTest;
 
 trait FooTrait
 {
-
-	public function doFoo()
-	{
-		$this->test = 1;
-	}
-
+    public function doFoo()
+    {
+        $this->test = 1;
+    }
 }

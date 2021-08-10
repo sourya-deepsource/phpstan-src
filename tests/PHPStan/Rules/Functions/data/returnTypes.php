@@ -4,51 +4,51 @@ namespace ReturnTypes;
 
 function returnNothing()
 {
-	return;
+    return;
 }
 
 function returnInteger(): int
 {
-	if (rand(0, 1)) {
-		return 1;
-	}
+    if (rand(0, 1)) {
+        return 1;
+    }
 
-	if (rand(0, 1)) {
-		return 'foo';
-	}
-	$foo = function () {
-		return 'bar';
-	};
+    if (rand(0, 1)) {
+        return 'foo';
+    }
+    $foo = function () {
+        return 'bar';
+    };
 }
 
 function returnObject(): Bar
 {
-	if (rand(0, 1)) {
-		return 1;
-	}
+    if (rand(0, 1)) {
+        return 1;
+    }
 
-	if (rand(0, 1)) {
-		return new Foo();
-	}
+    if (rand(0, 1)) {
+        return new Foo();
+    }
 
-	if (rand(0, 1)) {
-		return new Bar();
-	}
+    if (rand(0, 1)) {
+        return new Bar();
+    }
 }
 
 function returnChild(): Foo
 {
-	if (rand(0, 1)) {
-		return new Foo();
-	}
+    if (rand(0, 1)) {
+        return new Foo();
+    }
 
-	if (rand(0, 1)) {
-		return new FooChild();
-	}
+    if (rand(0, 1)) {
+        return new FooChild();
+    }
 
-	if (rand(0, 1)) {
-		return new OtherInterfaceImpl();
-	}
+    if (rand(0, 1)) {
+        return new OtherInterfaceImpl();
+    }
 }
 
 /**
@@ -56,18 +56,18 @@ function returnChild(): Foo
  */
 function returnNullable()
 {
-	if (rand(0, 1)) {
-		return 'foo';
-	}
+    if (rand(0, 1)) {
+        return 'foo';
+    }
 
-	if (rand(0, 1)) {
-		return null;
-	}
+    if (rand(0, 1)) {
+        return null;
+    }
 }
 
 function returnInterface(): FooInterface
 {
-	return new Foo();
+    return new Foo();
 }
 
 /**
@@ -75,27 +75,27 @@ function returnInterface(): FooInterface
  */
 function returnVoid()
 {
-	if (rand(0, 1)) {
-		return;
-	}
+    if (rand(0, 1)) {
+        return;
+    }
 
-	if (rand(0, 1)) {
-		return null;
-	}
+    if (rand(0, 1)) {
+        return null;
+    }
 
-	if (rand(0, 1)) {
-		return 1;
-	}
+    if (rand(0, 1)) {
+        return 1;
+    }
 }
 
 function returnAlias(): Foo
 {
-	return new FooAlias();
+    return new FooAlias();
 }
 
 function returnAnotherAlias(): FooAlias
 {
-	return new Foo();
+    return new Foo();
 }
 
 /**
@@ -103,8 +103,8 @@ function returnAnotherAlias(): FooAlias
  */
 function containsYield()
 {
-	yield 1;
-	return;
+    yield 1;
+    return;
 }
 
 /**
@@ -112,24 +112,27 @@ function containsYield()
  */
 function returnUnionIterable()
 {
-	if (something()) {
-		return 'foo';
-	}
+    if (something()) {
+        return 'foo';
+    }
 
-	return [];
+    return [];
 }
 
 /**
  * @param array<int, int> $arr
  */
-function arrayMapConservesNonEmptiness(array $arr) : int {
-	if (!$arr) {
-		return 5;
-	}
+function arrayMapConservesNonEmptiness(array $arr): int
+{
+    if (!$arr) {
+        return 5;
+    }
 
-	$arr = array_map(function($a) : int { return $a; }, $arr);
+    $arr = array_map(function ($a): int {
+        return $a;
+    }, $arr);
 
-	return array_shift($arr);
+    return array_shift($arr);
 }
 
 /**
@@ -137,8 +140,8 @@ function arrayMapConservesNonEmptiness(array $arr) : int {
  */
 function returnFromGeneratorMixed(): \Generator
 {
-	yield 1;
-	return 2;
+    yield 1;
+    return 2;
 }
 
 /**
@@ -146,13 +149,13 @@ function returnFromGeneratorMixed(): \Generator
  */
 function returnFromGeneratorString(): \Generator
 {
-	yield 1;
+    yield 1;
 
-	if (rand(0, 1)) {
-		return;
-	}
+    if (rand(0, 1)) {
+        return;
+    }
 
-	return 2;
+    return 2;
 }
 
 /**
@@ -160,8 +163,8 @@ function returnFromGeneratorString(): \Generator
  */
 function returnVoidFromGenerator(): \Generator
 {
-	yield 1;
-	return;
+    yield 1;
+    return;
 }
 
 /**
@@ -169,8 +172,8 @@ function returnVoidFromGenerator(): \Generator
  */
 function returnVoidFromGenerator2(): \Generator
 {
-	yield 1;
-	return 2;
+    yield 1;
+    return 2;
 }
 
 /**
@@ -178,5 +181,5 @@ function returnVoidFromGenerator2(): \Generator
  */
 function returnNever()
 {
-	return;
+    return;
 }

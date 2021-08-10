@@ -1,6 +1,7 @@
 <?php
 
-$string = (function (): string {})();
+$string = (function (): string {
+})();
 
 preg_match('~ok~', '');
 preg_match('nok', '');
@@ -28,11 +29,16 @@ preg_replace('~(~', '', '');
 preg_replace($string, '', '');
 preg_replace(['~ok~', 'nok', '~(~', $string], '', '');
 
-preg_replace_callback('~ok~', function () {});
-preg_replace_callback('nok', function () {});
-preg_replace_callback('~(~', function () {});
-preg_replace_callback($string, function () {});
-preg_replace_callback(['~ok~', 'nok', '~(~', $string], function () {});
+preg_replace_callback('~ok~', function () {
+});
+preg_replace_callback('nok', function () {
+});
+preg_replace_callback('~(~', function () {
+});
+preg_replace_callback($string, function () {
+});
+preg_replace_callback(['~ok~', 'nok', '~(~', $string], function () {
+});
 
 preg_filter('~ok~', '', '');
 preg_filter('nok', '', '');
@@ -41,10 +47,13 @@ preg_filter($string, '', '');
 preg_filter(['~ok~', 'nok', '~(~', $string], '', '');
 
 preg_replace_callback_array(
-	[
-		'~ok~' => function () {},
-		'nok' => function () {},
-		'~(~' => function () {},
-	],
-	''
+    [
+        '~ok~' => function () {
+        },
+        'nok' => function () {
+        },
+        '~(~' => function () {
+        },
+    ],
+    ''
 );

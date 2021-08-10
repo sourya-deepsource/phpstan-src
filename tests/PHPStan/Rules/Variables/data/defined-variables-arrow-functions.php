@@ -1,22 +1,22 @@
-<?php // lint >= 7.4
+<?php
+
+// lint >= 7.4
 
 namespace DefinedVariablesArrowFunctions;
 
 class Foo
 {
+    public function doFoo()
+    {
+        fn () => $a;
 
-	public function doFoo()
-	{
-		fn() => $a;
+        fn (int $a) => $a;
 
-		fn(int $a) => $a;
+        $local = 1;
+        fn () => $local;
 
-		$local = 1;
-		fn() => $local;
+        fn () => $this->test;
 
-		fn() => $this->test;
-
-		static fn() => $this->test;
-	}
-
+        static fn () => $this->test;
+    }
 }

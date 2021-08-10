@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type;
 
@@ -9,143 +11,141 @@ use PHPStan\Type\Generic\GenericClassStringType;
 
 class ClassStringTypeTest extends TestCase
 {
+    public function dataIsSuperTypeOf(): array
+    {
+        return [
+            [
+                new ClassStringType(),
+                new GenericClassStringType(new ObjectType(\Exception::class)),
+                TrinaryLogic::createYes(),
+            ],
+            [
+                new ClassStringType(),
+                new StringType(),
+                TrinaryLogic::createMaybe(),
+            ],
+            [
+                new ClassStringType(),
+                new ConstantStringType(\stdClass::class),
+                TrinaryLogic::createYes(),
+            ],
+            [
+                new ClassStringType(),
+                new ConstantStringType('Nonexistent'),
+                TrinaryLogic::createNo(),
+            ],
+        ];
+    }
 
-	public function dataIsSuperTypeOf(): array
-	{
-		return [
-			[
-				new ClassStringType(),
-				new GenericClassStringType(new ObjectType(\Exception::class)),
-				TrinaryLogic::createYes(),
-			],
-			[
-				new ClassStringType(),
-				new StringType(),
-				TrinaryLogic::createMaybe(),
-			],
-			[
-				new ClassStringType(),
-				new ConstantStringType(\stdClass::class),
-				TrinaryLogic::createYes(),
-			],
-			[
-				new ClassStringType(),
-				new ConstantStringType('Nonexistent'),
-				TrinaryLogic::createNo(),
-			],
-		];
-	}
+    /**
+     * @dataProvider dataIsSuperTypeOf
+     */
+    public function testIsSuperTypeOf(ClassStringType $type, Type $otherType, TrinaryLogic $expectedResult): void
+    {
+        $actualResult = $type->isSuperTypeOf($otherType);
+        $this->assertSame(
+            $expectedResult->describe(),
+            $actualResult->describe(),
+            sprintf('%s -> isSuperTypeOf(%s)', $type->describe(VerbosityLevel::precise()), $otherType->describe(VerbosityLevel::precise()))
+        );
+    }
 
-	/**
-	 * @dataProvider dataIsSuperTypeOf
-	 */
-	public function testIsSuperTypeOf(ClassStringType $type, Type $otherType, TrinaryLogic $expectedResult): void
-	{
-		$actualResult = $type->isSuperTypeOf($otherType);
-		$this->assertSame(
-			$expectedResult->describe(),
-			$actualResult->describe(),
-			sprintf('%s -> isSuperTypeOf(%s)', $type->describe(VerbosityLevel::precise()), $otherType->describe(VerbosityLevel::precise()))
-		);
-	}
+    public function dataAccepts(): iterable
+    {
+        yield [
+            new ClassStringType(),
+            new ClassStringType(),
+            TrinaryLogic::createYes(),
+        ];
 
-	public function dataAccepts(): iterable
-	{
-		yield [
-			new ClassStringType(),
-			new ClassStringType(),
-			TrinaryLogic::createYes(),
-		];
+        yield [
+            new ClassStringType(),
+            new StringType(),
+            TrinaryLogic::createMaybe(),
+        ];
 
-		yield [
-			new ClassStringType(),
-			new StringType(),
-			TrinaryLogic::createMaybe(),
-		];
+        yield [
+            new ClassStringType(),
+            new IntegerType(),
+            TrinaryLogic::createNo(),
+        ];
 
-		yield [
-			new ClassStringType(),
-			new IntegerType(),
-			TrinaryLogic::createNo(),
-		];
+        yield [
+            new ClassStringType(),
+            new ConstantStringType(\stdClass::class),
+            TrinaryLogic::createYes(),
+        ];
 
-		yield [
-			new ClassStringType(),
-			new ConstantStringType(\stdClass::class),
-			TrinaryLogic::createYes(),
-		];
+        yield [
+            new ClassStringType(),
+            new ConstantStringType('NonexistentClass'),
+            TrinaryLogic::createNo(),
+        ];
 
-		yield [
-			new ClassStringType(),
-			new ConstantStringType('NonexistentClass'),
-			TrinaryLogic::createNo(),
-		];
+        yield [
+            new ClassStringType(),
+            new UnionType([new ConstantStringType(\stdClass::class), new ConstantStringType(self::class)]),
+            TrinaryLogic::createYes(),
+        ];
 
-		yield [
-			new ClassStringType(),
-			new UnionType([new ConstantStringType(\stdClass::class), new ConstantStringType(self::class)]),
-			TrinaryLogic::createYes(),
-		];
+        yield [
+            new ClassStringType(),
+            new UnionType([new ConstantStringType(\stdClass::class), new ConstantStringType('Nonexistent')]),
+            TrinaryLogic::createMaybe(),
+        ];
 
-		yield [
-			new ClassStringType(),
-			new UnionType([new ConstantStringType(\stdClass::class), new ConstantStringType('Nonexistent')]),
-			TrinaryLogic::createMaybe(),
-		];
+        yield [
+            new ClassStringType(),
+            new UnionType([new ConstantStringType('Nonexistent'), new ConstantStringType('Nonexistent2')]),
+            TrinaryLogic::createNo(),
+        ];
+    }
 
-		yield [
-			new ClassStringType(),
-			new UnionType([new ConstantStringType('Nonexistent'), new ConstantStringType('Nonexistent2')]),
-			TrinaryLogic::createNo(),
-		];
-	}
+    /**
+     * @dataProvider dataAccepts
+     * @param \PHPStan\Type\ClassStringType $type
+     * @param Type $otherType
+     * @param \PHPStan\TrinaryLogic $expectedResult
+     */
+    public function testAccepts(ClassStringType $type, Type $otherType, TrinaryLogic $expectedResult): void
+    {
+        $actualResult = $type->accepts($otherType, true);
+        $this->assertSame(
+            $expectedResult->describe(),
+            $actualResult->describe(),
+            sprintf('%s -> accepts(%s)', $type->describe(VerbosityLevel::precise()), $otherType->describe(VerbosityLevel::precise()))
+        );
+    }
 
-	/**
-	 * @dataProvider dataAccepts
-	 * @param \PHPStan\Type\ClassStringType $type
-	 * @param Type $otherType
-	 * @param \PHPStan\TrinaryLogic $expectedResult
-	 */
-	public function testAccepts(ClassStringType $type, Type $otherType, TrinaryLogic $expectedResult): void
-	{
-		$actualResult = $type->accepts($otherType, true);
-		$this->assertSame(
-			$expectedResult->describe(),
-			$actualResult->describe(),
-			sprintf('%s -> accepts(%s)', $type->describe(VerbosityLevel::precise()), $otherType->describe(VerbosityLevel::precise()))
-		);
-	}
+    public function dataEquals(): array
+    {
+        return [
+            [
+                new ClassStringType(),
+                new ClassStringType(),
+                true,
+            ],
+            [
+                new ClassStringType(),
+                new StringType(),
+                false,
+            ],
+        ];
+    }
 
-	public function dataEquals(): array
-	{
-		return [
-			[
-				new ClassStringType(),
-				new ClassStringType(),
-				true,
-			],
-			[
-				new ClassStringType(),
-				new StringType(),
-				false,
-			],
-		];
-	}
-
-	/**
-	 * @dataProvider dataEquals
-	 * @param ClassStringType $type
-	 * @param Type $otherType
-	 * @param bool $expectedResult
-	 */
-	public function testEquals(ClassStringType $type, Type $otherType, bool $expectedResult): void
-	{
-		$actualResult = $type->equals($otherType);
-		$this->assertSame(
-			$expectedResult,
-			$actualResult,
-			sprintf('%s->equals(%s)', $type->describe(VerbosityLevel::precise()), $otherType->describe(VerbosityLevel::precise()))
-		);
-	}
-
+    /**
+     * @dataProvider dataEquals
+     * @param ClassStringType $type
+     * @param Type $otherType
+     * @param bool $expectedResult
+     */
+    public function testEquals(ClassStringType $type, Type $otherType, bool $expectedResult): void
+    {
+        $actualResult = $type->equals($otherType);
+        $this->assertSame(
+            $expectedResult,
+            $actualResult,
+            sprintf('%s->equals(%s)', $type->describe(VerbosityLevel::precise()), $otherType->describe(VerbosityLevel::precise()))
+        );
+    }
 }

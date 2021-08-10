@@ -9,8 +9,8 @@ use function PHPStan\Testing\assertType;
  */
 function foo($integerList)
 {
-	$sum = array_sum($integerList);
-	assertType('int', $sum);
+    $sum = array_sum($integerList);
+    assertType('int', $sum);
 }
 
 /**
@@ -18,8 +18,8 @@ function foo($integerList)
  */
 function foo2($floatList)
 {
-	$sum = array_sum($floatList);
-	assertType('0|float', $sum);
+    $sum = array_sum($floatList);
+    assertType('0|float', $sum);
 }
 
 /**
@@ -27,8 +27,8 @@ function foo2($floatList)
  */
 function foo3($floatList)
 {
-	$sum = array_sum($floatList);
-	assertType('float', $sum);
+    $sum = array_sum($floatList);
+    assertType('float', $sum);
 }
 
 /**
@@ -36,8 +36,8 @@ function foo3($floatList)
  */
 function foo4($list)
 {
-	$sum = array_sum($list);
-	assertType('float|int', $sum);
+    $sum = array_sum($list);
+    assertType('float|int', $sum);
 }
 
 /**
@@ -45,6 +45,6 @@ function foo4($list)
  */
 function foo5($list)
 {
-	$sum = array_sum($list);
-	assertType('float|int', $sum);
+    $sum = array_sum($list);
+    assertType('float|int', $sum);
 }

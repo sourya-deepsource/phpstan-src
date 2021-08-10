@@ -4,23 +4,19 @@ namespace MethodTemplateType;
 
 class Foo
 {
+    /**
+     * @template stdClass
+     */
+    public function doFoo()
+    {
+    }
 
-	/**
-	 * @template stdClass
-	 */
-	public function doFoo()
-	{
-
-	}
-
-	/**
-	 * @template T of Zazzzu
-	 */
-	public function doBar()
-	{
-
-	}
-
+    /**
+     * @template T of Zazzzu
+     */
+    public function doBar()
+    {
+    }
 }
 
 /**
@@ -29,29 +25,23 @@ class Foo
  */
 class Bar
 {
-
-	/**
-	 * @template T
-	 * @template U
-	 */
-	public function doFoo()
-	{
-
-	}
-
+    /**
+     * @template T
+     * @template U
+     */
+    public function doFoo()
+    {
+    }
 }
 
 class Baz
 {
-
-	/**
-	 * @template T of float
-	 */
-	public function doFoo()
-	{
-
-	}
-
+    /**
+     * @template T of float
+     */
+    public function doFoo()
+    {
+    }
 }
 
 /**
@@ -59,15 +49,12 @@ class Baz
  */
 class Lorem
 {
-
-	/**
-	 * @template TypeAlias
-	 */
-	public function doFoo()
-	{
-
-	}
-
+    /**
+     * @template TypeAlias
+     */
+    public function doFoo()
+    {
+    }
 }
 
 /**
@@ -76,15 +63,12 @@ class Lorem
  */
 class Ipsum
 {
-
-	/**
-	 * @template LocalAlias
-	 * @template ExportedAlias
-	 * @template ImportedAlias
-	 */
-	public function doFoo()
-	{
-
-	}
-
+    /**
+     * @template LocalAlias
+     * @template ExportedAlias
+     * @template ImportedAlias
+     */
+    public function doFoo()
+    {
+    }
 }

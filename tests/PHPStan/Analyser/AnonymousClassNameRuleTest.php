@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Analyser;
 
@@ -7,21 +9,19 @@ use PHPStan\Testing\RuleTestCase;
 
 class AnonymousClassNameRuleTest extends RuleTestCase
 {
+    protected function getRule(): Rule
+    {
+        $broker = $this->createReflectionProvider();
+        return new AnonymousClassNameRule($broker);
+    }
 
-	protected function getRule(): Rule
-	{
-		$broker = $this->createReflectionProvider();
-		return new AnonymousClassNameRule($broker);
-	}
-
-	public function testRule(): void
-	{
-		$this->analyse([__DIR__ . '/data/anonymous-class-name.php'], [
-			[
-				'found',
-				6,
-			],
-		]);
-	}
-
+    public function testRule(): void
+    {
+        $this->analyse([__DIR__ . '/data/anonymous-class-name.php'], [
+            [
+                'found',
+                6,
+            ],
+        ]);
+    }
 }

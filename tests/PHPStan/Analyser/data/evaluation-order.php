@@ -1,12 +1,12 @@
 <?php
 
 function () {
-	six(
-		'one',
-		five(
-			'two',
-			'three',
-			four()
-		)
-	);
+    six(
+        'one',
+        five(
+            'two',
+            'three',
+            four()
+        )
+    );
 };

@@ -4,114 +4,91 @@ namespace NewStatic;
 
 class NoConstructor
 {
-
-	public function doFoo()
-	{
-		$foo = new static();
-	}
-
+    public function doFoo()
+    {
+        $foo = new static();
+    }
 }
 
 class NonFinalConstructor
 {
+    public function __construct()
+    {
+    }
 
-	public function __construct()
-	{
-
-	}
-
-	public function doFoo()
-	{
-		$foo = new static();
-	}
-
+    public function doFoo()
+    {
+        $foo = new static();
+    }
 }
 
 final class NoConstructorInFinalClass
 {
-
-	public function doFoo()
-	{
-		$foo = new static();
-	}
-
+    public function doFoo()
+    {
+        $foo = new static();
+    }
 }
 
 final class NonFinalConstructorInFinalClass
 {
+    public function __construct()
+    {
+    }
 
-	public function __construct()
-	{
-
-	}
-
-	public function doFoo()
-	{
-		$foo = new static();
-	}
-
+    public function doFoo()
+    {
+        $foo = new static();
+    }
 }
 
 class FinalConstructorInNonFinalClass
 {
+    final public function __construct()
+    {
+    }
 
-	final public function __construct()
-	{
-
-	}
-
-	public function doFoo()
-	{
-		$foo = new static();
-	}
-
+    public function doFoo()
+    {
+        $foo = new static();
+    }
 }
 
 interface InterfaceWithConstructor
 {
-
-	public function __construct(int $i);
-
+    public function __construct(int $i);
 }
 
 class ConstructorComingFromAnInterface implements InterfaceWithConstructor
 {
+    public function __construct(int $i)
+    {
+    }
 
-	public function __construct(int $i)
-	{
-
-	}
-
-	public function doFoo()
-	{
-		$foo = new static(1);
-	}
-
+    public function doFoo()
+    {
+        $foo = new static(1);
+    }
 }
 
 abstract class AbstractConstructor
 {
+    abstract public function __construct(string $s);
 
-	abstract public function __construct(string $s);
-
-	public function doFoo()
-	{
-		new static('foo');
-	}
-
+    public function doFoo()
+    {
+        new static('foo');
+    }
 }
 
 class ClassExtendingAbstractConstructor extends AbstractConstructor
 {
+    public function __construct(string $s)
+    {
+    }
 
-	public function __construct(string $s)
-	{
-
-	}
-
-	public function doBar()
-	{
-		new static('foo');
-	}
-
+    public function doBar()
+    {
+        new static('foo');
+    }
 }

@@ -2,19 +2,27 @@
 
 namespace NestedGenericTypesClassCheck;
 
-interface NotGeneric {}
+interface NotGeneric
+{
+}
 
 /** @template T */
-interface SomeInterface {}
+interface SomeInterface
+{
+}
 
 /** @template T of object */
-interface SomeObjectInterface {}
+interface SomeObjectInterface
+{
+}
 
 /**
  * @template T
  * @template U
  */
-interface MultipleGenerics {}
+interface MultipleGenerics
+{
+}
 
 /**
  * @template T
@@ -22,7 +30,6 @@ interface MultipleGenerics {}
  */
 class Foo
 {
-
 }
 
 /**
@@ -31,7 +38,6 @@ class Foo
  */
 class Bar
 {
-
 }
 
 /**
@@ -40,7 +46,6 @@ class Bar
  */
 class Baz
 {
-
 }
 
 /**
@@ -51,5 +56,4 @@ class Baz
  */
 class Lorem
 {
-
 }

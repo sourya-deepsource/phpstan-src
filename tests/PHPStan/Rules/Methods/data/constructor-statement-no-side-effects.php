@@ -3,58 +3,49 @@
 namespace ConstructorStatementNoSideEffects;
 
 function () {
-	new \Exception();
-	throw new \Exception();
+    new \Exception();
+    throw new \Exception();
 };
 
 function () {
-	new \PDOStatement();
-	new \stdClass();
+    new \PDOStatement();
+    new \stdClass();
 };
 
 class ConstructorWithPure
 {
-
-	/**
-	 * @phpstan-pure
-	 */
-	public function __construct()
-	{
-
-	}
-
+    /**
+     * @phpstan-pure
+     */
+    public function __construct()
+    {
+    }
 }
 
 class ConstructorWithPureAndThrowsVoid
 {
-
-	/**
-	 * @phpstan-pure
-	 * @throws void
-	 */
-	public function __construct()
-	{
-
-	}
-
+    /**
+     * @phpstan-pure
+     * @throws void
+     */
+    public function __construct()
+    {
+    }
 }
 
 class ConstructorWithPureAndThrowsException
 {
-
-	/**
-	 * @phpstan-pure
-	 * @throws \Exception
-	 */
-	public function __construct()
-	{
-
-	}
-
+    /**
+     * @phpstan-pure
+     * @throws \Exception
+     */
+    public function __construct()
+    {
+    }
 }
 
-function(): void {
-	new ConstructorWithPure();
-	new ConstructorWithPureAndThrowsVoid();
-	new ConstructorWithPureAndThrowsException();
+function (): void {
+    new ConstructorWithPure();
+    new ConstructorWithPureAndThrowsVoid();
+    new ConstructorWithPureAndThrowsException();
 };

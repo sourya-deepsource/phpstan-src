@@ -4,20 +4,14 @@ namespace TestDirectorySourceLocator;
 
 class AFoo
 {
-
-	function doFoo()
-	{
-
-	}
-
+    public function doFoo()
+    {
+    }
 }
 
 function doLorem()
 {
-
 }
 
-function ()
-{
-
+function () {
 };

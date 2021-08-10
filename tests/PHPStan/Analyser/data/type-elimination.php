@@ -4,135 +4,132 @@ namespace TypeElimination;
 
 class Foo
 {
+    /** @var Bar|null */
+    private $bar;
 
-	/** @var Bar|null */
-	private $bar;
+    public function getValue(): string
+    {
+    }
 
-	public function getValue(): string
-	{
+    public function test()
+    {
+        /** @var Foo|null $foo */
+        $foo = doFoo();
 
-	}
+        if ($foo === null) {
+            'nullForSure';
+        }
 
-	public function test()
-	{
-		/** @var Foo|null $foo */
-		$foo = doFoo();
+        if ($foo !== null) {
+            'notNullForSure';
+        }
 
-		if ($foo === null) {
-			'nullForSure';
-		}
+        if ($foo) {
+            'notNullForSure2';
+        } else {
+            'nullForSure2';
+        }
 
-		if ($foo !== null) {
-			'notNullForSure';
-		}
+        if (!$foo) {
+            'nullForSure3';
+        } else {
+            'notNullForSure3';
+        }
 
-		if ($foo) {
-			'notNullForSure2';
-		} else {
-			'nullForSure2';
-		}
+        if (!$this->bar) {
+            'propertyNullForSure';
+        } else {
+            'propertyNotNullForSure';
+        }
 
-		if (!$foo) {
-			'nullForSure3';
-		} else {
-			'notNullForSure3';
-		}
+        if (null === $foo) {
+            'yodaNullForSure';
+        }
 
-		if (!$this->bar) {
-			'propertyNullForSure';
-		} else {
-			'propertyNotNullForSure';
-		}
+        if (null !== $foo) {
+            'yodaNotNullForSure';
+        }
 
-		if (null === $foo) {
-			'yodaNullForSure';
-		}
+        /** @var int|false $intOrFalse */
+        $intOrFalse = doFoo();
+        if ($intOrFalse === false) {
+            'falseForSure';
+        }
 
-		if (null !== $foo) {
-			'yodaNotNullForSure';
-		}
+        if ($intOrFalse !== false) {
+            'intForSure';
+        }
 
-		/** @var int|false $intOrFalse */
-		$intOrFalse = doFoo();
-		if ($intOrFalse === false) {
-			'falseForSure';
-		}
+        if (false === $intOrFalse) {
+            'yodaFalseForSure';
+        }
 
-		if ($intOrFalse !== false) {
-			'intForSure';
-		}
+        if (false !== $intOrFalse) {
+            'yodaIntForSure';
+        }
 
-		if (false === $intOrFalse) {
-			'yodaFalseForSure';
-		}
+        if (!is_bool($intOrFalse)) {
+            'yetAnotherIntForSure';
+        }
 
-		if (false !== $intOrFalse) {
-			'yodaIntForSure';
-		}
+        /** @var int|true $intOrTrue */
+        $intOrTrue = doFoo();
+        if ($intOrTrue === true) {
+            'trueForSure';
+        }
 
-		if (!is_bool($intOrFalse)) {
-			'yetAnotherIntForSure';
-		}
+        if ($intOrTrue !== true) {
+            'anotherIntForSure';
+        }
 
-		/** @var int|true $intOrTrue */
-		$intOrTrue = doFoo();
-		if ($intOrTrue === true) {
-			'trueForSure';
-		}
+        if (true === $intOrTrue) {
+            'yodaTrueForSure';
+        }
 
-		if ($intOrTrue !== true) {
-			'anotherIntForSure';
-		}
+        if (true !== $intOrTrue) {
+            'yodaAnotherIntForSure';
+        }
 
-		if (true === $intOrTrue) {
-			'yodaTrueForSure';
-		}
+        if (!is_bool($intOrTrue)) {
+            'yetYetAnotherIntForSure';
+        }
 
-		if (true !== $intOrTrue) {
-			'yodaAnotherIntForSure';
-		}
+        /** @var Foo|Bar|Baz $fooOrBarOrBaz */
+        $fooOrBarOrBaz = doFoo();
+        if ($fooOrBarOrBaz instanceof Foo) {
+            'fooForSure';
+        } else {
+            'barOrBazForSure';
+        }
 
-		if (!is_bool($intOrTrue)) {
-			'yetYetAnotherIntForSure';
-		}
+        if ($fooOrBarOrBaz instanceof Foo) {
+            // already tested
+        } elseif ($fooOrBarOrBaz instanceof Bar) {
+            'barForSure';
+        } else {
+            'bazForSure';
+        }
 
-		/** @var Foo|Bar|Baz $fooOrBarOrBaz */
-		$fooOrBarOrBaz = doFoo();
-		if ($fooOrBarOrBaz instanceof Foo) {
-			'fooForSure';
-		} else {
-			'barOrBazForSure';
-		}
+        if (!$fooOrBarOrBaz instanceof Foo) {
+            'anotherBarOrBazForSure';
+        } else {
+            'anotherFooForSure';
+        }
 
-		if ($fooOrBarOrBaz instanceof Foo) {
-			// already tested
-		} elseif ($fooOrBarOrBaz instanceof Bar) {
-			'barForSure';
-		} else {
-			'bazForSure';
-		}
+        /** @var Foo|string|null $value */
+        $value = doFoo();
+        $result = $value instanceof Foo ? $value->getValue() : $value;
+        'stringOrNullForSure';
 
-		if (!$fooOrBarOrBaz instanceof Foo) {
-			'anotherBarOrBazForSure';
-		} else {
-			'anotherFooForSure';
-		}
+        /** @var Foo|string|null $fooOrStringOrNull */
+        $fooOrStringOrNull = doFoo();
+        if ($fooOrStringOrNull === null || $fooOrStringOrNull instanceof Foo) {
+            'fooOrNull';
+            return;
+        } else {
+            'stringForSure';
+        }
 
-		/** @var Foo|string|null $value */
-		$value = doFoo();
-		$result = $value instanceof Foo ? $value->getValue() : $value;
-		'stringOrNullForSure';
-
-		/** @var Foo|string|null $fooOrStringOrNull */
-		$fooOrStringOrNull = doFoo();
-		if ($fooOrStringOrNull === null || $fooOrStringOrNull instanceof Foo) {
-			'fooOrNull';
-			return;
-		} else {
-			'stringForSure';
-		}
-
-		'anotherStringForSure';
-	}
-
+        'anotherStringForSure';
+    }
 }

@@ -4,38 +4,36 @@ namespace VarStatementAnnotation;
 
 class Foo
 {
+    /**
+     * @param object $object
+     */
+    public function doFoo($object)
+    {
+        /** @var self $object */
+        echo 'fooo';
 
-	/**
-	 * @param object $object
-	 */
-	public function doFoo($object)
-	{
-		/** @var self $object */
-		echo 'fooo';
+        die;
+    }
 
-		die;
-	}
+    /**
+     * @param object $object
+     */
+    public function doBar($object)
+    {
+        /** @var self $object */
+        $object->foo();
 
-	/**
-	 * @param object $object
-	 */
-	public function doBar($object)
-	{
-		/** @var self $object */
-		$object->foo();
+        die;
+    }
 
-		die;
-	}
+    /**
+     * @param object $object
+     */
+    public function doBaz($object)
+    {
+        /** @var self $object */
+        $test = doFoo();
 
-	/**
-	 * @param object $object
-	 */
-	public function doBaz($object)
-	{
-		/** @var self $object */
-		$test = doFoo();
-
-		die;
-	}
-
+        die;
+    }
 }

@@ -1,140 +1,139 @@
-<?php // lint >= 8.0
+<?php
+
+// lint >= 8.0
 
 namespace MatchExprRule;
 
 class Foo
 {
+    /**
+     * @param 1|2|3 $i
+     */
+    public function doFoo(int $i): void
+    {
+        match ($i) {
+            'foo' => null, // always false
+            default => null,
+        };
 
-	/**
-	 * @param 1|2|3 $i
-	 */
-	public function doFoo(int $i): void
-	{
-		match ($i) {
-			'foo' => null, // always false
-			default => null,
-		};
+        match ($i) {
+            0 => null,
+            1 => null,
+            2 => null,
+            3 => null, // always true, but do not report (it's the last one)
+        };
 
-		match ($i) {
-			0 => null,
-			1 => null,
-			2 => null,
-			3 => null, // always true, but do not report (it's the last one)
-		};
+        match ($i) {
+            1 => null,
+            2 => null,
+            3 => null, // always true - report with strict-rules
+            4 => null, // unreachable
+        };
 
-		match ($i) {
-			1 => null,
-			2 => null,
-			3 => null, // always true - report with strict-rules
-			4 => null, // unreachable
-		};
+        match ($i) {
+            1 => null,
+            2 => null,
+            3 => null, // always true - report with strict-rules
+            default => null, // unreachable
+        };
 
-		match ($i) {
-			1 => null,
-			2 => null,
-			3 => null, // always true - report with strict-rules
-			default => null, // unreachable
-		};
+        match (1) {
+            1 => null, // always true - report with strict-rules
+            2 => null, // unreachable
+            3 => null, // unreachable
+        };
 
-		match (1) {
-			1 => null, // always true - report with strict-rules
-			2 => null, // unreachable
-			3 => null, // unreachable
-		};
+        match (1) {
+            1 => null, // always true - report with strict-rules
+            default => null, // unreachable
+        };
 
-		match (1) {
-			1 => null, // always true - report with strict-rules
-			default => null, // unreachable
-		};
+        match ($i) {
+            1, 2 => null,
+            // unhandled
+        };
 
-		match ($i) {
-			1, 2 => null,
-			// unhandled
-		};
+        match ($i) {
+            // unhandled
+        };
 
-		match ($i) {
-			// unhandled
-		};
+        match ($i) {
+            1, 2 => null,
+            default => null, // OK
+        };
 
-		match ($i) {
-			1, 2 => null,
-			default => null, // OK
-		};
+        match ($i) {
+            3, 3 => null, // second 3 is always false
+            // no break
+            default => null,
+        };
 
-		match ($i) {
-			3, 3 => null, // second 3 is always false
-			default => null,
-		};
+        match (1) {
+            1 => 1, // always true - report with strict-rules
+        };
 
-		match (1) {
-			1 => 1, // always true - report with strict-rules
-		};
+        match ($i) {
+            default => 1,
+        };
 
-		match ($i) {
-			default => 1,
-		};
+        match ($i) {
+            // no break
+            default => 1,
+            1 => 2,
+        };
+    }
 
-		match ($i) {
-			default => 1,
-			1 => 2,
-		};
-	}
+    public function doBar(\Exception $e): void
+    {
+        match (true) {
+            $e instanceof \InvalidArgumentException, $e instanceof \InvalidArgumentException => true,
+            default => null,
+        };
 
-	public function doBar(\Exception $e): void
-	{
-		match (true) {
-			$e instanceof \InvalidArgumentException, $e instanceof \InvalidArgumentException => true,
-			default => null,
-		};
+        match (true) {
+            $e instanceof \InvalidArgumentException => true,
+            $e instanceof \InvalidArgumentException => true,
+        };
+    }
 
-		match (true) {
-			$e instanceof \InvalidArgumentException => true,
-			$e instanceof \InvalidArgumentException => true,
-		};
-	}
+    /**
+     * @param \stdClass&\Exception $obj
+     */
+    public function doBaz($obj): void
+    {
+        match ($obj) {
+        };
+    }
 
-	/**
-	 * @param \stdClass&\Exception $obj
-	 */
-	public function doBaz($obj): void
-	{
-		match ($obj) {
-
-		};
-	}
-
-	public function doFooConstants(int $i): void
-	{
-
-	}
-
+    public function doFooConstants(int $i): void
+    {
+    }
 }
 
 class BarConstants
 {
+    public const TEST1 = 1;
+    public const TEST2 = 2;
 
-	const TEST1 = 1;
-	const TEST2 = 2;
+    /**
+     * @param BarConstants::TEST1|BarConstants::TEST2 $i
+     */
+    public function doFoo(int $i): void
+    {
+        match ($i) {
+            BarConstants::TEST1 => 'foo',
+            BarConstants::TEST2 => 'bar',
+        };
+    }
 
-	/**
-	 * @param BarConstants::TEST1|BarConstants::TEST2 $i
-	 */
-	public function doFoo(int $i): void {
-		match ($i) {
-			BarConstants::TEST1 => 'foo',
-			BarConstants::TEST2 => 'bar',
-		};
-	}
-
-	/**
-	 * @param BarConstants::TEST* $i
-	 */
-	public function doBar(int $i): void {
-		match ($i) {
-			BarConstants::TEST1 => 'foo',
-			BarConstants::TEST2 => 'bar',
-		};
-	}
-
-
+    /**
+     * @param BarConstants::TEST* $i
+     */
+    public function doBar(int $i): void
+    {
+        match ($i) {
+            BarConstants::TEST1 => 'foo',
+            BarConstants::TEST2 => 'bar',
+        };
+    }
 }

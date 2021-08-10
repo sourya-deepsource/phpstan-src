@@ -7,7 +7,6 @@ use function PHPStan\Testing\assertType;
 /** @template T */
 interface SomeInterface
 {
-
 }
 
 /**
@@ -18,27 +17,25 @@ interface SomeInterface
  */
 class Foo
 {
+    /** @var T */
+    public $t;
 
-	/** @var T */
-	public $t;
+    /** @var TT */
+    public $tt;
 
-	/** @var TT */
-	public $tt;
+    /** @var U */
+    public $u;
 
-	/** @var U */
-	public $u;
+    /** @var V */
+    public $v;
 
-	/** @var V */
-	public $v;
-
-	public function doFoo(): void
-	{
-		assertType('T of NestedGenericTypes\SomeInterface<NestedGenericTypes\T> (class NestedGenericTypes\Foo, argument)', $this->t);
-		assertType('TT of NestedGenericTypes\SomeInterface<U (class NestedGenericTypes\Foo, argument)> (class NestedGenericTypes\Foo, argument)', $this->tt);
-		assertType('U (class NestedGenericTypes\Foo, argument)', $this->u);
-		assertType('V of NestedGenericTypes\SomeInterface<U (class NestedGenericTypes\Foo, argument)> (class NestedGenericTypes\Foo, argument)', $this->v);
-	}
-
+    public function doFoo(): void
+    {
+        assertType('T of NestedGenericTypes\SomeInterface<NestedGenericTypes\T> (class NestedGenericTypes\Foo, argument)', $this->t);
+        assertType('TT of NestedGenericTypes\SomeInterface<U (class NestedGenericTypes\Foo, argument)> (class NestedGenericTypes\Foo, argument)', $this->tt);
+        assertType('U (class NestedGenericTypes\Foo, argument)', $this->u);
+        assertType('V of NestedGenericTypes\SomeInterface<U (class NestedGenericTypes\Foo, argument)> (class NestedGenericTypes\Foo, argument)', $this->v);
+    }
 }
 
 /**
@@ -53,22 +50,20 @@ class Foo
  */
 function testFoo($t, $tt, $u, $v): void
 {
-	assertType('T of NestedGenericTypes\SomeInterface<NestedGenericTypes\T> (function NestedGenericTypes\testFoo(), argument)', $t);
-	assertType('TT of NestedGenericTypes\SomeInterface<U (function NestedGenericTypes\testFoo(), argument)> (function NestedGenericTypes\testFoo(), argument)', $tt);
-	assertType('U (function NestedGenericTypes\testFoo(), argument)', $u);
-	assertType('V of NestedGenericTypes\SomeInterface<U (function NestedGenericTypes\testFoo(), argument)> (function NestedGenericTypes\testFoo(), argument)', $v);
+    assertType('T of NestedGenericTypes\SomeInterface<NestedGenericTypes\T> (function NestedGenericTypes\testFoo(), argument)', $t);
+    assertType('TT of NestedGenericTypes\SomeInterface<U (function NestedGenericTypes\testFoo(), argument)> (function NestedGenericTypes\testFoo(), argument)', $tt);
+    assertType('U (function NestedGenericTypes\testFoo(), argument)', $u);
+    assertType('V of NestedGenericTypes\SomeInterface<U (function NestedGenericTypes\testFoo(), argument)> (function NestedGenericTypes\testFoo(), argument)', $v);
 }
 
 /** @template T */
 interface SomeFoo
 {
-
 }
 
 /** @template T */
 interface SomeBar
 {
-
 }
 
 /**
@@ -79,7 +74,6 @@ interface SomeBar
  */
 function testSome($foo)
 {
-
 }
 
 /**
@@ -90,19 +84,16 @@ function testSome($foo)
  */
 function testSomeUnwrap($foo)
 {
-
 }
 
-function (SomeFoo $foo): void
-{
-	assertType('NestedGenericTypes\SomeFoo<mixed>', testSome($foo));
-	assertType('mixed', testSomeUnwrap($foo));
+function (SomeFoo $foo): void {
+    assertType('NestedGenericTypes\SomeFoo<mixed>', testSome($foo));
+    assertType('mixed', testSomeUnwrap($foo));
 };
 
-function (SomeBar $bar): void
-{
-	assertType('NestedGenericTypes\SomeFoo<mixed>', testSome($bar));
-	assertType('mixed', testSomeUnwrap($bar));
+function (SomeBar $bar): void {
+    assertType('NestedGenericTypes\SomeFoo<mixed>', testSome($bar));
+    assertType('mixed', testSomeUnwrap($bar));
 };
 
 /**
@@ -110,8 +101,8 @@ function (SomeBar $bar): void
  */
 function testSome2($foo)
 {
-	assertType('NestedGenericTypes\SomeFoo<string>', testSome($foo));
-	assertType('string', testSomeUnwrap($foo));
+    assertType('NestedGenericTypes\SomeFoo<string>', testSome($foo));
+    assertType('string', testSomeUnwrap($foo));
 }
 
 /**
@@ -119,8 +110,8 @@ function testSome2($foo)
  */
 function testSome3($bar)
 {
-	assertType('NestedGenericTypes\SomeFoo<mixed>', testSome($bar));
-	assertType('mixed', testSomeUnwrap($bar));
+    assertType('NestedGenericTypes\SomeFoo<mixed>', testSome($bar));
+    assertType('mixed', testSomeUnwrap($bar));
 }
 
 /**
@@ -129,11 +120,10 @@ function testSome3($bar)
  */
 function unwrapWithoutParam()
 {
-
 }
 
 function (): void {
-	assertType('mixed', unwrapWithoutParam());
+    assertType('mixed', unwrapWithoutParam());
 };
 
 /**
@@ -143,11 +133,10 @@ function (): void {
  */
 function unwrapGenericWithoutParam()
 {
-
 }
 
 function (): void {
-	assertType('NestedGenericTypes\SomeFoo<mixed>', unwrapGenericWithoutParam());
+    assertType('NestedGenericTypes\SomeFoo<mixed>', unwrapGenericWithoutParam());
 };
 
 /**
@@ -157,10 +146,10 @@ function (): void {
  */
 function nonGenericBoundOfGenericClass($t)
 {
-	return $t;
+    return $t;
 }
 
 function (SomeFoo $foo, SomeBar $bar): void {
-	assertType(SomeFoo::class, nonGenericBoundOfGenericClass($foo));
-	assertType(SomeFoo::class, nonGenericBoundOfGenericClass($bar));
+    assertType(SomeFoo::class, nonGenericBoundOfGenericClass($foo));
+    assertType(SomeFoo::class, nonGenericBoundOfGenericClass($bar));
 };

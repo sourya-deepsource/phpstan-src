@@ -1,15 +1,15 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace AnalyseTraits;
 
 trait NestedFooTrait
 {
+    use FooTrait;
 
-	use FooTrait;
-
-	public function doNestedTraitFoo(): void
-	{
-		$this->doNestedFoo();
-	}
-
+    public function doNestedTraitFoo(): void
+    {
+        $this->doNestedFoo();
+    }
 }

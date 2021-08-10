@@ -7,8 +7,9 @@ namespace PHPStan\Generics\InvalidReturn;
  * @param T $a
  * @return T
  */
-function invalidReturnA($a) {
-	return 1;
+function invalidReturnA($a)
+{
+    return 1;
 }
 
 /**
@@ -16,8 +17,9 @@ function invalidReturnA($a) {
  * @param T $a
  * @return T
  */
-function invalidReturnB($a) {
-	return new \DateTime();
+function invalidReturnB($a)
+{
+    return new \DateTime();
 }
 
 /**
@@ -25,6 +27,7 @@ function invalidReturnB($a) {
  * @param T $a
  * @return T
  */
-function invalidReturnC($a) {
-	return new \DateTime();
+function invalidReturnC($a)
+{
+    return new \DateTime();
 }
