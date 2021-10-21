@@ -114,7 +114,7 @@ class InceptionResult
 	public function handleReturn(int $exitCode): int
 	{
 		if ($this->getErrorOutput()->isVerbose()) {
-			$this->getErrorOutput()->writeLineFormatted(sprintf('Used memory: %s', BytesHelper::bytes(memory_get_peak_usage(true))));
+			// $this->getErrorOutput()->writeLineFormatted(sprintf('Used memory: %s', BytesHelper::bytes(memory_get_peak_usage(true))));
 		}
 
 		@unlink($this->memoryLimitFile);
