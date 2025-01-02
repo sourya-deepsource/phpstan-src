@@ -316,13 +316,38 @@ final class NodeScopeResolver
 			}
 
 			$alreadyTerminated = true;
-			$nextStmt = $this->getFirstUnreachableNode(array_slice($nodes, $i + 1), true);
-			if (!$nextStmt instanceof Node\Stmt) {
+			$nextStmts = $this->getNextUnreachableStatements(array_slice($nodes, $i + 1), true);
+			$this->processUnreachableStatement($nextStmts, $scope, $nodeCallback);
+		}
+	}
+
+	/**
+	 * @param Node\Stmt[] $nextStmts
+	 * @param callable(Node $node, Scope $scope): void $nodeCallback
+	 */
+	private function processUnreachableStatement(array $nextStmts, MutatingScope $scope, callable $nodeCallback): void
+	{
+		if ($nextStmts === []) {
+			return;
+		}
+
+		$unreachableStatement = null;
+		$nextStatements = [];
+
+		foreach ($nextStmts as $key => $nextStmt) {
+			if ($key === 0) {
+				$unreachableStatement = $nextStmt;
 				continue;
 			}
 
-			$nodeCallback(new UnreachableStatementNode($nextStmt), $scope);
+			$nextStatements[] = $nextStmt;
 		}
+
+		if (!$unreachableStatement instanceof Node\Stmt) {
+			return;
+		}
+
+		$nodeCallback(new UnreachableStatementNode($unreachableStatement, $nextStatements), $scope);
 	}
 
 	/**
@@ -409,11 +434,8 @@ final class NodeScopeResolver
 			}
 
 			$alreadyTerminated = true;
-			$nextStmt = $this->getFirstUnreachableNode(array_slice($stmts, $i + 1), $parentNode instanceof Node\Stmt\Namespace_);
-			if ($nextStmt === null) {
-				continue;
-			}
-			$nodeCallback(new UnreachableStatementNode($nextStmt), $scope);
+			$nextStmts = $this->getNextUnreachableStatements(array_slice($stmts, $i + 1), $parentNode instanceof Node\Stmt\Namespace_);
+			$this->processUnreachableStatement($nextStmts, $scope, $nodeCallback);
 		}
 
 		$statementResult = new StatementResult($scope, $hasYield, $alreadyTerminated, $exitPoints, $throwPoints, $impurePoints);
@@ -6514,22 +6536,31 @@ final class NodeScopeResolver
 	}
 
 	/**
-	 * @template T of Node
-	 * @param array<T> $nodes
-	 * @return T|null
+	 * @param array<Node> $nodes
+	 * @return list<Node\Stmt>
 	 */
-	private function getFirstUnreachableNode(array $nodes, bool $earlyBinding): ?Node
+	private function getNextUnreachableStatements(array $nodes, bool $earlyBinding): array
 	{
+		$stmts = [];
+		$isPassedUnreachableStatement = false;
 		foreach ($nodes as $node) {
-			if ($node instanceof Node\Stmt\Nop) {
-				continue;
-			}
 			if ($earlyBinding && ($node instanceof Node\Stmt\Function_ || $node instanceof Node\Stmt\ClassLike || $node instanceof Node\Stmt\HaltCompiler)) {
 				continue;
 			}
-			return $node;
+			if ($isPassedUnreachableStatement && $node instanceof Node\Stmt) {
+				$stmts[] = $node;
+				continue;
+			}
+			if ($node instanceof Node\Stmt\Nop) {
+				continue;
+			}
+			if (!$node instanceof Node\Stmt) {
+				continue;
+			}
+			$stmts[] = $node;
+			$isPassedUnreachableStatement = true;
 		}
-		return null;
+		return $stmts;
 	}
 
 }
