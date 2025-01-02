@@ -46,3 +46,12 @@ class Foo
 	}
 
 }
+
+class GetHookIsNotPresentAtAll
+{
+	public int $i {
+		set {
+			$this->i = $value + 10;
+		}
+	}
+}

@@ -70,7 +70,17 @@ final class GetNonVirtualPropertyHookReadRule implements Rule
 
 		$errors = [];
 		foreach ($node->getProperties() as $propertyNode) {
-			if (!$propertyNode->hasHooks()) {
+			$hasGetHook = false;
+			foreach ($propertyNode->getHooks() as $hook) {
+				if ($hook->name->toLowerString() !== 'get') {
+					continue;
+				}
+
+				$hasGetHook = true;
+				break;
+			}
+
+			if (!$hasGetHook) {
 				continue;
 			}
 
