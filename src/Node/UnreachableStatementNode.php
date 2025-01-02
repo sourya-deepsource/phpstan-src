@@ -14,8 +14,6 @@ final class UnreachableStatementNode extends Stmt implements VirtualNode
 	public function __construct(private Stmt $originalStatement, private array $nextStatements = [])
 	{
 		parent::__construct($originalStatement->getAttributes());
-
-		$this->nextStatements = $nextStatements;
 	}
 
 	public function getOriginalStatement(): Stmt
