@@ -499,6 +499,7 @@ class ConstantArrayType implements Type
 			}
 
 			$method = $typeAndMethodName->getType()
+				->getObjectTypeOrClassStringObjectType()
 				->getMethod($typeAndMethodName->getMethod(), $scope);
 
 			if (!$scope->canCallMethod($method)) {
@@ -583,7 +584,7 @@ class ConstantArrayType implements Type
 				$has = $has->and(TrinaryLogic::createMaybe());
 			}
 
-			$typeAndMethods[] = ConstantArrayTypeAndMethod::createConcrete($type, $method->getValue(), $has);
+			$typeAndMethods[] = ConstantArrayTypeAndMethod::createConcrete($classOrObject, $method->getValue(), $has);
 		}
 
 		return $typeAndMethods;
