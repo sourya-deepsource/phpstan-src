@@ -101,6 +101,12 @@ final class FunctionCallParametersCheck
 		$hasUnpackedArgument = false;
 		$errors = [];
 		foreach ($args as $arg) {
+			$argumentName = null;
+			if ($arg->name !== null) {
+				$hasNamedArguments = true;
+				$argumentName = $arg->name->toString();
+			}
+
 			if ($hasNamedArguments && $arg->unpack) {
 				$errors[] = RuleErrorBuilder::message('Named argument cannot be followed by an unpacked (...) argument.')
 					->identifier('argument.unpackAfterNamed')
@@ -109,19 +115,16 @@ final class FunctionCallParametersCheck
 					->build();
 			}
 			if ($hasUnpackedArgument && !$arg->unpack) {
-				$errors[] = RuleErrorBuilder::message('Unpacked argument (...) cannot be followed by a non-unpacked argument.')
-					->identifier('argument.nonUnpackAfterUnpacked')
-					->line($arg->getStartLine())
-					->nonIgnorable()
-					->build();
+				if ($argumentName === null || !$scope->getPhpVersion()->supportsNamedArgumentAfterUnpackedArgument()->yes()) {
+					$errors[] = RuleErrorBuilder::message('Unpacked argument (...) cannot be followed by a non-unpacked argument.')
+						->identifier('argument.nonUnpackAfterUnpacked')
+						->line($arg->getStartLine())
+						->nonIgnorable()
+						->build();
+				}
 			}
 			if ($arg->unpack) {
 				$hasUnpackedArgument = true;
-			}
-			$argumentName = null;
-			if ($arg->name !== null) {
-				$hasNamedArguments = true;
-				$argumentName = $arg->name->toString();
 			}
 			if ($arg->unpack) {
 				$type = $scope->getType($arg->value);
