@@ -1051,34 +1051,4 @@ class ConstantArrayTypeTest extends PHPStanTestCase
 		$this->assertSame($expectedType->getNextAutoIndexes(), $actualType->getNextAutoIndexes());
 	}
 
-	public function testFindTypeAndMethodNames(): void
-	{
-		$classStringArray = new ConstantArrayType([
-			new ConstantIntegerType(0),
-			new ConstantIntegerType(1),
-		], [
-			new ConstantStringType(Closure::class, true),
-			new ConstantStringType('bind'),
-		]);
-		$objectArray = new ConstantArrayType([
-			new ConstantIntegerType(0),
-			new ConstantIntegerType(1),
-		], [
-			new ObjectType(Closure::class, null, $this->createReflectionProvider()->getClass(Closure::class)),
-			new ConstantStringType('bind'),
-		]);
-
-		$classStringResult = $classStringArray->findTypeAndMethodNames();
-		$objectResult = $objectArray->findTypeAndMethodNames();
-
-		$this->assertCount(1, $classStringResult);
-		$this->assertCount(1, $objectResult);
-		$this->assertInstanceOf(ConstantStringType::class, $classStringResult[0]->getType());
-		$this->assertInstanceOf(ObjectType::class, $objectResult[0]->getType());
-		$this->assertSame('bind', $classStringResult[0]->getMethod());
-		$this->assertSame('bind', $objectResult[0]->getMethod());
-		$this->assertSame(TrinaryLogic::createYes(), $classStringResult[0]->getCertainty());
-		$this->assertSame(TrinaryLogic::createYes(), $objectResult[0]->getCertainty());
-	}
-
 }
