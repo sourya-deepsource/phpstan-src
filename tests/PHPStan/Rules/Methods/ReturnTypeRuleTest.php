@@ -1171,4 +1171,50 @@ class ReturnTypeRuleTest extends RuleTestCase
 		]);
 	}
 
+	public function testBug1O580(): void
+	{
+		if (PHP_VERSION_ID < 80000) {
+			$this->markTestSkipped('Test requires PHP 8.0.');
+		}
+
+		$this->analyse([__DIR__ . '/data/bug-10580.php'], [
+			[
+				'Method Bug10580\FooA::fooThisInterface() should return $this(Bug10580\FooA) but returns Bug10580\FooA.',
+				18,
+			],
+			[
+				'Method Bug10580\FooA::fooThisClass() should return $this(Bug10580\FooA) but returns Bug10580\FooA.',
+				19,
+			],
+			[
+				'Method Bug10580\FooA::fooThisSelf() should return $this(Bug10580\FooA) but returns Bug10580\FooA.',
+				20,
+			],
+			[
+				'Method Bug10580\FooA::fooThisStatic() should return $this(Bug10580\FooA) but returns Bug10580\FooA.',
+				21,
+			],
+			[
+				'Method Bug10580\FooB::fooThisInterface() should return $this(Bug10580\FooB) but returns Bug10580\FooB.',
+				27,
+			],
+			[
+				'Method Bug10580\FooB::fooThisClass() should return $this(Bug10580\FooB) but returns Bug10580\FooB.',
+				29,
+			],
+			[
+				'Method Bug10580\FooB::fooThisSelf() should return $this(Bug10580\FooB) but returns Bug10580\FooB.',
+				31,
+			],
+			[
+				'Method Bug10580\FooB::fooThisStatic() should return $this(Bug10580\FooB) but returns Bug10580\FooB.',
+				33,
+			],
+			[
+				'Method Bug10580\FooB::fooThis() should return $this(Bug10580\FooB) but returns Bug10580\FooB.',
+				35,
+			],
+		]);
+	}
+
 }
