@@ -8,5 +8,5 @@ function (): void {
 		die;
 	}
 
-	assertType('string', $content);
+	assertType('non-empty-string', $content);
 };
