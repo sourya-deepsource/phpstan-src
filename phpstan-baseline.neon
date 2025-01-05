@@ -1456,12 +1456,6 @@ parameters:
 			path: src/Type/Php/ArrayCombineFunctionReturnTypeExtension.php
 
 		-
-			message: '#^Doing instanceof PHPStan\\Type\\Constant\\ConstantBooleanType is error\-prone and deprecated\. Use Type\:\:isTrue\(\) or Type\:\:isFalse\(\) instead\.$#'
-			identifier: phpstanApi.instanceofType
-			count: 1
-			path: src/Type/Php/ArrayFilterFunctionReturnTypeHelper.php
-
-		-
 			message: '#^Doing instanceof PHPStan\\Type\\Constant\\ConstantStringType is error\-prone and deprecated\. Use Type\:\:getConstantStrings\(\) instead\.$#'
 			identifier: phpstanApi.instanceofType
 			count: 1
@@ -1472,12 +1466,6 @@ parameters:
 			identifier: phpstanApi.instanceofType
 			count: 4
 			path: src/Type/Php/ArrayMergeFunctionDynamicReturnTypeExtension.php
-
-		-
-			message: '#^Doing instanceof PHPStan\\Type\\Constant\\ConstantBooleanType is error\-prone and deprecated\. Use Type\:\:isTrue\(\) or Type\:\:isFalse\(\) instead\.$#'
-			identifier: phpstanApi.instanceofType
-			count: 1
-			path: src/Type/Php/ArraySearchFunctionDynamicReturnTypeExtension.php
 
 		-
 			message: '#^Doing instanceof PHPStan\\Type\\ConstantScalarType is error\-prone and deprecated\. Use Type\:\:isConstantScalarValue\(\) or Type\:\:getConstantScalarTypes\(\) or Type\:\:getConstantScalarValues\(\) instead\.$#'
