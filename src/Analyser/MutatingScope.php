@@ -5525,10 +5525,74 @@ final class MutatingScope implements Scope
 			}
 		}
 
-		if ($constructorMethod instanceof DummyConstructorReflection || $constructorMethod->getDeclaringClass()->getName() !== $classReflection->getName()) {
+		if ($constructorMethod instanceof DummyConstructorReflection) {
 			return new GenericObjectType(
 				$resolvedClassName,
 				$classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()),
+			);
+		}
+
+		if ($constructorMethod->getDeclaringClass()->getName() !== $classReflection->getName()) {
+			if (!$constructorMethod->getDeclaringClass()->isGeneric()) {
+				return new GenericObjectType(
+					$resolvedClassName,
+					$classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()),
+				);
+			}
+			$newType = new GenericObjectType($resolvedClassName, $classReflection->typeMapToList($classReflection->getTemplateTypeMap()));
+			$ancestorType = $newType->getAncestorWithClassName($constructorMethod->getDeclaringClass()->getName());
+			if ($ancestorType === null) {
+				return new GenericObjectType(
+					$resolvedClassName,
+					$classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()),
+				);
+			}
+			$ancestorClassReflections = $ancestorType->getObjectClassReflections();
+			if (count($ancestorClassReflections) !== 1) {
+				return new GenericObjectType(
+					$resolvedClassName,
+					$classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()),
+				);
+			}
+
+			$newParentNode = new New_(new Name($constructorMethod->getDeclaringClass()->getName()), $node->args);
+			$newParentType = $this->getType($newParentNode);
+			$newParentTypeClassReflections = $newParentType->getObjectClassReflections();
+			if (count($newParentTypeClassReflections) !== 1) {
+				return new GenericObjectType(
+					$resolvedClassName,
+					$classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()),
+				);
+			}
+			$newParentTypeClassReflection = $newParentTypeClassReflections[0];
+
+			$ancestorClassReflection = $ancestorClassReflections[0];
+			$ancestorMapping = [];
+			foreach ($ancestorClassReflection->getActiveTemplateTypeMap()->getTypes() as $typeName => $templateType) {
+				if (!$templateType instanceof TemplateType) {
+					continue;
+				}
+
+				$ancestorMapping[$typeName] = $templateType->getName();
+			}
+
+			$resolvedTypeMap = [];
+			foreach ($newParentTypeClassReflection->getActiveTemplateTypeMap()->getTypes() as $typeName => $type) {
+				if (!array_key_exists($typeName, $ancestorMapping)) {
+					continue;
+				}
+
+				if (!array_key_exists($ancestorMapping[$typeName], $resolvedTypeMap)) {
+					$resolvedTypeMap[$ancestorMapping[$typeName]] = $type;
+					continue;
+				}
+
+				$resolvedTypeMap[$ancestorMapping[$typeName]] = TypeCombinator::union($resolvedTypeMap[$ancestorMapping[$typeName]], $type);
+			}
+
+			return new GenericObjectType(
+				$resolvedClassName,
+				$classReflection->typeMapToList(new TemplateTypeMap($resolvedTypeMap)),
 			);
 		}
 
