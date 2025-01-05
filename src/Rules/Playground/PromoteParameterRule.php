@@ -1,0 +1,57 @@
+<?php declare(strict_types = 1);
+
+namespace PHPStan\Rules\Playground;
+
+use PhpParser\Node;
+use PHPStan\Analyser\Scope;
+use PHPStan\Rules\Rule;
+use PHPStan\Rules\RuleErrorBuilder;
+use function sprintf;
+
+/**
+ * @template TNodeType of Node
+ * @implements Rule<TNodeType>
+ */
+final class PromoteParameterRule implements Rule
+{
+
+	/**
+	 * @param Rule<TNodeType> $rule
+	 * @param class-string<TNodeType>  $nodeType
+	 */
+	public function __construct(
+		private Rule $rule,
+		private string $nodeType,
+		private bool $parameterValue,
+		private string $parameterName,
+	)
+	{
+	}
+
+	public function getNodeType(): string
+	{
+		return $this->nodeType;
+	}
+
+	public function processNode(Node $node, Scope $scope): array
+	{
+		if ($this->parameterValue) {
+			return [];
+		}
+
+		if ($this->nodeType !== $this->rule->getNodeType()) {
+			return [];
+		}
+
+		$errors = [];
+		foreach ($this->rule->processNode($node, $scope) as $error) {
+			$errors[] = RuleErrorBuilder::message($error->getMessage())
+				->identifier('phpstanPlayground.configParameter')
+				->tip(sprintf('This error would be reported if the <fg=cyan>%s: true</> parameter was enabled in your <fg=cyan>%%configurationFile%%</>.', $this->parameterName))
+				->build();
+		}
+
+		return $errors;
+	}
+
+}
