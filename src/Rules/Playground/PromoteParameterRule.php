@@ -4,6 +4,7 @@ namespace PHPStan\Rules\Playground;
 
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
+use PHPStan\Rules\LineRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use function sprintf;
@@ -45,10 +46,13 @@ final class PromoteParameterRule implements Rule
 
 		$errors = [];
 		foreach ($this->rule->processNode($node, $scope) as $error) {
-			$errors[] = RuleErrorBuilder::message($error->getMessage())
+			$builder = RuleErrorBuilder::message($error->getMessage())
 				->identifier('phpstanPlayground.configParameter')
-				->tip(sprintf('This error would be reported if the <fg=cyan>%s: true</> parameter was enabled in your <fg=cyan>%%configurationFile%%</>.', $this->parameterName))
-				->build();
+				->tip(sprintf('This error would be reported if the <fg=cyan>%s: true</> parameter was enabled in your <fg=cyan>%%configurationFile%%</>.', $this->parameterName));
+			if ($error instanceof LineRuleError) {
+				$builder->line($error->getLine());
+			}
+			$errors[] = $builder->build();
 		}
 
 		return $errors;

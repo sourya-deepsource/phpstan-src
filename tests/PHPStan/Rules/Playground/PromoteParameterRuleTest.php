@@ -32,7 +32,7 @@ class PromoteParameterRuleTest extends RuleTestCase
 		$this->analyse([__DIR__ . '/data/promote-parameter.php'], [
 			[
 				'Class PromoteParameter\Foo has an uninitialized property $test. Give it default value or assign it in the constructor.',
-				5,
+				8,
 				'This error would be reported if the <fg=cyan>checkUninitializedProperties: true</> parameter was enabled in your <fg=cyan>%configurationFile%</>.',
 			],
 		]);
