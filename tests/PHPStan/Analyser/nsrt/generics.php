@@ -741,7 +741,7 @@ function testClasses()
 	assertType('DateTime', $ab->getB(new \DateTime()));
 
 	$noConstructor = new NoConstructor(1);
-	assertType('PHPStan\Generics\FunctionsAssertType\NoConstructor<mixed>', $noConstructor);
+	assertType('PHPStan\Generics\FunctionsAssertType\NoConstructor<int>', $noConstructor);
 
 	assertType('stdClass', acceptsClassString(\stdClass::class));
 	assertType('class-string<stdClass>', returnsClassString(new \stdClass()));
