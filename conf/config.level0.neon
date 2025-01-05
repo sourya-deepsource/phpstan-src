@@ -1,10 +1,6 @@
 parameters:
 	customRulesetUsed: false
 
-conditionalTags:
-	PHPStan\Rules\Properties\UninitializedPropertyRule:
-		phpstan.rules.rule: %checkUninitializedProperties%
-
 rules:
 	- PHPStan\Rules\Api\ApiInstanceofRule
 	- PHPStan\Rules\Api\ApiInstanceofTypeRule
@@ -219,9 +215,6 @@ services:
 			- phpstan.rules.rule
 
 	-
-		class: PHPStan\Rules\Properties\UninitializedPropertyRule
-
-	-
 		class: PHPStan\Rules\Properties\WritingToReadOnlyPropertiesRule
 		arguments:
 			checkThisOnly: %checkThisOnly%
@@ -249,11 +242,6 @@ services:
 			checkMaybeUndefinedVariables: %checkMaybeUndefinedVariables%
 		tags:
 			- phpstan.rules.rule
-
-	-
-		class: PHPStan\Reflection\ConstructorsHelper
-		arguments:
-			additionalConstructors: %additionalConstructors%
 
 	-
 		class: PHPStan\Rules\Keywords\RequireFileExistsRule
