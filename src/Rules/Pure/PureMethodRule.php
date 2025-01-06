@@ -36,6 +36,7 @@ final class PureMethodRule implements Rule
 			$node->getImpurePoints(),
 			$node->getStatementResult()->getThrowPoints(),
 			$node->getStatements(),
+			$method->isConstructor(),
 		);
 	}
 

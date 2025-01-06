@@ -7,7 +7,6 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Collectors\Collector;
 use PHPStan\Node\MethodReturnStatementsNode;
 use function count;
-use function strtolower;
 
 /**
  * @implements Collector<MethodReturnStatementsNode, string>
@@ -23,7 +22,7 @@ final class ConstructorWithoutImpurePointsCollector implements Collector
 	public function processNode(Node $node, Scope $scope)
 	{
 		$method = $node->getMethodReflection();
-		if (strtolower($method->getName()) !== '__construct') {
+		if (!$method->isConstructor()) {
 			return null;
 		}
 

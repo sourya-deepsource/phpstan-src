@@ -60,10 +60,14 @@ class PhpMethodFromParserNodeReflection extends PhpFunctionFromParserNodeReflect
 		array $parameterOutTypes,
 		array $immediatelyInvokedCallableParameters,
 		array $phpDocClosureThisTypeParameters,
+		private bool $isConstructor,
 	)
 	{
 		$name = strtolower($classMethod->name->name);
-		if (in_array($name, ['__construct', '__destruct', '__unset', '__wakeup', '__clone'], true)) {
+		if ($this->isConstructor) {
+			$realReturnType = new VoidType();
+		}
+		if (in_array($name, ['__destruct', '__unset', '__wakeup', '__clone'], true)) {
 			$realReturnType = new VoidType();
 		}
 		if ($name === '__tostring') {
@@ -173,6 +177,11 @@ class PhpMethodFromParserNodeReflection extends PhpFunctionFromParserNodeReflect
 	public function isAbstract(): TrinaryLogic
 	{
 		return TrinaryLogic::createFromBoolean($this->getClassMethod()->isAbstract());
+	}
+
+	public function isConstructor(): bool
+	{
+		return $this->isConstructor;
 	}
 
 	public function hasSideEffects(): TrinaryLogic

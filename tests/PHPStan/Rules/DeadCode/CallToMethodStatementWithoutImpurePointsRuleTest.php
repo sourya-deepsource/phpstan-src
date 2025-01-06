@@ -72,6 +72,14 @@ class CallToMethodStatementWithoutImpurePointsRuleTest extends RuleTestCase
 		]);
 	}
 
+	public function testBug12379(): void
+	{
+		if (PHP_VERSION_ID < 80000) {
+			$this->markTestSkipped('Test requires PHP 8.1.');
+		}
+		$this->analyse([__DIR__ . '/data/bug-12379.php'], []);
+	}
+
 	protected function getCollectors(): array
 	{
 		return [

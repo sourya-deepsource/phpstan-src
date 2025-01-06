@@ -36,6 +36,7 @@ final class PureFunctionRule implements Rule
 			$node->getImpurePoints(),
 			$node->getStatementResult()->getThrowPoints(),
 			$node->getStatements(),
+			false,
 		);
 	}
 

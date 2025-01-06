@@ -614,6 +614,9 @@ final class NodeScopeResolver
 				$nodeCallback($stmt->returnType, $scope);
 			}
 
+			$isFromTrait = $stmt->getAttribute('originalTraitMethodName') === '__construct';
+			$isConstructor = $isFromTrait || $stmt->name->toLowerString() === '__construct';
+
 			$methodScope = $scope->enterClassMethod(
 				$stmt,
 				$templateTypeMap,
@@ -632,14 +635,14 @@ final class NodeScopeResolver
 				$phpDocParameterOutTypes,
 				$phpDocImmediatelyInvokedCallableParameters,
 				$phpDocClosureThisTypeParameters,
+				$isConstructor,
 			);
 
 			if (!$scope->isInClass()) {
 				throw new ShouldNotHappenException();
 			}
 
-			$isFromTrait = $stmt->getAttribute('originalTraitMethodName') === '__construct';
-			if ($isFromTrait || $stmt->name->toLowerString() === '__construct') {
+			if ($isConstructor) {
 				foreach ($stmt->params as $param) {
 					if ($param->flags === 0) {
 						continue;
