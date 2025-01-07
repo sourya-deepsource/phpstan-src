@@ -10,6 +10,7 @@ use PHPStan\Collectors\CollectedData;
 use PHPStan\Command\Output;
 use PHPStan\Dependency\ExportedNodeFetcher;
 use PHPStan\Dependency\RootExportedNode;
+use PHPStan\DependencyInjection\Container;
 use PHPStan\DependencyInjection\ProjectConfigHelper;
 use PHPStan\File\CouldNotReadFileException;
 use PHPStan\File\FileFinder;
@@ -66,6 +67,7 @@ final class ResultCacheManager
 	 * @param string[] $scanDirectories
 	 */
 	public function __construct(
+		private Container $container,
 		private ExportedNodeFetcher $exportedNodeFetcher,
 		private FileFinder $scanFileFinder,
 		private ReflectionProvider $reflectionProvider,
@@ -904,6 +906,7 @@ return [
 		return [
 			'cacheVersion' => self::CACHE_VERSION,
 			'phpstanVersion' => ComposerHelper::getPhpStanVersion(),
+			'metaExtensions' => $this->getMetaFromPhpStanExtensions(),
 			'phpVersion' => PHP_VERSION_ID,
 			'projectConfig' => $projectConfigArray,
 			'analysedPaths' => $this->analysedPaths,
@@ -1034,6 +1037,31 @@ return [
 		ksort($stubFiles);
 
 		return $stubFiles;
+	}
+
+	/**
+	 * @return array<string, string>
+	 * @throws ShouldNotHappenException
+	 */
+	private function getMetaFromPhpStanExtensions(): array
+	{
+		$meta = [];
+
+		/** @var ResultCacheMetaExtension $extension */
+		foreach ($this->container->getServicesByTag(ResultCacheMetaExtension::EXTENSION_TAG) as $extension) {
+			if (array_key_exists($extension->getKey(), $meta)) {
+				throw new ShouldNotHappenException(sprintf(
+					'Duplicate ResultCacheMetaExtension with key "%s" found.',
+					$extension->getKey(),
+				));
+			}
+
+			$meta[$extension->getKey()] = $extension->getHash();
+		}
+
+		ksort($meta);
+
+		return $meta;
 	}
 
 }
