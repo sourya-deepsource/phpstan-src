@@ -2953,6 +2953,7 @@ final class MutatingScope implements Scope
 		array $parameterOutTypes = [],
 		array $immediatelyInvokedCallableParameters = [],
 		array $phpDocClosureThisTypeParameters = [],
+		bool $isConstructor = false,
 	): self
 	{
 		if (!$this->isInClass()) {
@@ -2984,6 +2985,7 @@ final class MutatingScope implements Scope
 				array_map(fn (Type $type): Type => $this->transformStaticType(TemplateTypeHelper::toArgument($type)), $parameterOutTypes),
 				$immediatelyInvokedCallableParameters,
 				array_map(fn (Type $type): Type => $this->transformStaticType(TemplateTypeHelper::toArgument($type)), $phpDocClosureThisTypeParameters),
+				$isConstructor,
 			),
 			!$classMethod->isStatic(),
 		);
@@ -3068,6 +3070,7 @@ final class MutatingScope implements Scope
 				[],
 				[],
 				[],
+				false,
 			),
 			true,
 		);

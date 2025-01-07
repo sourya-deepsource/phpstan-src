@@ -62,6 +62,7 @@ final class PhpMethodFromParserNodeReflection extends PhpFunctionFromParserNodeR
 		array $parameterOutTypes,
 		array $immediatelyInvokedCallableParameters,
 		array $phpDocClosureThisTypeParameters,
+		private bool $isConstructor,
 	)
 	{
 		if ($this->classMethod instanceof Node\PropertyHook) {
@@ -73,7 +74,10 @@ final class PhpMethodFromParserNodeReflection extends PhpFunctionFromParserNodeR
 		}
 
 		$name = strtolower($classMethod->name->name);
-		if (in_array($name, ['__construct', '__destruct', '__unset', '__wakeup', '__clone'], true)) {
+		if ($this->isConstructor) {
+			$realReturnType = new VoidType();
+		}
+		if (in_array($name, ['__destruct', '__unset', '__wakeup', '__clone'], true)) {
 			$realReturnType = new VoidType();
 		}
 		if ($name === '__tostring') {
@@ -263,6 +267,11 @@ final class PhpMethodFromParserNodeReflection extends PhpFunctionFromParserNodeR
 		}
 
 		return TrinaryLogic::createFromBoolean($method->isAbstract());
+	}
+
+	public function isConstructor(): bool
+	{
+		return $this->isConstructor;
 	}
 
 	public function hasSideEffects(): TrinaryLogic

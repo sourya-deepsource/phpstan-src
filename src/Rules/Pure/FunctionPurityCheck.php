@@ -40,18 +40,11 @@ final class FunctionPurityCheck
 		array $impurePoints,
 		array $throwPoints,
 		array $statements,
+		bool $isConstructor,
 	): array
 	{
 		$errors = [];
 		$isPure = $functionReflection->isPure();
-		$isConstructor = false;
-		if (
-			$functionReflection instanceof ExtendedMethodReflection
-			&& $functionReflection->getDeclaringClass()->hasConstructor()
-			&& $functionReflection->getDeclaringClass()->getConstructor()->getName() === $functionReflection->getName()
-		) {
-			$isConstructor = true;
-		}
 
 		if ($isPure->yes()) {
 			foreach ($parameters as $parameter) {

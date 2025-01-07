@@ -648,6 +648,9 @@ final class NodeScopeResolver
 				[$isDeprecated, $deprecatedDescription] = $this->getDeprecatedAttribute($scope, $stmt);
 			}
 
+			$isFromTrait = $stmt->getAttribute('originalTraitMethodName') === '__construct';
+			$isConstructor = $isFromTrait || $stmt->name->toLowerString() === '__construct';
+
 			$methodScope = $scope->enterClassMethod(
 				$stmt,
 				$templateTypeMap,
@@ -666,6 +669,7 @@ final class NodeScopeResolver
 				$phpDocParameterOutTypes,
 				$phpDocImmediatelyInvokedCallableParameters,
 				$phpDocClosureThisTypeParameters,
+				$isConstructor,
 			);
 
 			if (!$scope->isInClass()) {
@@ -674,8 +678,7 @@ final class NodeScopeResolver
 
 			$classReflection = $scope->getClassReflection();
 
-			$isFromTrait = $stmt->getAttribute('originalTraitMethodName') === '__construct';
-			if ($isFromTrait || $stmt->name->toLowerString() === '__construct') {
+			if ($isConstructor) {
 				foreach ($stmt->params as $param) {
 					if ($param->flags === 0 && $param->hooks === []) {
 						continue;
