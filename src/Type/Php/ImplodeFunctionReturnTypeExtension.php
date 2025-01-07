@@ -4,7 +4,9 @@ namespace PHPStan\Type\Php;
 
 use PhpParser\Node\Expr\FuncCall;
 use PHPStan\Analyser\Scope;
+use PHPStan\Internal\CombinationsHelper;
 use PHPStan\Reflection\FunctionReflection;
+use PHPStan\Reflection\InitializerExprTypeResolver;
 use PHPStan\Type\Accessory\AccessoryLiteralStringType;
 use PHPStan\Type\Accessory\AccessoryLowercaseStringType;
 use PHPStan\Type\Accessory\AccessoryNonEmptyStringType;
@@ -12,7 +14,6 @@ use PHPStan\Type\Accessory\AccessoryNonFalsyStringType;
 use PHPStan\Type\Accessory\AccessoryUppercaseStringType;
 use PHPStan\Type\Constant\ConstantArrayType;
 use PHPStan\Type\Constant\ConstantStringType;
-use PHPStan\Type\ConstantScalarType;
 use PHPStan\Type\DynamicFunctionReturnTypeExtension;
 use PHPStan\Type\IntersectionType;
 use PHPStan\Type\StringType;
@@ -114,14 +115,28 @@ final class ImplodeFunctionReturnTypeExtension implements DynamicFunctionReturnT
 			$valueTypes = $array->getValueTypes();
 
 			$arrayValues = [];
+			$combinationsCount = 1;
 			foreach ($valueTypes as $valueType) {
-				if (!$valueType instanceof ConstantScalarType) {
+				$constScalars = $valueType->getConstantScalarValues();
+				if (count($constScalars) === 0) {
 					return null;
 				}
-				$arrayValues[] = $valueType->getValue();
+				$arrayValues[] = $constScalars;
+				$combinationsCount *= count($constScalars);
 			}
 
-			$strings[] = new ConstantStringType(implode($separatorType->getValue(), $arrayValues));
+			if ($combinationsCount > InitializerExprTypeResolver::CALCULATE_SCALARS_LIMIT) {
+				return null;
+			}
+
+			$combinations = CombinationsHelper::combinations($arrayValues);
+			foreach ($combinations as $combination) {
+				$strings[] = new ConstantStringType(implode($separatorType->getValue(), $combination));
+			}
+		}
+
+		if (count($strings) > InitializerExprTypeResolver::CALCULATE_SCALARS_LIMIT) {
+			return null;
 		}
 
 		return TypeCombinator::union(...$strings);
