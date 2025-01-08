@@ -59,6 +59,26 @@ final class ResolvedPropertyReflection implements WrapperPropertyReflection
 		return $this->reflection->isPublic();
 	}
 
+	public function hasPhpDocType(): bool
+	{
+		return $this->reflection->hasPhpDocType();
+	}
+
+	public function getPhpDocType(): Type
+	{
+		return $this->reflection->getPhpDocType();
+	}
+
+	public function hasNativeType(): bool
+	{
+		return $this->reflection->hasNativeType();
+	}
+
+	public function getNativeType(): Type
+	{
+		return $this->reflection->getNativeType();
+	}
+
 	public function getReadableType(): Type
 	{
 		$type = $this->readableType;

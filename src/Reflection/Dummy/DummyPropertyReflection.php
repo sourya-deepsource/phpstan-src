@@ -37,6 +37,26 @@ final class DummyPropertyReflection implements ExtendedPropertyReflection
 		return true;
 	}
 
+	public function hasPhpDocType(): bool
+	{
+		return false;
+	}
+
+	public function getPhpDocType(): Type
+	{
+		return new MixedType();
+	}
+
+	public function hasNativeType(): bool
+	{
+		return false;
+	}
+
+	public function getNativeType(): Type
+	{
+		return new MixedType();
+	}
+
 	public function getReadableType(): Type
 	{
 		return new MixedType();

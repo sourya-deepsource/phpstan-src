@@ -59,6 +59,26 @@ final class FoundPropertyReflection implements ExtendedPropertyReflection
 		return $this->originalPropertyReflection->getDocComment();
 	}
 
+	public function hasPhpDocType(): bool
+	{
+		return $this->originalPropertyReflection->hasPhpDocType();
+	}
+
+	public function getPhpDocType(): Type
+	{
+		return $this->originalPropertyReflection->getPhpDocType();
+	}
+
+	public function hasNativeType(): bool
+	{
+		return $this->originalPropertyReflection->hasNativeType();
+	}
+
+	public function getNativeType(): Type
+	{
+		return $this->originalPropertyReflection->getNativeType();
+	}
+
 	public function getReadableType(): Type
 	{
 		return $this->readableType;
@@ -102,16 +122,6 @@ final class FoundPropertyReflection implements ExtendedPropertyReflection
 	public function isNative(): bool
 	{
 		return $this->getNativeReflection() !== null;
-	}
-
-	public function getNativeType(): ?Type
-	{
-		$reflection = $this->getNativeReflection();
-		if ($reflection === null) {
-			return null;
-		}
-
-		return $reflection->getNativeType();
 	}
 
 	public function getNativeReflection(): ?PhpPropertyReflection

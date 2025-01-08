@@ -2119,10 +2119,12 @@ final class MutatingScope implements Scope
 				if ($propertyReflection === null) {
 					return new ErrorType();
 				}
-				$nativeType = $propertyReflection->getNativeType();
-				if ($nativeType === null) {
-					return new ErrorType();
+
+				if (!$propertyReflection->hasNativeType()) {
+					return new MixedType();
 				}
+
+				$nativeType = $propertyReflection->getNativeType();
 
 				return $this->getNullsafeShortCircuitingType($node->var, $nativeType);
 			}
@@ -2167,10 +2169,11 @@ final class MutatingScope implements Scope
 				if ($propertyReflection === null) {
 					return new ErrorType();
 				}
-				$nativeType = $propertyReflection->getNativeType();
-				if ($nativeType === null) {
-					return new ErrorType();
+				if (!$propertyReflection->hasNativeType()) {
+					return new MixedType();
 				}
+
+				$nativeType = $propertyReflection->getNativeType();
 
 				if ($node->class instanceof Expr) {
 					return $this->getNullsafeShortCircuitingType($node->class, $nativeType);

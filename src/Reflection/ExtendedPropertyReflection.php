@@ -3,6 +3,7 @@
 namespace PHPStan\Reflection;
 
 use PHPStan\TrinaryLogic;
+use PHPStan\Type\Type;
 
 /**
  * The purpose of this interface is to be able to
@@ -24,6 +25,14 @@ interface ExtendedPropertyReflection extends PropertyReflection
 	public const HOOK_GET = 'get';
 
 	public const HOOK_SET = 'set';
+
+	public function hasPhpDocType(): bool;
+
+	public function getPhpDocType(): Type;
+
+	public function hasNativeType(): bool;
+
+	public function getNativeType(): Type;
 
 	public function isAbstract(): TrinaryLogic;
 
