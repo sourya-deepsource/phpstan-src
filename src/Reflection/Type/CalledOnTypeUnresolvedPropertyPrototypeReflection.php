@@ -74,8 +74,10 @@ final class CalledOnTypeUnresolvedPropertyPrototypeReflection implements Unresol
 	{
 		$readableType = $this->transformStaticType($property->getReadableType());
 		$writableType = $this->transformStaticType($property->getWritableType());
+		$phpDocType = $this->transformStaticType($property->getPhpDocType());
+		$nativeType = $this->transformStaticType($property->getNativeType());
 
-		return new ChangedTypePropertyReflection($declaringClass, $property, $readableType, $writableType);
+		return new ChangedTypePropertyReflection($declaringClass, $property, $readableType, $writableType, $phpDocType, $nativeType);
 	}
 
 	private function transformStaticType(Type $type): Type

@@ -10,6 +10,7 @@ use PHPStan\TrinaryLogic;
 use PHPStan\Type\BooleanType;
 use PHPStan\Type\FloatType;
 use PHPStan\Type\IntegerType;
+use PHPStan\Type\MixedType;
 use PHPStan\Type\StringType;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypeCombinator;
@@ -42,6 +43,26 @@ final class SimpleXMLElementProperty implements ExtendedPropertyReflection
 	public function isPublic(): bool
 	{
 		return true;
+	}
+
+	public function hasPhpDocType(): bool
+	{
+		return false;
+	}
+
+	public function getPhpDocType(): Type
+	{
+		return new MixedType();
+	}
+
+	public function hasNativeType(): bool
+	{
+		return false;
+	}
+
+	public function getNativeType(): Type
+	{
+		return new MixedType();
 	}
 
 	public function getReadableType(): Type

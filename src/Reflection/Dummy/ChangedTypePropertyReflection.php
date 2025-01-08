@@ -12,7 +12,7 @@ use PHPStan\Type\Type;
 final class ChangedTypePropertyReflection implements WrapperPropertyReflection
 {
 
-	public function __construct(private ClassReflection $declaringClass, private ExtendedPropertyReflection $reflection, private Type $readableType, private Type $writableType)
+	public function __construct(private ClassReflection $declaringClass, private ExtendedPropertyReflection $reflection, private Type $readableType, private Type $writableType, private Type $phpDocType, private Type $nativeType)
 	{
 	}
 
@@ -39,6 +39,26 @@ final class ChangedTypePropertyReflection implements WrapperPropertyReflection
 	public function getDocComment(): ?string
 	{
 		return $this->reflection->getDocComment();
+	}
+
+	public function hasPhpDocType(): bool
+	{
+		return $this->reflection->hasPhpDocType();
+	}
+
+	public function getPhpDocType(): Type
+	{
+		return $this->phpDocType;
+	}
+
+	public function hasNativeType(): bool
+	{
+		return $this->reflection->hasNativeType();
+	}
+
+	public function getNativeType(): Type
+	{
+		return $this->nativeType;
 	}
 
 	public function getReadableType(): Type

@@ -7,6 +7,7 @@ use PHPStan\Reflection\ExtendedMethodReflection;
 use PHPStan\Reflection\ExtendedPropertyReflection;
 use PHPStan\ShouldNotHappenException;
 use PHPStan\TrinaryLogic;
+use PHPStan\Type\MixedType;
 use PHPStan\Type\Type;
 
 final class UniversalObjectCrateProperty implements ExtendedPropertyReflection
@@ -38,6 +39,26 @@ final class UniversalObjectCrateProperty implements ExtendedPropertyReflection
 	public function isPublic(): bool
 	{
 		return true;
+	}
+
+	public function hasPhpDocType(): bool
+	{
+		return false;
+	}
+
+	public function getPhpDocType(): Type
+	{
+		return new MixedType();
+	}
+
+	public function hasNativeType(): bool
+	{
+		return false;
+	}
+
+	public function getNativeType(): Type
+	{
+		return new MixedType();
 	}
 
 	public function getReadableType(): Type
