@@ -2,7 +2,7 @@
 
 namespace PHPStan\Rules\Methods;
 
-use PHPStan\Reflection\MethodReflection;
+use PHPStan\Reflection\ExtendedMethodReflection;
 
 /**
  * This is the extension interface to implement if you want to describe an always-used class method.
@@ -22,6 +22,6 @@ use PHPStan\Reflection\MethodReflection;
 interface AlwaysUsedMethodExtension
 {
 
-	public function isAlwaysUsed(MethodReflection $methodReflection): bool;
+	public function isAlwaysUsed(ExtendedMethodReflection $methodReflection): bool;
 
 }
