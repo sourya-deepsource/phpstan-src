@@ -56,13 +56,6 @@ jobs:
         shell: bash
         run: "vendor/bin/simple-downgrade downgrade -c build/downgrade.php ${{ matrix.php-version }}"
 
-      - name: "Upload transformed sources"
-        if: matrix.php-version == '7.4'
-        uses: actions/upload-artifact@v3
-        with:
-          name: transformed-src
-          path: src
-
       - name: "PHPStan"
         run: "make phpstan"
 
