@@ -3,6 +3,7 @@
 namespace PHPStan\Type;
 
 use ArrayAccess;
+use ArrayObject;
 use Closure;
 use Countable;
 use Iterator;
@@ -615,6 +616,7 @@ class ObjectType implements TypeWithClassName, SubtractableType
 
 		if (
 			!$classReflection->getNativeReflection()->isUserDefined()
+			|| $classReflection->is(ArrayObject::class)
 			|| UniversalObjectCratesClassReflectionExtension::isUniversalObjectCrate(
 				$reflectionProvider,
 				$classReflection,
