@@ -11996,7 +11996,7 @@ return [
 'stream_context_create' => ['resource', 'options='=>'array', 'params='=>'array'],
 'stream_context_get_default' => ['resource', 'options='=>'array'],
 'stream_context_get_options' => ['array', 'context'=>'resource'],
-'stream_context_get_params' => ['array', 'context'=>'resource'],
+'stream_context_get_params' => ['array{notification:string, options:array<mixed>}', 'context'=>'resource'],
 'stream_context_set_default' => ['resource', 'options'=>'array'],
 'stream_context_set_option' => ['bool', 'context'=>'', 'wrappername'=>'string', 'optionname'=>'string', 'value'=>''],
 'stream_context_set_option\'1' => ['bool', 'context'=>'', 'options'=>'array'],
