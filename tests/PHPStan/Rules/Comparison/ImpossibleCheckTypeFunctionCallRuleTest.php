@@ -1111,6 +1111,10 @@ class ImpossibleCheckTypeFunctionCallRuleTest extends RuleTestCase
 
 	public function testBug8464(): void
 	{
+		if (PHP_VERSION_ID < 80000) {
+			$this->markTestSkipped('Test requires PHP 8.0.');
+		}
+
 		$this->checkAlwaysTrueCheckTypeFunctionCall = true;
 		$this->treatPhpDocTypesAsCertain = true;
 		$this->analyse([__DIR__ . '/data/bug-8464.php'], []);
