@@ -1168,12 +1168,6 @@ parameters:
 			path: src/Type/Generic/TemplateIntersectionType.php
 
 		-
-			message: '#^Instanceof between PHPStan\\Type\\Type and PHPStan\\Type\\IntersectionType will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 2
-			path: src/Type/Generic/TemplateIntersectionType.php
-
-		-
 			message: '#^Doing instanceof PHPStan\\Type\\IntersectionType is error\-prone and deprecated\.$#'
 			identifier: phpstanApi.instanceofType
 			count: 3
@@ -1291,12 +1285,6 @@ parameters:
 			message: '#^Doing instanceof PHPStan\\Type\\IntersectionType is error\-prone and deprecated\.$#'
 			identifier: phpstanApi.instanceofType
 			count: 3
-			path: src/Type/Generic/TemplateUnionType.php
-
-		-
-			message: '#^Instanceof between PHPStan\\Type\\Type and PHPStan\\Type\\UnionType will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 2
 			path: src/Type/Generic/TemplateUnionType.php
 
 		-
