@@ -83,7 +83,7 @@ final class ArrayChangeKeyCaseFunctionReturnTypeExtension implements DynamicFunc
 				}
 				$newConstantArrayType = $newConstantArrayBuilder->getArray();
 				if ($constantArray->isList()->yes()) {
-					$newConstantArrayType = AccessoryArrayListType::intersectWith($newConstantArrayType);
+					$newConstantArrayType = TypeCombinator::intersect($newConstantArrayType, new AccessoryArrayListType());
 				}
 				$arrayTypes[] = $newConstantArrayType;
 			}
