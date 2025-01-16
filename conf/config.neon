@@ -1514,6 +1514,11 @@ services:
 			- phpstan.dynamicFunctionThrowTypeExtension
 
 	-
+		class: PHPStan\Type\Php\OpenSslEncryptParameterOutTypeExtension
+		tags:
+			- phpstan.functionParameterOutTypeExtension
+
+	-
 		class: PHPStan\Type\Php\ParseStrParameterOutTypeExtension
 		tags:
 			- phpstan.functionParameterOutTypeExtension
