@@ -17,7 +17,11 @@ final class ReflectionEnumStubFilesExtension implements StubFilesExtension
 			return [];
 		}
 
-		return [__DIR__ . '/../../stubs/ReflectionEnum.stub'];
+		if (!$this->phpVersion->supportsLazyObjects()) {
+			return [__DIR__ . '/../../stubs/ReflectionEnum.stub'];
+		}
+
+		return [__DIR__ . '/../../stubs/ReflectionEnumWithLazyObjects.stub'];
 	}
 
 }

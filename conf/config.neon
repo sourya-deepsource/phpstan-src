@@ -98,7 +98,6 @@ parameters:
 		- stdClass
 	stubFiles:
 		- ../stubs/ReflectionAttribute.stub
-		- ../stubs/ReflectionClass.stub
 		- ../stubs/ReflectionClassConstant.stub
 		- ../stubs/ReflectionFunctionAbstract.stub
 		- ../stubs/ReflectionMethod.stub
@@ -415,6 +414,11 @@ services:
 
 	-
 		class: PHPStan\PhpDoc\JsonValidateStubFilesExtension
+		tags:
+			- phpstan.stubFilesExtension
+
+	-
+		class: PHPStan\PhpDoc\ReflectionClassStubFilesExtension
 		tags:
 			- phpstan.stubFilesExtension
 

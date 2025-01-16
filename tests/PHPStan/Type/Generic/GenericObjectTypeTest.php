@@ -26,6 +26,7 @@ use stdClass;
 use Traversable;
 use function array_map;
 use function sprintf;
+use const PHP_VERSION_ID;
 
 class GenericObjectTypeTest extends PHPStanTestCase
 {
@@ -134,7 +135,7 @@ class GenericObjectTypeTest extends PHPStanTestCase
 				new GenericObjectType(ReflectionClass::class, [
 					new ObjectType(stdClass::class),
 				]),
-				TrinaryLogic::createYes(),
+				PHP_VERSION_ID >= 80400 ? TrinaryLogic::createNo() : TrinaryLogic::createYes(),
 			],
 			[
 				new GenericObjectType(ReflectionClass::class, [
@@ -143,7 +144,7 @@ class GenericObjectTypeTest extends PHPStanTestCase
 				new GenericObjectType(ReflectionClass::class, [
 					new ObjectWithoutClassType(),
 				]),
-				TrinaryLogic::createMaybe(),
+				PHP_VERSION_ID >= 80400 ? TrinaryLogic::createNo() : TrinaryLogic::createMaybe(),
 			],
 			[
 				new GenericObjectType(ReflectionClass::class, [
