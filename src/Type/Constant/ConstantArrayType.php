@@ -512,10 +512,8 @@ class ConstantArrayType implements Type
 		return $acceptors;
 	}
 
-	/**
-	 * @return array{Type, Type}|array{}
-	 */
-	private function getClassOrObjectAndMethods(): array
+	/** @return ConstantArrayTypeAndMethod[] */
+	public function findTypeAndMethodNames(): array
 	{
 		if (count($this->keyTypes) !== 2) {
 			return [];
@@ -540,16 +538,7 @@ class ConstantArrayType implements Type
 			return [];
 		}
 
-		return [$classOrObject, $method];
-	}
-
-	/** @return ConstantArrayTypeAndMethod[] */
-	public function findTypeAndMethodNames(): array
-	{
-		$callableArray = $this->getClassOrObjectAndMethods();
-		if ($callableArray === []) {
-			return [];
-		}
+		$callableArray = [$classOrObject, $method];
 
 		[$classOrObject, $methods] = $callableArray;
 		if (count($methods->getConstantStrings()) === 0) {
@@ -563,8 +552,8 @@ class ConstantArrayType implements Type
 
 		$typeAndMethods = [];
 		$phpVersion = PhpVersionStaticAccessor::getInstance();
-		foreach ($methods->getConstantStrings() as $method) {
-			$has = $type->hasMethod($method->getValue());
+		foreach ($methods->getConstantStrings() as $methodName) {
+			$has = $type->hasMethod($methodName->getValue());
 			if ($has->no()) {
 				continue;
 			}
@@ -573,7 +562,7 @@ class ConstantArrayType implements Type
 				$has->yes()
 				&& !$phpVersion->supportsCallableInstanceMethods()
 			) {
-				$methodReflection = $type->getMethod($method->getValue(), new OutOfClassScope());
+				$methodReflection = $type->getMethod($methodName->getValue(), new OutOfClassScope());
 				if ($classOrObject->isString()->yes() && !$methodReflection->isStatic()) {
 					continue;
 				}
@@ -583,7 +572,7 @@ class ConstantArrayType implements Type
 				$has = $has->and(TrinaryLogic::createMaybe());
 			}
 
-			$typeAndMethods[] = ConstantArrayTypeAndMethod::createConcrete($type, $method->getValue(), $has);
+			$typeAndMethods[] = ConstantArrayTypeAndMethod::createConcrete($type, $methodName->getValue(), $has);
 		}
 
 		return $typeAndMethods;
