@@ -6,6 +6,7 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\New_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Internal\SprintfHelper;
+use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ParametersAcceptorSelector;
 use PHPStan\Reflection\Php\PhpMethodReflection;
 use PHPStan\Reflection\ReflectionProvider;
@@ -17,6 +18,7 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
 use PHPStan\Type\Constant\ConstantStringType;
+use function array_filter;
 use function array_map;
 use function array_merge;
 use function count;
@@ -244,6 +246,20 @@ final class InstantiationRule implements Rule
 		}
 
 		$type = $scope->getType($node->class);
+
+		if ($type->isClassString()->yes()) {
+			$concretes = array_filter(
+				$type->getClassStringObjectType()->getObjectClassReflections(),
+				static fn (ClassReflection $classReflection): bool => !$classReflection->isAbstract() && !$classReflection->isInterface(),
+			);
+
+			if (count($concretes) > 0) {
+				return array_map(
+					static fn (ClassReflection $classReflection): array => [$classReflection->getName(), true],
+					$concretes,
+				);
+			}
+		}
 
 		return array_merge(
 			array_map(

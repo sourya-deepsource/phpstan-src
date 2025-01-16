@@ -511,4 +511,46 @@ class InstantiationRuleTest extends RuleTestCase
 		$this->analyse([__DIR__ . '/data/bug-11815.php'], []);
 	}
 
+	public function testClassString(): void
+	{
+		$this->analyse([__DIR__ . '/data/class-string.php'], [
+			[
+				'Parameter #1 $i of class ClassString\A constructor expects int, string given.',
+				65,
+			],
+			[
+				'Parameter #1 $i of class ClassString\A constructor expects int, string given.',
+				66,
+			],
+			[
+				'Parameter #1 $i of class ClassString\A constructor expects int, string given.',
+				67,
+			],
+			[
+				'Parameter #1 $i of class ClassString\C constructor expects int, string given.',
+				75,
+			],
+			[
+				'Parameter #1 $i of class ClassString\C constructor expects int, string given.',
+				76,
+			],
+			[
+				'Parameter #1 $i of class ClassString\C constructor expects int, string given.',
+				77,
+			],
+			[
+				'Parameter #1 $i of class ClassString\A constructor expects int, string given.',
+				85,
+			],
+			[
+				'Parameter #1 $i of class ClassString\A constructor expects int, string given.',
+				86,
+			],
+			[
+				'Parameter #1 $i of class ClassString\A constructor expects int, string given.',
+				87,
+			],
+		]);
+	}
+
 }
