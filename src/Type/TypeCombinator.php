@@ -3,8 +3,10 @@
 namespace PHPStan\Type;
 
 use PHPStan\Type\Accessory\AccessoryArrayListType;
+use PHPStan\Type\Accessory\AccessoryLowercaseStringType;
 use PHPStan\Type\Accessory\AccessoryNonEmptyStringType;
 use PHPStan\Type\Accessory\AccessoryType;
+use PHPStan\Type\Accessory\AccessoryUppercaseStringType;
 use PHPStan\Type\Accessory\HasOffsetType;
 use PHPStan\Type\Accessory\HasOffsetValueType;
 use PHPStan\Type\Accessory\HasPropertyType;
@@ -451,7 +453,10 @@ final class TypeCombinator
 			&& ($b->describe(VerbosityLevel::value()) === 'non-empty-string'
 			|| $b->describe(VerbosityLevel::value()) === 'non-falsy-string')
 		) {
-			return [null, new StringType()];
+			return [null, self::intersect(
+				new StringType(),
+				...self::getAccessoryCaseStringTypes($b),
+			)];
 		}
 
 		if (
@@ -460,7 +465,10 @@ final class TypeCombinator
 			&& ($a->describe(VerbosityLevel::value()) === 'non-empty-string'
 				|| $a->describe(VerbosityLevel::value()) === 'non-falsy-string')
 		) {
-			return [new StringType(), null];
+			return [self::intersect(
+				new StringType(),
+				...self::getAccessoryCaseStringTypes($a),
+			), null];
 		}
 
 		if (
@@ -468,10 +476,11 @@ final class TypeCombinator
 			&& $a->getValue() === '0'
 			&& $b->describe(VerbosityLevel::value()) === 'non-falsy-string'
 		) {
-			return [null, new IntersectionType([
+			return [null, self::intersect(
 				new StringType(),
 				new AccessoryNonEmptyStringType(),
-			])];
+				...self::getAccessoryCaseStringTypes($b),
+			)];
 		}
 
 		if (
@@ -479,13 +488,30 @@ final class TypeCombinator
 			&& $b->getValue() === '0'
 			&& $a->describe(VerbosityLevel::value()) === 'non-falsy-string'
 		) {
-			return [new IntersectionType([
+			return [self::intersect(
 				new StringType(),
 				new AccessoryNonEmptyStringType(),
-			]), null];
+				...self::getAccessoryCaseStringTypes($a),
+			), null];
 		}
 
 		return null;
+	}
+
+	/**
+	 * @return array<Type>
+	 */
+	private static function getAccessoryCaseStringTypes(Type $type): array
+	{
+		$accessory = [];
+		if ($type->isLowercaseString()->yes()) {
+			$accessory[] = new AccessoryLowercaseStringType();
+		}
+		if ($type->isUppercaseString()->yes()) {
+			$accessory[] = new AccessoryUppercaseStringType();
+		}
+
+		return $accessory;
 	}
 
 	private static function unionWithSubtractedType(
