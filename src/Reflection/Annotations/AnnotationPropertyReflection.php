@@ -7,7 +7,6 @@ use PHPStan\Reflection\ExtendedMethodReflection;
 use PHPStan\Reflection\ExtendedPropertyReflection;
 use PHPStan\ShouldNotHappenException;
 use PHPStan\TrinaryLogic;
-use PHPStan\Type\MixedType;
 use PHPStan\Type\Type;
 
 final class AnnotationPropertyReflection implements ExtendedPropertyReflection
@@ -41,26 +40,6 @@ final class AnnotationPropertyReflection implements ExtendedPropertyReflection
 	public function isPublic(): bool
 	{
 		return true;
-	}
-
-	public function hasPhpDocType(): bool
-	{
-		return true;
-	}
-
-	public function getPhpDocType(): Type
-	{
-		return $this->readableType;
-	}
-
-	public function hasNativeType(): bool
-	{
-		return false;
-	}
-
-	public function getNativeType(): Type
-	{
-		return new MixedType();
 	}
 
 	public function getReadableType(): Type

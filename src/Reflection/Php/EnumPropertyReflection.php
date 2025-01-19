@@ -7,7 +7,6 @@ use PHPStan\Reflection\ExtendedMethodReflection;
 use PHPStan\Reflection\ExtendedPropertyReflection;
 use PHPStan\ShouldNotHappenException;
 use PHPStan\TrinaryLogic;
-use PHPStan\Type\MixedType;
 use PHPStan\Type\Type;
 
 final class EnumPropertyReflection implements ExtendedPropertyReflection
@@ -40,26 +39,6 @@ final class EnumPropertyReflection implements ExtendedPropertyReflection
 	public function getDocComment(): ?string
 	{
 		return null;
-	}
-
-	public function hasPhpDocType(): bool
-	{
-		return false;
-	}
-
-	public function getPhpDocType(): Type
-	{
-		return new MixedType();
-	}
-
-	public function hasNativeType(): bool
-	{
-		return false;
-	}
-
-	public function getNativeType(): Type
-	{
-		return new MixedType();
 	}
 
 	public function getReadableType(): Type

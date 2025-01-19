@@ -44,26 +44,6 @@ final class ObjectShapePropertyReflection implements ExtendedPropertyReflection
 		return null;
 	}
 
-	public function hasPhpDocType(): bool
-	{
-		return true;
-	}
-
-	public function getPhpDocType(): Type
-	{
-		return $this->type;
-	}
-
-	public function hasNativeType(): bool
-	{
-		return false;
-	}
-
-	public function getNativeType(): Type
-	{
-		return new MixedType();
-	}
-
 	public function getReadableType(): Type
 	{
 		return $this->type;

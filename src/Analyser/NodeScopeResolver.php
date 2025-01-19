@@ -5556,18 +5556,7 @@ final class NodeScopeResolver
 				$assignedExprType = $scope->getType($assignedExpr);
 				$nodeCallback(new PropertyAssignNode($var, $assignedExpr, $isAssignOp), $scope);
 				if ($propertyReflection->canChangeTypeAfterAssignment()) {
-					if ($propertyReflection->hasNativeType()) {
-						$propertyNativeType = $propertyReflection->getNativeType();
-						if ($propertyNativeType->isSuperTypeOf($assignedExprType)->yes()) {
-							$assignedExprNativeType = $scope->getNativeType($assignedExpr);
-							if (!$propertyNativeType->isSuperTypeOf($assignedExprNativeType)->yes()) {
-								$assignedExprNativeType = $propertyNativeType;
-							}
-							$scope = $scope->assignExpression($var, $assignedExprType, $assignedExprNativeType);
-						}
-					} else {
-						$scope = $scope->assignExpression($var, $assignedExprType, $scope->getNativeType($assignedExpr));
-					}
+					$scope = $scope->assignExpression($var, $assignedExprType, $scope->getNativeType($assignedExpr));
 				}
 				$declaringClass = $propertyReflection->getDeclaringClass();
 				if ($declaringClass->hasNativeProperty($propertyName)) {
@@ -5632,18 +5621,7 @@ final class NodeScopeResolver
 				$assignedExprType = $scope->getType($assignedExpr);
 				$nodeCallback(new PropertyAssignNode($var, $assignedExpr, $isAssignOp), $scope);
 				if ($propertyReflection !== null && $propertyReflection->canChangeTypeAfterAssignment()) {
-					if ($propertyReflection->hasNativeType()) {
-						$propertyNativeType = $propertyReflection->getNativeType();
-						if ($propertyNativeType->isSuperTypeOf($assignedExprType)->yes()) {
-							$assignedExprNativeType = $scope->getNativeType($assignedExpr);
-							if (!$propertyNativeType->isSuperTypeOf($assignedExprNativeType)->yes()) {
-								$assignedExprNativeType = $propertyNativeType;
-							}
-							$scope = $scope->assignExpression($var, $assignedExprType, $assignedExprNativeType);
-						}
-					} else {
-						$scope = $scope->assignExpression($var, $assignedExprType, $scope->getNativeType($assignedExpr));
-					}
+					$scope = $scope->assignExpression($var, $assignedExprType, $scope->getNativeType($assignedExpr));
 				}
 			} else {
 				// fallback

@@ -80,26 +80,6 @@ final class UnionTypePropertyReflection implements ExtendedPropertyReflection
 		return null;
 	}
 
-	public function hasPhpDocType(): bool
-	{
-		return $this->computeResult(static fn (ExtendedPropertyReflection $property) => $property->hasPhpDocType());
-	}
-
-	public function getPhpDocType(): Type
-	{
-		return TypeCombinator::union(...array_map(static fn (ExtendedPropertyReflection $property): Type => $property->getPhpDocType(), $this->properties));
-	}
-
-	public function hasNativeType(): bool
-	{
-		return $this->computeResult(static fn (ExtendedPropertyReflection $property) => $property->hasNativeType());
-	}
-
-	public function getNativeType(): Type
-	{
-		return TypeCombinator::union(...array_map(static fn (ExtendedPropertyReflection $property): Type => $property->getNativeType(), $this->properties));
-	}
-
 	public function getReadableType(): Type
 	{
 		return TypeCombinator::union(...array_map(static fn (ExtendedPropertyReflection $property): Type => $property->getReadableType(), $this->properties));

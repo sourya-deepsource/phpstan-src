@@ -4,7 +4,6 @@ namespace PHPStan\Reflection;
 
 use PHPStan\ShouldNotHappenException;
 use PHPStan\TrinaryLogic;
-use PHPStan\Type\MixedType;
 use PHPStan\Type\Type;
 
 final class WrappedExtendedPropertyReflection implements ExtendedPropertyReflection
@@ -37,26 +36,6 @@ final class WrappedExtendedPropertyReflection implements ExtendedPropertyReflect
 	public function getDocComment(): ?string
 	{
 		return $this->property->getDocComment();
-	}
-
-	public function hasPhpDocType(): bool
-	{
-		return false;
-	}
-
-	public function getPhpDocType(): Type
-	{
-		return new MixedType();
-	}
-
-	public function hasNativeType(): bool
-	{
-		return false;
-	}
-
-	public function getNativeType(): Type
-	{
-		return new MixedType();
 	}
 
 	public function getReadableType(): Type
