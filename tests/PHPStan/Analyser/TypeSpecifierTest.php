@@ -1133,7 +1133,9 @@ class TypeSpecifierTest extends PHPStanTestCase
 					new Arg(new Variable('stringOrNull')),
 					new Arg(new Expr\ConstFetch(new Name('false'))),
 				]),
-				[],
+				[
+					'$object' => 'object',
+				],
 				[],
 			],
 			[
