@@ -151,9 +151,6 @@ final class MinMaxFunctionReturnTypeExtension implements DynamicFunctionReturnTy
 	{
 		$resultType = null;
 		foreach ($types as $type) {
-			if (!$type->isConstantValue()->yes()) {
-				return TypeCombinator::union(...$types);
-			}
 			if ($resultType === null) {
 				$resultType = $type;
 				continue;
@@ -188,15 +185,15 @@ final class MinMaxFunctionReturnTypeExtension implements DynamicFunctionReturnTy
 	): ?Type
 	{
 		if (
-			$firstType->isConstantArray()->yes()
-			&& $secondType instanceof ConstantScalarType
+			$firstType->isArray()->yes()
+			&& $secondType->isConstantScalarValue()->yes()
 		) {
 			return $secondType;
 		}
 
 		if (
-			$firstType instanceof ConstantScalarType
-			&& $secondType->isConstantArray()->yes()
+			$firstType->isConstantScalarValue()->yes()
+			&& $secondType->isArray()->yes()
 		) {
 			return $firstType;
 		}
