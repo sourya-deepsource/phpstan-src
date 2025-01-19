@@ -9,12 +9,9 @@ use PHPStan\Analyser\TypeSpecifier;
 use PHPStan\Analyser\TypeSpecifierAwareExtension;
 use PHPStan\Analyser\TypeSpecifierContext;
 use PHPStan\Reflection\FunctionReflection;
-use PHPStan\Type\ClassStringType;
 use PHPStan\Type\Constant\ConstantBooleanType;
 use PHPStan\Type\FunctionTypeSpecifyingExtension;
 use PHPStan\Type\Generic\GenericClassStringType;
-use PHPStan\Type\ObjectWithoutClassType;
-use PHPStan\Type\TypeCombinator;
 use function count;
 use function strtolower;
 
@@ -51,20 +48,9 @@ final class IsSubclassOfFunctionTypeSpecifyingExtension implements FunctionTypeS
 			return new SpecifiedTypes([], []);
 		}
 
-		$superType = $allowString
-			? TypeCombinator::union(new ObjectWithoutClassType(), new ClassStringType())
-			: new ObjectWithoutClassType();
-
-		$resultType = $this->isAFunctionTypeSpecifyingHelper->determineType($objectOrClassType, $classType, $allowString, false);
-
-		// prevent false-positives in IsAFunctionTypeSpecifyingHelper
-		if ($resultType->equals($superType) && $resultType->isSuperTypeOf($objectOrClassType)->yes()) {
-			return new SpecifiedTypes([], []);
-		}
-
 		return $this->typeSpecifier->create(
 			$node->getArgs()[0]->value,
-			$resultType,
+			$this->isAFunctionTypeSpecifyingHelper->determineType($objectOrClassType, $classType, $allowString, false),
 			$context,
 			$scope,
 		);
