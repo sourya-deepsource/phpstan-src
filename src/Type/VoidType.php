@@ -119,6 +119,11 @@ class VoidType implements Type
 		return new ErrorType();
 	}
 
+	public function toCoercedArgumentType(bool $strictTypes): Type
+	{
+		return new NullType();
+	}
+
 	public function isOffsetAccessLegal(): TrinaryLogic
 	{
 		return TrinaryLogic::createYes();

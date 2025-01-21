@@ -143,6 +143,11 @@ class FloatType implements Type
 		return new IntegerType();
 	}
 
+	public function toCoercedArgumentType(bool $strictTypes): Type
+	{
+		return $this;
+	}
+
 	public function isOffsetAccessLegal(): TrinaryLogic
 	{
 		return TrinaryLogic::createYes();

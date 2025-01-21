@@ -1,7 +1,8 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Bug12393;
 
+use function PHPStan\Testing\assertNativeType;
 use function PHPStan\Testing\assertType;
 
 class HelloWorld
@@ -48,6 +49,11 @@ class HelloWorld
 	{
 		$this->a = ['a' => 1];
 		assertType('array{a: 1}', $this->a);
+	}
+
+	public function doFloatTricky(){
+		$this->float = 1;
+		assertType('1.0', $this->float);
 	}
 }
 
@@ -96,4 +102,44 @@ class HelloWorldStatic
 		self::$a = ['a' => 1];
 		assertType('array{a: 1}', self::$a);
 	}
+}
+
+class EntryPointLookup
+{
+
+	/** @var array<string, mixed>|null */
+	private ?array $entriesData = null;
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	public function doFoo(): void
+	{
+		if ($this->entriesData !== null) {
+			return;
+		}
+
+		assertType('null', $this->entriesData);
+		assertNativeType('null', $this->entriesData);
+
+		$data = $this->getMixed();
+		if ($data !== null) {
+			$this->entriesData = $data;
+			assertType('array', $this->entriesData);
+			assertNativeType('array', $this->entriesData);
+			return;
+		}
+
+		assertType('null', $this->entriesData);
+		assertNativeType('null', $this->entriesData);
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getMixed()
+	{
+
+	}
+
 }

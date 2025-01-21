@@ -580,6 +580,11 @@ class MixedType implements CompoundType, SubtractableType
 		return new BenevolentUnionType([new IntegerType(), new StringType()]);
 	}
 
+	public function toCoercedArgumentType(bool $strictTypes): Type
+	{
+		return $this;
+	}
+
 	public function isIterable(): TrinaryLogic
 	{
 		if ($this->subtractedType !== null) {

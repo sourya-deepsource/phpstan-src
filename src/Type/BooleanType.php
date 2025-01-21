@@ -111,6 +111,11 @@ class BooleanType implements Type
 		return new UnionType([new ConstantIntegerType(0), new ConstantIntegerType(1)]);
 	}
 
+	public function toCoercedArgumentType(bool $strictTypes): Type
+	{
+		return $this;
+	}
+
 	public function isOffsetAccessLegal(): TrinaryLogic
 	{
 		return TrinaryLogic::createYes();

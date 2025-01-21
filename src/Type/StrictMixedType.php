@@ -395,6 +395,11 @@ class StrictMixedType implements CompoundType
 		return new ErrorType();
 	}
 
+	public function toCoercedArgumentType(bool $strictTypes): Type
+	{
+		return $this;
+	}
+
 	public function inferTemplateTypes(Type $receivedType): TemplateTypeMap
 	{
 		return TemplateTypeMap::createEmpty();

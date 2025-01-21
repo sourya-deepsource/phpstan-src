@@ -438,6 +438,11 @@ class HasOffsetValueType implements CompoundType, AccessoryType
 		return new ErrorType();
 	}
 
+	public function toCoercedArgumentType(bool $strictTypes): Type
+	{
+		return $this;
+	}
+
 	public function getEnumCases(): array
 	{
 		return [];

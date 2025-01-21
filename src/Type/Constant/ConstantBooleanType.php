@@ -107,6 +107,11 @@ class ConstantBooleanType extends BooleanType implements ConstantScalarType
 		return new ConstantIntegerType((int) $this->value);
 	}
 
+	public function toCoercedArgumentType(bool $strictTypes): Type
+	{
+		return $this;
+	}
+
 	public function isTrue(): TrinaryLogic
 	{
 		return TrinaryLogic::createFromBoolean($this->value === true);

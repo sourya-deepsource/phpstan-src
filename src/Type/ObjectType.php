@@ -671,6 +671,11 @@ class ObjectType implements TypeWithClassName, SubtractableType
 		return $this->toString();
 	}
 
+	public function toCoercedArgumentType(bool $strictTypes): Type
+	{
+		return $this;
+	}
+
 	public function toBoolean(): BooleanType
 	{
 		if ($this->isInstanceOf('SimpleXMLElement')->yes()) {

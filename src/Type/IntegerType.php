@@ -98,6 +98,11 @@ class IntegerType implements Type
 		return $this;
 	}
 
+	public function toCoercedArgumentType(bool $strictTypes): Type
+	{
+		return TypeCombinator::union($this, $this->toFloat());
+	}
+
 	public function isOffsetAccessLegal(): TrinaryLogic
 	{
 		return TrinaryLogic::createYes();

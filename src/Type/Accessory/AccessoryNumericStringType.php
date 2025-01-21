@@ -213,6 +213,11 @@ class AccessoryNumericStringType implements CompoundType, AccessoryType
 		return new IntegerType();
 	}
 
+	public function toCoercedArgumentType(bool $strictTypes): Type
+	{
+		return $this;
+	}
+
 	public function isNull(): TrinaryLogic
 	{
 		return TrinaryLogic::createNo();

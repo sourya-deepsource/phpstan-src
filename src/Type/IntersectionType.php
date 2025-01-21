@@ -1062,6 +1062,11 @@ class IntersectionType implements CompoundType
 		return $this->intersectTypes(static fn (Type $type): Type => $type->toArrayKey());
 	}
 
+	public function toCoercedArgumentType(bool $strictTypes): Type
+	{
+		return $this->intersectTypes(static fn (Type $type): Type => $type->toCoercedArgumentType($strictTypes));
+	}
+
 	public function inferTemplateTypes(Type $receivedType): TemplateTypeMap
 	{
 		$types = TemplateTypeMap::createEmpty();

@@ -2,6 +2,7 @@
 
 namespace PHPStan\Type;
 
+use Closure;
 use PHPStan\Analyser\OutOfClassScope;
 use PHPStan\Php\PhpVersion;
 use PHPStan\PhpDoc\Tag\TemplateTag;
@@ -319,6 +320,11 @@ class CallableType implements CompoundType, CallableParametersAcceptor
 	public function toArrayKey(): Type
 	{
 		return new ErrorType();
+	}
+
+	public function toCoercedArgumentType(bool $strictTypes): Type
+	{
+		return TypeCombinator::union($this, new StringType(), new ArrayType(new MixedType(true), new MixedType(true)), new ObjectType(Closure::class));
 	}
 
 	public function isOffsetAccessLegal(): TrinaryLogic

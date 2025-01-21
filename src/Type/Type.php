@@ -204,6 +204,17 @@ interface Type
 
 	public function toArrayKey(): Type;
 
+	/**
+	 * Tells how a type might change when passed to an argument
+	 * or assigned to a typed property.
+	 *
+	 * Example: int is accepted by int|float with strict_types = 1
+	 * Stringable is accepted by string|Stringable even without strict_types.
+	 *
+	 * Note: Logic with $strictTypes=false is mostly not implemented in Type subclasses.
+	 */
+	public function toCoercedArgumentType(bool $strictTypes): self;
+
 	public function isSmallerThan(Type $otherType, PhpVersion $phpVersion): TrinaryLogic;
 
 	public function isSmallerThanOrEqual(Type $otherType, PhpVersion $phpVersion): TrinaryLogic;

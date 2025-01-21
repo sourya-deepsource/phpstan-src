@@ -234,6 +234,11 @@ class IterableType implements CompoundType
 		return new ErrorType();
 	}
 
+	public function toCoercedArgumentType(bool $strictTypes): Type
+	{
+		return TypeCombinator::union($this, new ArrayType(new MixedType(true), new MixedType(true)), new ObjectType(Traversable::class));
+	}
+
 	public function isOffsetAccessLegal(): TrinaryLogic
 	{
 		return TrinaryLogic::createMaybe();

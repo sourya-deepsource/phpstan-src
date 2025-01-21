@@ -462,6 +462,11 @@ class ClosureType implements TypeWithClassName, CallableParametersAcceptor
 		return new ErrorType();
 	}
 
+	public function toCoercedArgumentType(bool $strictTypes): Type
+	{
+		return TypeCombinator::union($this, new CallableType());
+	}
+
 	public function getTemplateTypeMap(): TemplateTypeMap
 	{
 		return $this->templateTypeMap;

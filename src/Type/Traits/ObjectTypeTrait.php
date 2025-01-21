@@ -273,4 +273,9 @@ trait ObjectTypeTrait
 		return new StringType();
 	}
 
+	public function toCoercedArgumentType(bool $strictTypes): Type
+	{
+		return $this;
+	}
+
 }
