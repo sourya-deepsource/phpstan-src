@@ -5685,7 +5685,7 @@ final class MutatingScope implements Scope
 					continue;
 				}
 
-				$ancestorMapping[$typeName] = $templateType->getName();
+				$ancestorMapping[$typeName] = $templateType;
 			}
 
 			$resolvedTypeMap = [];
@@ -5694,12 +5694,17 @@ final class MutatingScope implements Scope
 					continue;
 				}
 
-				if (!array_key_exists($ancestorMapping[$typeName], $resolvedTypeMap)) {
-					$resolvedTypeMap[$ancestorMapping[$typeName]] = $type;
+				$ancestorType = $ancestorMapping[$typeName];
+				if (!$ancestorType->getBound()->isSuperTypeOf($type)->yes()) {
 					continue;
 				}
 
-				$resolvedTypeMap[$ancestorMapping[$typeName]] = TypeCombinator::union($resolvedTypeMap[$ancestorMapping[$typeName]], $type);
+				if (!array_key_exists($ancestorType->getName(), $resolvedTypeMap)) {
+					$resolvedTypeMap[$ancestorType->getName()] = $type;
+					continue;
+				}
+
+				$resolvedTypeMap[$ancestorType->getName()] = TypeCombinator::union($resolvedTypeMap[$ancestorType->getName()], $type);
 			}
 
 			return new GenericObjectType(
