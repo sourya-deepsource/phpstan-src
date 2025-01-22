@@ -509,7 +509,6 @@ class WrongVariableNameInVarTagRuleTest extends RuleTestCase
 
 	public function testBug12457(): void
 	{
-		$this->checkTypeAgainstNativeType = true;
 		$this->checkTypeAgainstPhpDocType = true;
 		$this->strictWideningCheck = true;
 		$this->analyse([__DIR__ . '/data/bug-12457.php'], [
