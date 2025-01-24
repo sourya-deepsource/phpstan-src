@@ -118,6 +118,9 @@ final class ClassPropertiesNode extends NodeAbstract implements VirtualNode
 			if ($property->isStatic()) {
 				continue;
 			}
+			if ($property->isAbstract()) {
+				continue;
+			}
 			if ($property->getNativeType() === null) {
 				continue;
 			}
