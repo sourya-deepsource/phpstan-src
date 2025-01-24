@@ -2,6 +2,7 @@
 
 namespace PHPStan\Rules\Properties;
 
+use PHPStan\Php\PhpVersion;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use function sprintf;
@@ -17,7 +18,11 @@ class OverridingPropertyRuleTest extends RuleTestCase
 
 	protected function getRule(): Rule
 	{
-		return new OverridingPropertyRule(true, $this->reportMaybes);
+		return new OverridingPropertyRule(
+			self::getContainer()->getByType(PhpVersion::class),
+			true,
+			$this->reportMaybes,
+		);
 	}
 
 	public function testRule(): void
@@ -210,6 +215,40 @@ class OverridingPropertyRuleTest extends RuleTestCase
 			[
 				'Type string of property Bug12466\Bar::$a is not the same as type int of overridden property Bug12466\Foo::$a.',
 				15,
+			],
+		]);
+	}
+
+	public function testBug12466(): void
+	{
+		if (PHP_VERSION_ID < 80400) {
+			$this->markTestSkipped('Test requires PHP 8.4.');
+		}
+
+		$tip = sprintf(
+			"You can fix 3rd party PHPDoc types with stub files:\n   %s",
+			'<fg=cyan>https://phpstan.org/user-guide/stub-files</>',
+		);
+
+		$this->reportMaybes = true;
+		$this->analyse([__DIR__ . '/data/bug-12466.php'], [
+			[
+				'Type int|string|null of property Bug12466OverridenProperty\Baz::$onlyGet is not covariant with type int|string of overridden property Bug12466OverridenProperty\Foo::$onlyGet.',
+				34,
+			],
+			[
+				'Type int of property Bug12466OverridenProperty\Baz::$onlySet is not contravariant with type int|string of overridden property Bug12466OverridenProperty\Foo::$onlySet.',
+				40,
+			],
+			[
+				'PHPDoc type array<int|string|null> of property Bug12466OverridenProperty\BazWithPhpDocs::$onlyGet is not covariant with PHPDoc type array<int|string> of overridden property Bug12466OverridenProperty\FooWithPhpDocs::$onlyGet.',
+				82,
+				$tip,
+			],
+			[
+				'PHPDoc type array<int> of property Bug12466OverridenProperty\BazWithPhpDocs::$onlySet is not contravariant with PHPDoc type array<int|string> of overridden property Bug12466OverridenProperty\FooWithPhpDocs::$onlySet.',
+				89,
+				$tip,
 			],
 		]);
 	}

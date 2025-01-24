@@ -5,6 +5,7 @@ namespace PHPStan\Rules\Properties;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\ClassPropertyNode;
+use PHPStan\Php\PhpVersion;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\Php\PhpPropertyReflection;
 use PHPStan\Rules\Rule;
@@ -21,6 +22,7 @@ final class OverridingPropertyRule implements Rule
 {
 
 	public function __construct(
+		private PhpVersion $phpVersion,
 		private bool $checkPhpDocMethodSignatures,
 		private bool $reportMaybes,
 	)
@@ -129,15 +131,45 @@ final class OverridingPropertyRule implements Rule
 				))->identifier('property.missingNativeType')->nonIgnorable()->build();
 			} else {
 				if (!$prototype->getNativeType()->equals($nativeType)) {
-					$typeErrors[] = RuleErrorBuilder::message(sprintf(
-						'Type %s of property %s::$%s is not the same as type %s of overridden property %s::$%s.',
-						$nativeType->describe(VerbosityLevel::typeOnly()),
-						$classReflection->getDisplayName(),
-						$node->getName(),
-						$prototype->getNativeType()->describe(VerbosityLevel::typeOnly()),
-						$prototype->getDeclaringClass()->getDisplayName(),
-						$node->getName(),
-					))->identifier('property.nativeType')->nonIgnorable()->build();
+					if (
+						$this->phpVersion->supportsPropertyHooks()
+						&& ($prototype->isVirtual()->yes() || $prototype->isAbstract()->yes())
+						&& (!$prototype->isReadable() || !$prototype->isWritable())
+					) {
+						if (!$prototype->isReadable()) {
+							if (!$nativeType->isSuperTypeOf($prototype->getNativeType())->yes()) {
+								$typeErrors[] = RuleErrorBuilder::message(sprintf(
+									'Type %s of property %s::$%s is not contravariant with type %s of overridden property %s::$%s.',
+									$nativeType->describe(VerbosityLevel::typeOnly()),
+									$classReflection->getDisplayName(),
+									$node->getName(),
+									$prototype->getNativeType()->describe(VerbosityLevel::typeOnly()),
+									$prototype->getDeclaringClass()->getDisplayName(),
+									$node->getName(),
+								))->identifier('property.nativeType')->nonIgnorable()->build();
+							}
+						} elseif (!$prototype->getNativeType()->isSuperTypeOf($nativeType)->yes()) {
+							$typeErrors[] = RuleErrorBuilder::message(sprintf(
+								'Type %s of property %s::$%s is not covariant with type %s of overridden property %s::$%s.',
+								$nativeType->describe(VerbosityLevel::typeOnly()),
+								$classReflection->getDisplayName(),
+								$node->getName(),
+								$prototype->getNativeType()->describe(VerbosityLevel::typeOnly()),
+								$prototype->getDeclaringClass()->getDisplayName(),
+								$node->getName(),
+							))->identifier('property.nativeType')->nonIgnorable()->build();
+						}
+					} else {
+						$typeErrors[] = RuleErrorBuilder::message(sprintf(
+							'Type %s of property %s::$%s is not the same as type %s of overridden property %s::$%s.',
+							$nativeType->describe(VerbosityLevel::typeOnly()),
+							$classReflection->getDisplayName(),
+							$node->getName(),
+							$prototype->getNativeType()->describe(VerbosityLevel::typeOnly()),
+							$prototype->getDeclaringClass()->getDisplayName(),
+							$node->getName(),
+						))->identifier('property.nativeType')->nonIgnorable()->build();
+					}
 				}
 			}
 		} elseif ($nativeType !== null) {
@@ -167,6 +199,45 @@ final class OverridingPropertyRule implements Rule
 		}
 
 		$verbosity = VerbosityLevel::getRecommendedLevelByType($prototype->getReadableType(), $propertyReflection->getReadableType());
+
+		if (
+			$this->phpVersion->supportsPropertyHooks()
+			&& ($prototype->isVirtual()->yes() || $prototype->isAbstract()->yes())
+			&& (!$prototype->isReadable() || !$prototype->isWritable())
+		) {
+			if (!$prototype->isReadable()) {
+				if (!$propertyReflection->getReadableType()->isSuperTypeOf($prototype->getReadableType())->yes()) {
+					$errors[] = RuleErrorBuilder::message(sprintf(
+						'PHPDoc type %s of property %s::$%s is not contravariant with PHPDoc type %s of overridden property %s::$%s.',
+						$propertyReflection->getReadableType()->describe($verbosity),
+						$classReflection->getDisplayName(),
+						$node->getName(),
+						$prototype->getReadableType()->describe($verbosity),
+						$prototype->getDeclaringClass()->getDisplayName(),
+						$node->getName(),
+					))->identifier('property.phpDocType')->tip(sprintf(
+						"You can fix 3rd party PHPDoc types with stub files:\n   %s",
+						'<fg=cyan>https://phpstan.org/user-guide/stub-files</>',
+					))->build();
+				}
+			} elseif (!$prototype->getReadableType()->isSuperTypeOf($propertyReflection->getReadableType())->yes()) {
+				$errors[] = RuleErrorBuilder::message(sprintf(
+					'PHPDoc type %s of property %s::$%s is not covariant with PHPDoc type %s of overridden property %s::$%s.',
+					$propertyReflection->getReadableType()->describe($verbosity),
+					$classReflection->getDisplayName(),
+					$node->getName(),
+					$prototype->getReadableType()->describe($verbosity),
+					$prototype->getDeclaringClass()->getDisplayName(),
+					$node->getName(),
+				))->identifier('property.phpDocType')->tip(sprintf(
+					"You can fix 3rd party PHPDoc types with stub files:\n   %s",
+					'<fg=cyan>https://phpstan.org/user-guide/stub-files</>',
+				))->build();
+			}
+
+			return $errors;
+		}
+
 		$isSuperType = $prototype->getReadableType()->isSuperTypeOf($propertyReflection->getReadableType());
 		$canBeTurnedOffError = RuleErrorBuilder::message(sprintf(
 			'PHPDoc type %s of property %s::$%s is not the same as PHPDoc type %s of overridden property %s::$%s.',
