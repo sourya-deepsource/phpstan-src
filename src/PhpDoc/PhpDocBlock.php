@@ -16,6 +16,7 @@ use PHPStan\Type\Type;
 use PHPStan\Type\TypeTraverser;
 use function array_key_exists;
 use function count;
+use function is_bool;
 use function strtolower;
 use function substr;
 
@@ -200,8 +201,26 @@ final class PhpDocBlock
 		array $newPositionalParameterNames,
 	): self
 	{
+		$parentReflections = self::getParentReflections($classReflection);
+		foreach ($classReflection->getTraits(true) as $traitReflection) {
+			if (!$traitReflection->hasNativeMethod($methodName)) {
+				continue;
+			}
+			$traitMethod = $traitReflection->getNativeMethod($methodName);
+			$abstract = $traitMethod->isAbstract();
+			if (is_bool($abstract)) {
+				if (!$abstract) {
+					continue;
+				}
+			} elseif (!$abstract->yes()) {
+				continue;
+			}
+
+			$parentReflections[] = $traitReflection;
+		}
+
 		$docBlocksFromParents = self::resolveParentPhpDocBlocks(
-			self::getParentReflections($classReflection),
+			$parentReflections,
 			$methodName,
 			'hasNativeMethod',
 			'getNativeMethod',
