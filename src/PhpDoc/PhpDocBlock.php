@@ -128,18 +128,24 @@ final class PhpDocBlock
 		array $newPositionalParameterNames, // unused
 	): self
 	{
-		return self::resolvePhpDocBlockTree(
-			$docComment,
-			$classReflection,
-			$trait,
+		$docBlocksFromParents = self::resolveParentPhpDocBlocks(
+			self::getParentReflections($classReflection),
 			$propertyName,
-			$file,
 			'hasNativeProperty',
 			'getNativeProperty',
 			__FUNCTION__,
-			$explicit,
-			[],
-			[],
+			$explicit ?? $docComment !== null,
+			$newPositionalParameterNames,
+		);
+
+		return new self(
+			$docComment ?? ResolvedPhpDocBlock::EMPTY_DOC_STRING,
+			$file,
+			$classReflection,
+			$trait,
+			$explicit ?? true,
+			self::remapParameterNames($originalPositionalParameterNames, $newPositionalParameterNames),
+			$docBlocksFromParents,
 		);
 	}
 
@@ -158,18 +164,24 @@ final class PhpDocBlock
 		array $newPositionalParameterNames, // unused
 	): self
 	{
-		return self::resolvePhpDocBlockTree(
-			$docComment,
-			$classReflection,
-			null,
+		$docBlocksFromParents = self::resolveParentPhpDocBlocks(
+			self::getParentReflections($classReflection),
 			$constantName,
-			$file,
 			'hasConstant',
 			'getConstant',
 			__FUNCTION__,
-			$explicit,
-			[],
-			[],
+			$explicit ?? $docComment !== null,
+			$newPositionalParameterNames,
+		);
+
+		return new self(
+			$docComment ?? ResolvedPhpDocBlock::EMPTY_DOC_STRING,
+			$file,
+			$classReflection,
+			$trait,
+			$explicit ?? true,
+			self::remapParameterNames($originalPositionalParameterNames, $newPositionalParameterNames),
+			$docBlocksFromParents,
 		);
 	}
 
@@ -188,45 +200,12 @@ final class PhpDocBlock
 		array $newPositionalParameterNames,
 	): self
 	{
-		return self::resolvePhpDocBlockTree(
-			$docComment,
-			$classReflection,
-			$trait,
+		$docBlocksFromParents = self::resolveParentPhpDocBlocks(
+			self::getParentReflections($classReflection),
 			$methodName,
-			$file,
 			'hasNativeMethod',
 			'getNativeMethod',
 			__FUNCTION__,
-			$explicit,
-			$originalPositionalParameterNames,
-			$newPositionalParameterNames,
-		);
-	}
-
-	/**
-	 * @param array<int, string> $originalPositionalParameterNames
-	 * @param array<int, string> $newPositionalParameterNames
-	 */
-	private static function resolvePhpDocBlockTree(
-		?string $docComment,
-		ClassReflection $classReflection,
-		?string $trait,
-		string $name,
-		?string $file,
-		string $hasMethodName,
-		string $getMethodName,
-		string $resolveMethodName,
-		?bool $explicit,
-		array $originalPositionalParameterNames,
-		array $newPositionalParameterNames,
-	): self
-	{
-		$docBlocksFromParents = self::resolveParentPhpDocBlocks(
-			$classReflection,
-			$name,
-			$hasMethodName,
-			$getMethodName,
-			$resolveMethodName,
 			$explicit ?? $docComment !== null,
 			$newPositionalParameterNames,
 		);
@@ -264,11 +243,12 @@ final class PhpDocBlock
 	}
 
 	/**
+	 * @param array<int, ClassReflection> $parentReflections
 	 * @param array<int, string> $positionalParameterNames
 	 * @return array<int, self>
 	 */
 	private static function resolveParentPhpDocBlocks(
-		ClassReflection $classReflection,
+		array $parentReflections,
 		string $name,
 		string $hasMethodName,
 		string $getMethodName,
@@ -278,7 +258,6 @@ final class PhpDocBlock
 	): array
 	{
 		$result = [];
-		$parentReflections = self::getParentReflections($classReflection);
 
 		foreach ($parentReflections as $parentReflection) {
 			$oneResult = self::resolvePhpDocBlockFromClass(
