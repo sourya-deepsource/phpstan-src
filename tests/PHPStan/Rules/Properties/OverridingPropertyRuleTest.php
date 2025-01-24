@@ -199,4 +199,19 @@ class OverridingPropertyRuleTest extends RuleTestCase
 		]);
 	}
 
+	public function testPropertyPrototypeFromInterface(): void
+	{
+		if (PHP_VERSION_ID < 80400) {
+			$this->markTestSkipped('Test requires PHP 8.4.');
+		}
+
+		$this->reportMaybes = true;
+		$this->analyse([__DIR__ . '/data/property-prototype-from-interface.php'], [
+			[
+				'Type string of property Bug12466\Bar::$a is not the same as type int of overridden property Bug12466\Foo::$a.',
+				15,
+			],
+		]);
+	}
+
 }

@@ -213,19 +213,32 @@ final class OverridingPropertyRule implements Rule
 	{
 		$parentClass = $classReflection->getParentClass();
 		if ($parentClass === null) {
-			return null;
+			return $this->findPrototypeInInterfaces($classReflection, $propertyName);
 		}
 
 		if (!$parentClass->hasNativeProperty($propertyName)) {
-			return null;
+			return $this->findPrototypeInInterfaces($classReflection, $propertyName);
 		}
 
 		$property = $parentClass->getNativeProperty($propertyName);
 		if ($property->isPrivate()) {
-			return null;
+			return $this->findPrototypeInInterfaces($classReflection, $propertyName);
 		}
 
 		return $property;
+	}
+
+	private function findPrototypeInInterfaces(ClassReflection $classReflection, string $propertyName): ?PhpPropertyReflection
+	{
+		foreach ($classReflection->getInterfaces() as $interface) {
+			if (!$interface->hasNativeProperty($propertyName)) {
+				continue;
+			}
+
+			return $interface->getNativeProperty($propertyName);
+		}
+
+		return null;
 	}
 
 }
