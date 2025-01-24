@@ -676,8 +676,8 @@ final class PhpClassReflectionExtension
 
 			$resolvedPhpDoc = $this->phpDocInheritanceResolver->resolvePhpDocForMethod(
 				$docComment,
-				$fileDeclaringClass->getFileName(),
-				$fileDeclaringClass,
+				$actualDeclaringClass->getFileName(),
+				$actualDeclaringClass,
 				$declaringTraitName,
 				$methodReflection->getName(),
 				$positionalParameterNames,

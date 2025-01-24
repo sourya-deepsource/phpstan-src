@@ -550,4 +550,15 @@ class MethodSignatureRuleTest extends RuleTestCase
 		$this->analyse([__DIR__ . '/data/bug-3580.php'], []);
 	}
 
+	public function testOverridenAbstractTraitMethodPhpDoc(): void
+	{
+		if (PHP_VERSION_ID < 80000) {
+			$this->markTestSkipped('Test requires PHP 8.0.');
+		}
+
+		$this->reportMaybes = true;
+		$this->reportStatic = true;
+		$this->analyse([__DIR__ . '/data/overriden-abstract-trait-method-phpdoc.php'], []);
+	}
+
 }
