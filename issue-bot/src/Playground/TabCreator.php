@@ -2,7 +2,9 @@
 
 namespace PHPStan\IssueBot\Playground;
 
+use function array_filter;
 use function array_map;
+use function array_values;
 use function count;
 use function floor;
 use function ksort;
@@ -26,6 +28,7 @@ class TabCreator
 		$last = null;
 
 		foreach ($versionedErrors as $phpVersion => $errors) {
+			$errors = array_values(array_filter($errors, static fn (PlaygroundError $error) => $error->getIdentifier() !== 'phpstanPlayground.configParameter'));
 			$errors = array_map(static function (PlaygroundError $error): PlaygroundError {
 				if ($error->getIdentifier() === null) {
 					return $error;
