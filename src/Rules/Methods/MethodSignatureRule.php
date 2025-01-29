@@ -18,6 +18,7 @@ use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\TrinaryLogic;
 use PHPStan\Type\Accessory\AccessoryArrayListType;
 use PHPStan\Type\ArrayType;
+use PHPStan\Type\Generic\GenericStaticType;
 use PHPStan\Type\Generic\TemplateTypeHelper;
 use PHPStan\Type\IntegerRangeType;
 use PHPStan\Type\IntersectionType;
@@ -269,6 +270,15 @@ final class MethodSignatureRule implements Rule
 	private function transformStaticType(ClassReflection $declaringClass, Type $type): Type
 	{
 		return TypeTraverser::map($type, static function (Type $type, callable $traverse) use ($declaringClass): Type {
+			if ($type instanceof GenericStaticType) {
+				if ($declaringClass->isFinal()) {
+					$changedType = $type->changeBaseClass($declaringClass)->getStaticObjectType();
+				} else {
+					$changedType = $type->changeBaseClass($declaringClass);
+				}
+				return $traverse($changedType);
+			}
+
 			if ($type instanceof StaticType) {
 				if ($declaringClass->isFinal()) {
 					$changedType = new ObjectType($declaringClass->getName());

@@ -480,4 +480,14 @@ class IncompatiblePhpDocTypeRuleTest extends RuleTestCase
 		]);
 	}
 
+	public function testGenericStatic(): void
+	{
+		$this->analyse([__DIR__ . '/data/incompatible-phpdoc-generic-static.php'], [
+			[
+				'Generic type static(IncompatiblePhpDocGenericStatic\Foo<int, string>) in PHPDoc tag @return specifies 2 template types, but class IncompatiblePhpDocGenericStatic\Foo supports only 1: T',
+				14,
+			],
+		]);
+	}
+
 }

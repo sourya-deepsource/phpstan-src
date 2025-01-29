@@ -11,6 +11,7 @@ use PHPStan\Type\Accessory\AccessoryNumericStringType;
 use PHPStan\Type\Accessory\AccessoryUppercaseStringType;
 use PHPStan\Type\Accessory\NonEmptyArrayType;
 use PHPStan\Type\Generic\GenericObjectType;
+use PHPStan\Type\Generic\GenericStaticType;
 use PHPStan\Type\Generic\TemplateType;
 
 final class VerbosityLevel
@@ -152,7 +153,7 @@ final class VerbosityLevel
 
 		$containsInvariantTemplateType = false;
 		TypeTraverser::map($acceptingType, static function (Type $type, callable $traverse) use (&$containsInvariantTemplateType): Type {
-			if ($type instanceof GenericObjectType) {
+			if ($type instanceof GenericObjectType || $type instanceof GenericStaticType) {
 				$reflection = $type->getClassReflection();
 				if ($reflection !== null) {
 					$templateTypeMap = $reflection->getTemplateTypeMap();

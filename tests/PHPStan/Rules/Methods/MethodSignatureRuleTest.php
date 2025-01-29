@@ -561,4 +561,11 @@ class MethodSignatureRuleTest extends RuleTestCase
 		$this->analyse([__DIR__ . '/data/overriden-abstract-trait-method-phpdoc.php'], []);
 	}
 
+	public function testGenericStaticType(): void
+	{
+		$this->reportMaybes = true;
+		$this->reportStatic = true;
+		$this->analyse([__DIR__ . '/data/method-signature-generic-static-type.php'], []);
+	}
+
 }

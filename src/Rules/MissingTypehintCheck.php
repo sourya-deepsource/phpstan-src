@@ -13,6 +13,7 @@ use PHPStan\Type\ClosureType;
 use PHPStan\Type\ConditionalType;
 use PHPStan\Type\ConditionalTypeForParameter;
 use PHPStan\Type\Generic\GenericObjectType;
+use PHPStan\Type\Generic\GenericStaticType;
 use PHPStan\Type\Generic\TemplateType;
 use PHPStan\Type\Generic\TemplateTypeHelper;
 use PHPStan\Type\IntersectionType;
@@ -113,7 +114,7 @@ final class MissingTypehintCheck
 
 		$objectTypes = [];
 		TypeTraverser::map($type, function (Type $type, callable $traverse) use (&$objectTypes): Type {
-			if ($type instanceof GenericObjectType) {
+			if ($type instanceof GenericObjectType || $type instanceof GenericStaticType) {
 				$traverse($type);
 				return $type;
 			}

@@ -100,4 +100,15 @@ class MissingMethodReturnTypehintRuleTest extends RuleTestCase
 		$this->analyse([__DIR__ . '/data/bug-9571-phpdocs.php'], []);
 	}
 
+	public function testGenericStatic(): void
+	{
+		$this->analyse([__DIR__ . '/data/missing-return-type-generic-static.php'], [
+			[
+				'Method MissingReturnTypeGenericStatic\Foo::doFoo() return type has no value type specified in iterable type array.',
+				12,
+				MissingTypehintCheck::MISSING_ITERABLE_VALUE_TYPE_TIP,
+			],
+		]);
+	}
+
 }
