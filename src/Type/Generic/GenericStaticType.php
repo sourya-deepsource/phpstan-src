@@ -96,65 +96,59 @@ class GenericStaticType extends StaticType
 			return new StaticType($classReflection);
 		}
 
-		// this template type mapping logic is very similar to mapping logic in MutatingScope::exactInstantiation()
-		// where inferring "new Foo" but with the constructor being only in Foo parent class
+		$templateTags = $this->getClassReflection()->getTemplateTags();
+		$i = 0;
+		$indexedTypes = [];
+		$indexedVariances = [];
+		foreach ($templateTags as $typeName => $tag) {
+			if (!array_key_exists($i, $this->types)) {
+				break;
+			}
+			if (!array_key_exists($i, $this->variances)) {
+				break;
+			}
+			$indexedTypes[$typeName] = $this->types[$i];
+			$indexedVariances[$typeName] = $this->variances[$i];
+			$i++;
+		}
 
 		$newType = new GenericObjectType($classReflection->getName(), $classReflection->typeMapToList($classReflection->getTemplateTypeMap()));
 		$ancestorType = $newType->getAncestorWithClassName($this->getClassName());
 		if ($ancestorType === null) {
-			return new self($classReflection, $classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()), $this->subtractedType, $this->variances);
+			return new self(
+				$classReflection,
+				$classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()),
+				$this->subtractedType,
+				$classReflection->varianceMapToList($classReflection->getCallSiteVarianceMap()),
+			);
 		}
 
-		$ancestorClassReflections = $ancestorType->getObjectClassReflections();
-		if (count($ancestorClassReflections) !== 1) {
-			return new self($classReflection, $classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()), $this->subtractedType, $this->variances);
+		$ancestorClassReflection = $ancestorType->getClassReflection();
+		if ($ancestorClassReflection === null) {
+			return new self(
+				$classReflection,
+				$classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()),
+				$this->subtractedType,
+				$classReflection->varianceMapToList($classReflection->getCallSiteVarianceMap()),
+			);
 		}
 
-		$ancestorClassReflection = $ancestorClassReflections[0];
-		$ancestorMapping = [];
+		$newClassTypes = [];
+		$newClassVariances = [];
 		foreach ($ancestorClassReflection->getActiveTemplateTypeMap()->getTypes() as $typeName => $templateType) {
 			if (!$templateType instanceof TemplateType) {
 				continue;
 			}
 
-			$ancestorMapping[$typeName] = $templateType;
+			if (!array_key_exists($typeName, $indexedTypes)) {
+				continue;
+			}
+
+			$newClassTypes[$templateType->getName()] = $indexedTypes[$typeName];
+			$newClassVariances[$templateType->getName()] = $indexedVariances[$typeName];
 		}
 
-		$resolvedTypeMap = [];
-		foreach ($ancestorClassReflection->typeMapFromList($this->types)->getTypes() as $typeName => $type) {
-			if (!array_key_exists($typeName, $ancestorMapping)) {
-				continue;
-			}
-
-			$ancestorType = $ancestorMapping[$typeName];
-			if (!$ancestorType->getBound()->isSuperTypeOf($type)->yes()) {
-				continue;
-			}
-
-			if (!array_key_exists($ancestorType->getName(), $resolvedTypeMap)) {
-				$resolvedTypeMap[$ancestorType->getName()] = $type;
-				continue;
-			}
-
-			$resolvedTypeMap[$ancestorType->getName()] = TypeCombinator::union($resolvedTypeMap[$ancestorType->getName()], $type);
-		}
-
-		$resolvedVariances = [];
-		foreach ($ancestorClassReflection->varianceMapFromList($this->variances)->getVariances() as $typeName => $variance) {
-			if (!array_key_exists($typeName, $ancestorMapping)) {
-				continue;
-			}
-
-			$ancestorType = $ancestorMapping[$typeName];
-			if (!array_key_exists($ancestorType->getName(), $resolvedVariances)) {
-				$resolvedVariances[$ancestorType->getName()] = $variance;
-				continue;
-			}
-
-			$resolvedVariances[$ancestorType->getName()] = $resolvedVariances[$ancestorType->getName()]->compose($variance);
-		}
-
-		return new self($classReflection, $classReflection->typeMapToList(new TemplateTypeMap($resolvedTypeMap)), $this->subtractedType, $classReflection->varianceMapToList(new TemplateTypeVarianceMap($resolvedVariances)));
+		return new self($classReflection, $classReflection->typeMapToList(new TemplateTypeMap($newClassTypes)), $this->subtractedType, $classReflection->varianceMapToList(new TemplateTypeVarianceMap($newClassVariances)));
 	}
 
 	public function isSuperTypeOfWithReason(Type $type): IsSuperTypeOfResult

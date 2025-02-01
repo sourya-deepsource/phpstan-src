@@ -128,6 +128,29 @@ abstract class Inconsistent2 implements Foo
 
 /**
  * @template T
+ * @implements Foo<T, float>
+ */
+abstract class Inconsistent3 implements Foo
+{
+
+	public function fluent()
+	{
+
+	}
+
+	/**
+	 * @param Inconsistent3<int> $s
+	 */
+	public function test(self $s): void
+	{
+		assertType('static(GenericStatic\Inconsistent3<T (class GenericStatic\Inconsistent3, argument)>)', $this->fluent());
+		assertType('GenericStatic\\Inconsistent3<int>', $s->fluent());
+	}
+
+}
+
+/**
+ * @template T
  * @template K
  */
 class A {
