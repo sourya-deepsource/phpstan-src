@@ -6,6 +6,7 @@ use PHPStan\Reflection\Php\ExtendedDummyParameter;
 use PHPStan\Type\ConditionalTypeForParameter;
 use PHPStan\Type\ErrorType;
 use PHPStan\Type\Generic\GenericObjectType;
+use PHPStan\Type\Generic\GenericStaticType;
 use PHPStan\Type\Generic\TemplateType;
 use PHPStan\Type\Generic\TemplateTypeHelper;
 use PHPStan\Type\Generic\TemplateTypeMap;
@@ -244,7 +245,7 @@ final class ResolvedFunctionVariantWithOriginal implements ResolvedFunctionVaria
 		};
 
 		return TypeTraverser::map($type, function (Type $type, callable $traverse) use ($references, $objectCb): Type {
-			if ($type instanceof GenericObjectType) {
+			if ($type instanceof GenericObjectType || $type instanceof GenericStaticType) {
 				return TypeTraverser::map($type, $objectCb);
 			}
 

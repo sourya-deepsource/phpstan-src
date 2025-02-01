@@ -10,6 +10,9 @@ use PHPStan\Reflection\ExtendedParameterReflection;
 use PHPStan\Reflection\ExtendedParametersAcceptor;
 use PHPStan\Reflection\Php\ExtendedDummyParameter;
 use PHPStan\Reflection\ResolvedMethodReflection;
+use PHPStan\Type\Generic\GenericObjectType;
+use PHPStan\Type\Generic\GenericStaticType;
+use PHPStan\Type\ObjectType;
 use PHPStan\Type\StaticType;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypeTraverser;
@@ -114,6 +117,13 @@ final class CalledOnTypeUnresolvedMethodPrototypeReflection implements Unresolve
 	private function transformStaticType(Type $type): Type
 	{
 		return TypeTraverser::map($type, function (Type $type, callable $traverse): Type {
+			if ($type instanceof GenericStaticType) {
+				if ($this->calledOnType instanceof ObjectType) {
+					return new GenericObjectType($this->calledOnType->getClassName(), $type->getTypes());
+				}
+
+				return $this->calledOnType;
+			}
 			if ($type instanceof StaticType) {
 				return $this->calledOnType;
 			}

@@ -27,6 +27,14 @@ class OkResponse
 	{
 		return $this->body;
 	}
+
+	/**
+	 * @return static<array<string, string>>
+	 */
+	public static function testGenericStatic()
+	{
+		return new static(["ok" => "hello"]);
+	}
 }
 
 class Controller

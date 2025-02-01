@@ -103,6 +103,7 @@ use PHPStan\Type\FloatType;
 use PHPStan\Type\GeneralizePrecision;
 use PHPStan\Type\Generic\GenericClassStringType;
 use PHPStan\Type\Generic\GenericObjectType;
+use PHPStan\Type\Generic\GenericStaticType;
 use PHPStan\Type\Generic\TemplateType;
 use PHPStan\Type\Generic\TemplateTypeHelper;
 use PHPStan\Type\Generic\TemplateTypeMap;
@@ -5547,8 +5548,17 @@ final class MutatingScope implements Scope
 	private function exactInstantiation(New_ $node, string $className): ?Type
 	{
 		$resolvedClassName = $this->resolveExactName(new Name($className));
+		$isStatic = false;
 		if ($resolvedClassName === null) {
-			return null;
+			if (strtolower($className) !== 'static') {
+				return null;
+			}
+
+			if (!$this->isInClass()) {
+				return null;
+			}
+			$resolvedClassName = $this->getClassReflection()->getName();
+			$isStatic = true;
 		}
 
 		if (!$this->reflectionProvider->hasClass($resolvedClassName)) {
@@ -5605,7 +5615,7 @@ final class MutatingScope implements Scope
 			return $methodResult;
 		}
 
-		$objectType = new ObjectType($resolvedClassName);
+		$objectType = $isStatic ? new StaticType($classReflection) : new ObjectType($resolvedClassName);
 		if (!$classReflection->isGeneric()) {
 			return $objectType;
 		}
@@ -5638,6 +5648,14 @@ final class MutatingScope implements Scope
 		}
 
 		if ($constructorMethod instanceof DummyConstructorReflection) {
+			if ($isStatic) {
+				return new GenericStaticType(
+					$classReflection,
+					$classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()),
+					null,
+					[],
+				);
+			}
 			return new GenericObjectType(
 				$resolvedClassName,
 				$classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()),
@@ -5646,6 +5664,15 @@ final class MutatingScope implements Scope
 
 		if ($constructorMethod->getDeclaringClass()->getName() !== $classReflection->getName()) {
 			if (!$constructorMethod->getDeclaringClass()->isGeneric()) {
+				if ($isStatic) {
+					return new GenericStaticType(
+						$classReflection,
+						$classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()),
+						null,
+						[],
+					);
+				}
+
 				return new GenericObjectType(
 					$resolvedClassName,
 					$classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()),
@@ -5654,6 +5681,15 @@ final class MutatingScope implements Scope
 			$newType = new GenericObjectType($resolvedClassName, $classReflection->typeMapToList($classReflection->getTemplateTypeMap()));
 			$ancestorType = $newType->getAncestorWithClassName($constructorMethod->getDeclaringClass()->getName());
 			if ($ancestorType === null) {
+				if ($isStatic) {
+					return new GenericStaticType(
+						$classReflection,
+						$classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()),
+						null,
+						[],
+					);
+				}
+
 				return new GenericObjectType(
 					$resolvedClassName,
 					$classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()),
@@ -5661,6 +5697,15 @@ final class MutatingScope implements Scope
 			}
 			$ancestorClassReflections = $ancestorType->getObjectClassReflections();
 			if (count($ancestorClassReflections) !== 1) {
+				if ($isStatic) {
+					return new GenericStaticType(
+						$classReflection,
+						$classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()),
+						null,
+						[],
+					);
+				}
+
 				return new GenericObjectType(
 					$resolvedClassName,
 					$classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()),
@@ -5671,6 +5716,15 @@ final class MutatingScope implements Scope
 			$newParentType = $this->getType($newParentNode);
 			$newParentTypeClassReflections = $newParentType->getObjectClassReflections();
 			if (count($newParentTypeClassReflections) !== 1) {
+				if ($isStatic) {
+					return new GenericStaticType(
+						$classReflection,
+						$classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()),
+						null,
+						[],
+					);
+				}
+
 				return new GenericObjectType(
 					$resolvedClassName,
 					$classReflection->typeMapToList($classReflection->getTemplateTypeMap()->resolveToBounds()),
@@ -5707,6 +5761,15 @@ final class MutatingScope implements Scope
 				$resolvedTypeMap[$ancestorType->getName()] = TypeCombinator::union($resolvedTypeMap[$ancestorType->getName()], $type);
 			}
 
+			if ($isStatic) {
+				return new GenericStaticType(
+					$classReflection,
+					$classReflection->typeMapToList(new TemplateTypeMap($resolvedTypeMap)),
+					null,
+					[],
+				);
+			}
+
 			return new GenericObjectType(
 				$resolvedClassName,
 				$classReflection->typeMapToList(new TemplateTypeMap($resolvedTypeMap)),
@@ -5721,10 +5784,19 @@ final class MutatingScope implements Scope
 		);
 
 		$resolvedTemplateTypeMap = $parametersAcceptor->getResolvedTemplateTypeMap();
-		return TypeTraverser::map(new GenericObjectType(
+		$newGenericType = new GenericObjectType(
 			$resolvedClassName,
 			$classReflection->typeMapToList($classReflection->getTemplateTypeMap()),
-		), static function (Type $type, callable $traverse) use ($resolvedTemplateTypeMap): Type {
+		);
+		if ($isStatic) {
+			$newGenericType = new GenericStaticType(
+				$classReflection,
+				$classReflection->typeMapToList($classReflection->getTemplateTypeMap()),
+				null,
+				[],
+			);
+		}
+		return TypeTraverser::map($newGenericType, static function (Type $type, callable $traverse) use ($resolvedTemplateTypeMap): Type {
 			if ($type instanceof TemplateType && !$type->isArgument()) {
 				$newType = $resolvedTemplateTypeMap->getType($type->getName());
 				if ($newType === null || $newType instanceof ErrorType) {

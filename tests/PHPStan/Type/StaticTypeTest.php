@@ -10,8 +10,14 @@ use Exception;
 use InvalidArgumentException;
 use Iterator;
 use LogicException;
+use PHPStan\Generics\FunctionsAssertType\C;
 use PHPStan\Testing\PHPStanTestCase;
 use PHPStan\TrinaryLogic;
+use PHPStan\Type\Generic\GenericObjectType;
+use PHPStan\Type\Generic\GenericStaticType;
+use PHPStan\Type\Generic\TemplateTypeFactory;
+use PHPStan\Type\Generic\TemplateTypeScope;
+use PHPStan\Type\Generic\TemplateTypeVariance;
 use StaticTypeTest\Base;
 use StaticTypeTest\Child;
 use StaticTypeTest\FinalChild;
@@ -270,6 +276,18 @@ class StaticTypeTest extends PHPStanTestCase
 				]),
 				TrinaryLogic::createNo(),
 			],
+			[
+				new GenericStaticType(
+					$reflectionProvider->getClass(\MethodSignatureGenericStaticType\Foo::class), // phpcs:ignore
+					[new StringType()],
+					null,
+					[],
+				),
+				new GenericObjectType(\MethodSignatureGenericStaticType\FinalBar::class, [ // phpcs:ignore
+					new IntegerType(),
+				]),
+				TrinaryLogic::createNo(),
+			],
 		];
 	}
 
@@ -321,6 +339,133 @@ class StaticTypeTest extends PHPStanTestCase
 	{
 		$this->assertSame($expected, $type->equals($otherType));
 		$this->assertSame($expected, $otherType->equals($type));
+	}
+
+	public function dataAccepts(): iterable
+	{
+		$reflectionProvider = $this->createReflectionProvider();
+		$c = $reflectionProvider->getClass(C::class);
+
+		yield [
+			new StaticType($c),
+			new StaticType($c),
+			TrinaryLogic::createYes(),
+		];
+
+		yield [
+			// static !== static<int>
+			new StaticType($c),
+			new GenericStaticType($c, [new IntegerType()], null, []),
+			TrinaryLogic::createNo(),
+		];
+
+		yield [
+			// static !== static<covariant int>
+			new StaticType($c),
+			new GenericStaticType($c, [new IntegerType()], null, [
+				TemplateTypeVariance::createCovariant(),
+			]),
+			TrinaryLogic::createNo(),
+		];
+
+		yield [
+			// static === static<T>
+			new StaticType($c),
+			new GenericStaticType($c, [
+				TemplateTypeFactory::create(TemplateTypeScope::createWithClass($c->getName()), 'T', null, TemplateTypeVariance::createInvariant()),
+			], null, []),
+			TrinaryLogic::createYes(),
+		];
+
+		yield [
+			// static<T> !== static
+			new GenericStaticType($c, [
+				TemplateTypeFactory::create(TemplateTypeScope::createWithClass($c->getName()), 'T', null, TemplateTypeVariance::createInvariant()),
+			], null, []),
+			new StaticType($c),
+			TrinaryLogic::createNo(), // could be Yes
+		];
+
+		yield [
+			new GenericStaticType($c, [new IntegerType()], null, []),
+			new GenericStaticType($c, [new IntegerType()], null, []),
+			TrinaryLogic::createYes(),
+		];
+
+		yield [
+			new GenericStaticType($c, [new UnionType([
+				new IntegerType(),
+				new StringType(),
+			])], null, []),
+			new GenericStaticType($c, [new IntegerType()], null, []),
+			TrinaryLogic::createNo(),
+		];
+
+		yield [
+			new GenericStaticType($c, [new UnionType([
+				new IntegerType(),
+				new StringType(),
+			])], null, [TemplateTypeVariance::createCovariant()]),
+			new GenericStaticType($c, [new IntegerType()], null, []),
+			TrinaryLogic::createYes(),
+		];
+
+		yield [
+			new GenericStaticType($c, [new IntegerType()], null, []),
+			new GenericStaticType($c, [new UnionType([
+				new IntegerType(),
+				new StringType(),
+			])], null, []),
+			TrinaryLogic::createNo(),
+		];
+
+		yield [
+			new GenericStaticType($c, [new IntegerType()], null, [
+				TemplateTypeVariance::createContravariant(),
+			]),
+			new GenericStaticType($c, [new UnionType([
+				new IntegerType(),
+				new StringType(),
+			])], null, []),
+			TrinaryLogic::createYes(),
+		];
+
+		yield [
+			new GenericStaticType($c, [new IntegerType()], null, []),
+			new ObjectType($c->getName()),
+			TrinaryLogic::createNo(),
+		];
+
+		yield [
+			new GenericStaticType($c, [new IntegerType()], null, []),
+			new GenericObjectType($c->getName(), [new IntegerType()], null),
+			TrinaryLogic::createNo(),
+		];
+
+		yield [
+			new GenericStaticType($c, [new IntegerType()], null, []),
+			new ObjectWithoutClassType(),
+			TrinaryLogic::createNo(),
+		];
+
+		yield [
+			new GenericStaticType($c, [new IntegerType()], null, []),
+			new ObjectWithoutClassType(),
+			TrinaryLogic::createNo(),
+		];
+	}
+
+	/**
+	 * @dataProvider dataAccepts
+	 */
+	public function testAccepts(StaticType $type, Type $otherType, TrinaryLogic $expectedResult): void
+	{
+		$actualResult = $type->accepts($otherType, true);
+		$this->assertSame(
+			$expectedResult->describe(),
+			$actualResult->result->describe(),
+			sprintf('%s -> accepts(%s)', $type->describe(VerbosityLevel::precise()), $otherType->describe(VerbosityLevel::precise())),
+		);
 	}
 
 }

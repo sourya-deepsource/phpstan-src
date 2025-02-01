@@ -15,6 +15,7 @@ use InvalidArgumentException;
 use Iterator;
 use ObjectShapesAcceptance\ClassWithFooIntProperty;
 use PHPStan\Fixture\FinalClass;
+use PHPStan\Generics\FunctionsAssertType\C;
 use PHPStan\Reflection\Callables\SimpleImpurePoint;
 use PHPStan\Testing\PHPStanTestCase;
 use PHPStan\TrinaryLogic;
@@ -38,6 +39,7 @@ use PHPStan\Type\Constant\ConstantStringType;
 use PHPStan\Type\Enum\EnumCaseObjectType;
 use PHPStan\Type\Generic\GenericClassStringType;
 use PHPStan\Type\Generic\GenericObjectType;
+use PHPStan\Type\Generic\GenericStaticType;
 use PHPStan\Type\Generic\TemplateBenevolentUnionType;
 use PHPStan\Type\Generic\TemplateMixedType;
 use PHPStan\Type\Generic\TemplateObjectType;
@@ -2651,6 +2653,65 @@ class TypeCombinatorTest extends PHPStanTestCase
 			IntersectionType::class,
 			'non-empty-array&hasOffsetValue(\'thing\', mixed)',
 		];
+
+		$c = $reflectionProvider->getClass(C::class);
+
+		yield [
+			[
+				new GenericStaticType($c, [new IntegerType()], null, [TemplateTypeVariance::createCovariant()]),
+				new GenericStaticType($c, [new IntegerType()], null, [TemplateTypeVariance::createCovariant()]),
+			],
+			GenericStaticType::class,
+			'static(PHPStan\Generics\FunctionsAssertType\C<covariant int>)',
+		];
+
+		yield [
+			[
+				new GenericStaticType($c, [new StringType()], null, [TemplateTypeVariance::createCovariant()]),
+				new GenericStaticType($c, [new IntegerType()], null, [TemplateTypeVariance::createCovariant()]),
+			],
+			UnionType::class,
+			'static(PHPStan\Generics\FunctionsAssertType\C<covariant int>)|static(PHPStan\Generics\FunctionsAssertType\C<covariant string>)',
+		];
+
+		yield [
+			[
+				new GenericStaticType($c, [new IntegerType()], null, [TemplateTypeVariance::createCovariant()]),
+				new GenericStaticType($c, [new UnionType([
+					new IntegerType(),
+					new StringType(),
+				])], null, [TemplateTypeVariance::createCovariant()]),
+			],
+			GenericStaticType::class,
+			'static(PHPStan\Generics\FunctionsAssertType\C<covariant int|string>)',
+		];
+
+		yield [
+			[
+				new StaticType($c),
+				new GenericStaticType($c, [new IntegerType()], null, [TemplateTypeVariance::createCovariant()]),
+			],
+			StaticType::class,
+			'static(PHPStan\Generics\FunctionsAssertType\C<T (class PHPStan\Generics\FunctionsAssertType\C, argument)>)',
+		];
+
+		yield [
+			[
+				new GenericStaticType($c, [new IntegerType()], null, [TemplateTypeVariance::createCovariant()]),
+				new ObjectWithoutClassType(),
+			],
+			ObjectWithoutClassType::class,
+			'object',
+		];
+
+		yield [
+			[
+				new GenericStaticType($c, [new IntegerType()], null, [TemplateTypeVariance::createCovariant()]),
+				new ObjectType($c->getName()),
+			],
+			ObjectType::class,
+			$c->getName(),
+		];
 	}
 
 	/**
@@ -4469,6 +4530,65 @@ class TypeCombinatorTest extends PHPStanTestCase
 			],
 			ConstantStringType::class,
 			'\'FOO\'',
+		];
+
+		$c = $reflectionProvider->getClass(C::class);
+
+		yield [
+			[
+				new GenericStaticType($c, [new IntegerType()], null, [TemplateTypeVariance::createCovariant()]),
+				new GenericStaticType($c, [new IntegerType()], null, [TemplateTypeVariance::createCovariant()]),
+			],
+			GenericStaticType::class,
+			'static(PHPStan\Generics\FunctionsAssertType\C<covariant int>)',
+		];
+
+		yield [
+			[
+				new GenericStaticType($c, [new StringType()], null, [TemplateTypeVariance::createCovariant()]),
+				new GenericStaticType($c, [new IntegerType()], null, [TemplateTypeVariance::createCovariant()]),
+			],
+			NeverType::class,
+			'*NEVER*=implicit',
+		];
+
+		yield [
+			[
+				new GenericStaticType($c, [new IntegerType()], null, [TemplateTypeVariance::createCovariant()]),
+				new GenericStaticType($c, [new UnionType([
+					new IntegerType(),
+					new StringType(),
+				])], null, [TemplateTypeVariance::createCovariant()]),
+			],
+			GenericStaticType::class,
+			'static(PHPStan\Generics\FunctionsAssertType\C<covariant int>)',
+		];
+
+		yield [
+			[
+				new StaticType($c),
+				new GenericStaticType($c, [new IntegerType()], null, [TemplateTypeVariance::createCovariant()]),
+			],
+			GenericStaticType::class,
+			'static(PHPStan\Generics\FunctionsAssertType\C<covariant int>)',
+		];
+
+		yield [
+			[
+				new GenericStaticType($c, [new IntegerType()], null, [TemplateTypeVariance::createCovariant()]),
+				new ObjectWithoutClassType(),
+			],
+			GenericStaticType::class,
+			'static(PHPStan\Generics\FunctionsAssertType\C<covariant int>)',
+		];
+
+		yield [
+			[
+				new GenericStaticType($c, [new IntegerType()], null, [TemplateTypeVariance::createCovariant()]),
+				new ObjectType($c->getName()),
+			],
+			GenericStaticType::class,
+			'static(PHPStan\Generics\FunctionsAssertType\C<covariant int>)',
 		];
 	}
 

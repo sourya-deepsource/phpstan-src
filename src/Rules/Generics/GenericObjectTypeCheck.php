@@ -6,6 +6,7 @@ use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\ShouldNotHappenException;
 use PHPStan\Type\Generic\GenericObjectType;
+use PHPStan\Type\Generic\GenericStaticType;
 use PHPStan\Type\Generic\TemplateType;
 use PHPStan\Type\Generic\TemplateTypeHelper;
 use PHPStan\Type\Generic\TemplateTypeVariance;
@@ -166,15 +167,15 @@ final class GenericObjectTypeCheck
 	}
 
 	/**
-	 * @return GenericObjectType[]
+	 * @return list<GenericObjectType|GenericStaticType>
 	 */
 	private function getGenericTypes(Type $phpDocType): array
 	{
 		$genericObjectTypes = [];
 		TypeTraverser::map($phpDocType, static function (Type $type, callable $traverse) use (&$genericObjectTypes): Type {
-			if ($type instanceof GenericObjectType) {
+			if ($type instanceof GenericObjectType || $type instanceof GenericStaticType) {
 				$resolvedType = TemplateTypeHelper::resolveToBounds($type);
-				if (!$resolvedType instanceof GenericObjectType) {
+				if (!$resolvedType instanceof GenericObjectType && !$resolvedType instanceof GenericStaticType) {
 					throw new ShouldNotHappenException();
 				}
 				$genericObjectTypes[] = $resolvedType;

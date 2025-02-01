@@ -1102,6 +1102,18 @@ parameters:
 			path: src/Type/Generic/GenericObjectType.php
 
 		-
+			message: '#^Doing instanceof PHPStan\\Type\\ObjectType is error\-prone and deprecated\. Use Type\:\:isObject\(\) or Type\:\:getObjectClassNames\(\) instead\.$#'
+			identifier: phpstanApi.instanceofType
+			count: 1
+			path: src/Type/Generic/GenericStaticType.php
+
+		-
+			message: '#^Doing instanceof PHPStan\\Type\\TypeWithClassName is error\-prone and deprecated\. Use Type\:\:getObjectClassNames\(\) or Type\:\:getObjectClassReflections\(\) instead\.$#'
+			identifier: phpstanApi.instanceofType
+			count: 1
+			path: src/Type/Generic/GenericStaticType.php
+
+		-
 			message: '#^Doing instanceof PHPStan\\Type\\IntersectionType is error\-prone and deprecated\.$#'
 			identifier: phpstanApi.instanceofType
 			count: 3

@@ -71,6 +71,7 @@ use PHPStan\Type\ErrorType;
 use PHPStan\Type\FloatType;
 use PHPStan\Type\Generic\GenericClassStringType;
 use PHPStan\Type\Generic\GenericObjectType;
+use PHPStan\Type\Generic\GenericStaticType;
 use PHPStan\Type\Generic\TemplateType;
 use PHPStan\Type\Generic\TemplateTypeFactory;
 use PHPStan\Type\Generic\TemplateTypeMap;
@@ -781,6 +782,14 @@ final class TypeNodeResolver
 			if (count($genericTypes) === 1) {
 				$type = new NewObjectType($genericTypes[0]);
 				return $type->isResolvable() ? $type->resolve() : $type;
+			}
+
+			return new ErrorType();
+		} elseif ($mainTypeName === 'static') {
+			if ($nameScope->getClassName() !== null && $this->getReflectionProvider()->hasClass($nameScope->getClassName())) {
+				$classReflection = $this->getReflectionProvider()->getClass($nameScope->getClassName());
+
+				return new GenericStaticType($classReflection, $genericTypes, null, $variances);
 			}
 
 			return new ErrorType();
