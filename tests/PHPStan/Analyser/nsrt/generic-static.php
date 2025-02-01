@@ -24,6 +24,9 @@ interface Foo
 	/** @return static<T, U> */
 	public function fluent();
 
+	/** @return static<T, static<U>> */
+	public function nested();
+
 }
 
 /**
@@ -57,6 +60,7 @@ class FooImpl implements Foo
 
 		assertType('static(GenericStatic\FooImpl<U (class GenericStatic\FooImpl, argument), T (class GenericStatic\FooImpl, argument)>)', $this->flip());
 		assertType('static(GenericStatic\FooImpl<T (class GenericStatic\FooImpl, argument), U (class GenericStatic\FooImpl, argument)>)', $this->fluent());
+		assertType('static(GenericStatic\FooImpl<T (class GenericStatic\FooImpl, argument), static(GenericStatic\FooImpl<U (class GenericStatic\FooImpl, argument), mixed>)>)', $this->nested());
 	}
 
 	/**
@@ -70,6 +74,7 @@ class FooImpl implements Foo
 
 		assertType('GenericStatic\\FooImpl<float, string>', $s->flip());
 		assertType('GenericStatic\\FooImpl<string, float>', $s->fluent());
+		assertType('GenericStatic\FooImpl<string, GenericStatic\FooImpl<float>>', $s->nested());
 	}
 
 }

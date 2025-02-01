@@ -300,10 +300,10 @@ class StaticType implements TypeWithClassName, SubtractableType
 				}
 				$type = $type->changeBaseClass($classReflection);
 				if (!$isFinal || $type instanceof ThisType) {
-					return $type;
+					return $traverse($type);
 				}
 
-				return $type->getStaticObjectType();
+				return $traverse($type->getStaticObjectType());
 			}
 
 			return $traverse($type);
