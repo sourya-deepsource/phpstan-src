@@ -127,6 +127,7 @@ interface CovariantOfOBject {
 /**
  * @template-covariant T
  * @template U
+ * @phpstan-consistent-constructor
  */
 class ConstructorAndStatic {
 
@@ -151,7 +152,7 @@ class ConstructorAndStatic {
 	 * @return Static<T, U>
 	 */
 	public static function create($t, $u, $v, $w) {
-		return new self($t, $u, $v, $w);
+		return new static($t, $u, $v, $w);
 	}
 }
 
