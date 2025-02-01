@@ -141,4 +141,9 @@ final class UniversalObjectCrateProperty implements ExtendedPropertyReflection
 		return false;
 	}
 
+	public function getAttributes(): array
+	{
+		return [];
+	}
+
 }

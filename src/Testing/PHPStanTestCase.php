@@ -25,6 +25,7 @@ use PHPStan\Php\ComposerPhpVersionFactory;
 use PHPStan\Php\PhpVersion;
 use PHPStan\PhpDoc\TypeNodeResolver;
 use PHPStan\PhpDoc\TypeStringResolver;
+use PHPStan\Reflection\AttributeReflectionFactory;
 use PHPStan\Reflection\InitializerExprTypeResolver;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Reflection\ReflectionProvider\DirectReflectionProviderProvider;
@@ -163,6 +164,7 @@ abstract class PHPStanTestCase extends TestCase
 				$container->getByType(NodeScopeResolver::class),
 				new RicherScopeGetTypeHelper($initializerExprTypeResolver),
 				$container->getByType(PhpVersion::class),
+				$container->getByType(AttributeReflectionFactory::class),
 				$container->getParameter('phpVersion'),
 				$constantResolver,
 			),

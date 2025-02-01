@@ -57,4 +57,9 @@ interface FunctionReflection
 	 */
 	public function isPure(): TrinaryLogic;
 
+	/**
+	 * @return list<AttributeReflection>
+	 */
+	public function getAttributes(): array;
+
 }

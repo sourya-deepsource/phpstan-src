@@ -151,4 +151,9 @@ final class SimpleXMLElementProperty implements ExtendedPropertyReflection
 		return false;
 	}
 
+	public function getAttributes(): array
+	{
+		return [];
+	}
+
 }

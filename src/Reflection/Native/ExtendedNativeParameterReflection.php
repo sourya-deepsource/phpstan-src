@@ -2,6 +2,7 @@
 
 namespace PHPStan\Reflection\Native;
 
+use PHPStan\Reflection\AttributeReflection;
 use PHPStan\Reflection\ExtendedParameterReflection;
 use PHPStan\Reflection\PassedByReference;
 use PHPStan\TrinaryLogic;
@@ -11,6 +12,9 @@ use PHPStan\Type\Type;
 final class ExtendedNativeParameterReflection implements ExtendedParameterReflection
 {
 
+	/**
+	 * @param list<AttributeReflection> $attributes
+	 */
 	public function __construct(
 		private string $name,
 		private bool $optional,
@@ -23,6 +27,7 @@ final class ExtendedNativeParameterReflection implements ExtendedParameterReflec
 		private ?Type $outType,
 		private TrinaryLogic $immediatelyInvokedCallable,
 		private ?Type $closureThisType,
+		private array $attributes,
 	)
 	{
 	}
@@ -85,6 +90,11 @@ final class ExtendedNativeParameterReflection implements ExtendedParameterReflec
 	public function getClosureThisType(): ?Type
 	{
 		return $this->closureThisType;
+	}
+
+	public function getAttributes(): array
+	{
+		return $this->attributes;
 	}
 
 }

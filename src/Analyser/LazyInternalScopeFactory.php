@@ -7,6 +7,7 @@ use PHPStan\DependencyInjection\Type\DynamicReturnTypeExtensionRegistryProvider;
 use PHPStan\DependencyInjection\Type\ExpressionTypeResolverExtensionRegistryProvider;
 use PHPStan\Node\Printer\ExprPrinter;
 use PHPStan\Php\PhpVersion;
+use PHPStan\Reflection\AttributeReflectionFactory;
 use PHPStan\Reflection\InitializerExprTypeResolver;
 use PHPStan\Reflection\ParametersAcceptor;
 use PHPStan\Reflection\Php\PhpFunctionFromParserNodeReflection;
@@ -56,6 +57,7 @@ final class LazyInternalScopeFactory implements InternalScopeFactory
 			$this->container->getByType(ConstantResolver::class),
 			$context,
 			$this->container->getByType(PhpVersion::class),
+			$this->container->getByType(AttributeReflectionFactory::class),
 			$this->container->getParameter('phpVersion'),
 			$declareStrictTypes,
 			$function,

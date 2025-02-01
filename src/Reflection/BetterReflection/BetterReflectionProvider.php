@@ -31,6 +31,7 @@ use PHPStan\PhpDoc\StubPhpDocProvider;
 use PHPStan\PhpDoc\Tag\ParamClosureThisTag;
 use PHPStan\PhpDoc\Tag\ParamOutTag;
 use PHPStan\Reflection\Assertions;
+use PHPStan\Reflection\AttributeReflectionFactory;
 use PHPStan\Reflection\ClassNameHelper;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\Constant\RuntimeConstantReflection;
@@ -93,6 +94,7 @@ final class BetterReflectionProvider implements ReflectionProvider
 		private FileHelper $fileHelper,
 		private PhpStormStubsSourceStubber $phpstormStubsSourceStubber,
 		private SignatureMapProvider $signatureMapProvider,
+		private AttributeReflectionFactory $attributeReflectionFactory,
 		private array $universalObjectCratesClasses,
 	)
 	{
@@ -146,6 +148,7 @@ final class BetterReflectionProvider implements ReflectionProvider
 			$this->phpDocInheritanceResolver,
 			$this->phpVersion,
 			$this->signatureMapProvider,
+			$this->attributeReflectionFactory,
 			$this->classReflectionExtensionRegistryProvider->getRegistry()->getPropertiesClassReflectionExtensions(),
 			$this->classReflectionExtensionRegistryProvider->getRegistry()->getMethodsClassReflectionExtensions(),
 			$this->classReflectionExtensionRegistryProvider->getRegistry()->getAllowedSubTypesClassReflectionExtensions(),
@@ -240,6 +243,7 @@ final class BetterReflectionProvider implements ReflectionProvider
 			$this->phpDocInheritanceResolver,
 			$this->phpVersion,
 			$this->signatureMapProvider,
+			$this->attributeReflectionFactory,
 			$this->classReflectionExtensionRegistryProvider->getRegistry()->getPropertiesClassReflectionExtensions(),
 			$this->classReflectionExtensionRegistryProvider->getRegistry()->getMethodsClassReflectionExtensions(),
 			$this->classReflectionExtensionRegistryProvider->getRegistry()->getAllowedSubTypesClassReflectionExtensions(),
@@ -354,6 +358,7 @@ final class BetterReflectionProvider implements ReflectionProvider
 			array_map(static fn (ParamOutTag $paramOutTag): Type => $paramOutTag->getType(), $phpDocParameterOutTags),
 			$phpDocParameterImmediatelyInvokedCallable,
 			array_map(static fn (ParamClosureThisTag $tag): Type => $tag->getType(), $phpDocParameterClosureThisTypeTags),
+			$this->attributeReflectionFactory->fromNativeReflection($reflectionFunction->getAttributes(), InitializerExprContext::fromFunction($reflectionFunction->getName(), $reflectionFunction->getFileName() !== false ? $reflectionFunction->getFileName() : null)),
 		);
 	}
 

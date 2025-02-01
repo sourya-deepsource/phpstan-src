@@ -218,4 +218,9 @@ final class IntersectionTypeMethodReflection implements ExtendedMethodReflection
 		return TrinaryLogic::lazyMaxMin($this->methods, static fn (ExtendedMethodReflection $method): TrinaryLogic => is_bool($method->isAbstract()) ? TrinaryLogic::createFromBoolean($method->isAbstract()) : $method->isAbstract());
 	}
 
+	public function getAttributes(): array
+	{
+		return $this->methods[0]->getAttributes();
+	}
+
 }

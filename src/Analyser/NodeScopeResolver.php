@@ -132,6 +132,7 @@ use PHPStan\PhpDoc\ResolvedPhpDocBlock;
 use PHPStan\PhpDoc\StubPhpDocProvider;
 use PHPStan\PhpDoc\Tag\VarTag;
 use PHPStan\Reflection\Assertions;
+use PHPStan\Reflection\AttributeReflectionFactory;
 use PHPStan\Reflection\Callables\CallableParametersAcceptor;
 use PHPStan\Reflection\Callables\SimpleImpurePoint;
 use PHPStan\Reflection\Callables\SimpleThrowPoint;
@@ -254,6 +255,7 @@ final class NodeScopeResolver
 		private readonly StubPhpDocProvider $stubPhpDocProvider,
 		private readonly PhpVersion $phpVersion,
 		private readonly SignatureMapProvider $signatureMapProvider,
+		private readonly AttributeReflectionFactory $attributeReflectionFactory,
 		private readonly PhpDocInheritanceResolver $phpDocInheritanceResolver,
 		private readonly FileHelper $fileHelper,
 		private readonly TypeSpecifier $typeSpecifier,
@@ -2134,6 +2136,7 @@ final class NodeScopeResolver
 			$this->phpDocInheritanceResolver,
 			$this->phpVersion,
 			$this->signatureMapProvider,
+			$this->attributeReflectionFactory,
 			$this->classReflectionExtensionRegistryProvider->getRegistry()->getPropertiesClassReflectionExtensions(),
 			$this->classReflectionExtensionRegistryProvider->getRegistry()->getMethodsClassReflectionExtensions(),
 			$this->classReflectionExtensionRegistryProvider->getRegistry()->getAllowedSubTypesClassReflectionExtensions(),

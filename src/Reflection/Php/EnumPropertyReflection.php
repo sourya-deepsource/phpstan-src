@@ -137,4 +137,9 @@ final class EnumPropertyReflection implements ExtendedPropertyReflection
 		return false;
 	}
 
+	public function getAttributes(): array
+	{
+		return [];
+	}
+
 }

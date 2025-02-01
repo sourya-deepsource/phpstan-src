@@ -143,4 +143,9 @@ final class AnnotationPropertyReflection implements ExtendedPropertyReflection
 		return false;
 	}
 
+	public function getAttributes(): array
+	{
+		return [];
+	}
+
 }

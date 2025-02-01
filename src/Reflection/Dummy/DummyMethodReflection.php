@@ -139,4 +139,9 @@ final class DummyMethodReflection implements ExtendedMethodReflection
 		return TrinaryLogic::createMaybe();
 	}
 
+	public function getAttributes(): array
+	{
+		return [];
+	}
+
 }

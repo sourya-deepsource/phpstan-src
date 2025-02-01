@@ -8,10 +8,13 @@ use PHPStan\Internal\DeprecatedAttributeHelper;
 use PHPStan\Parser\Parser;
 use PHPStan\Parser\VariadicFunctionsVisitor;
 use PHPStan\Reflection\Assertions;
+use PHPStan\Reflection\AttributeReflection;
+use PHPStan\Reflection\AttributeReflectionFactory;
 use PHPStan\Reflection\ExtendedFunctionVariant;
 use PHPStan\Reflection\ExtendedParameterReflection;
 use PHPStan\Reflection\ExtendedParametersAcceptor;
 use PHPStan\Reflection\FunctionReflection;
+use PHPStan\Reflection\InitializerExprContext;
 use PHPStan\Reflection\InitializerExprTypeResolver;
 use PHPStan\TrinaryLogic;
 use PHPStan\Type\Generic\TemplateTypeMap;
@@ -37,11 +40,13 @@ final class PhpFunctionReflection implements FunctionReflection
 	 * @param array<string, Type> $phpDocParameterOutTypes
 	 * @param array<string, bool> $phpDocParameterImmediatelyInvokedCallable
 	 * @param array<string, Type> $phpDocParameterClosureThisTypes
+	 * @param list<AttributeReflection> $attributes
 	 */
 	public function __construct(
 		private InitializerExprTypeResolver $initializerExprTypeResolver,
 		private ReflectionFunction $reflection,
 		private Parser $parser,
+		private AttributeReflectionFactory $attributeReflectionFactory,
 		private TemplateTypeMap $templateTypeMap,
 		private array $phpDocParameterTypes,
 		private ?Type $phpDocReturnType,
@@ -57,6 +62,7 @@ final class PhpFunctionReflection implements FunctionReflection
 		private array $phpDocParameterOutTypes,
 		private array $phpDocParameterImmediatelyInvokedCallable,
 		private array $phpDocParameterClosureThisTypes,
+		private array $attributes,
 	)
 	{
 	}
@@ -127,6 +133,7 @@ final class PhpFunctionReflection implements FunctionReflection
 				$this->phpDocParameterOutTypes[$reflection->getName()] ?? null,
 				$immediatelyInvokedCallable,
 				$this->phpDocParameterClosureThisTypes[$reflection->getName()] ?? null,
+				$this->attributeReflectionFactory->fromNativeReflection($reflection->getAttributes(), InitializerExprContext::fromReflectionParameter($reflection)),
 			);
 		}, $this->reflection->getParameters());
 	}
@@ -260,6 +267,11 @@ final class PhpFunctionReflection implements FunctionReflection
 	public function acceptsNamedArguments(): TrinaryLogic
 	{
 		return TrinaryLogic::createFromBoolean($this->acceptsNamedArguments);
+	}
+
+	public function getAttributes(): array
+	{
+		return $this->attributes;
 	}
 
 }

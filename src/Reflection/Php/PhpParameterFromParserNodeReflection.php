@@ -2,6 +2,7 @@
 
 namespace PHPStan\Reflection\Php;
 
+use PHPStan\Reflection\AttributeReflection;
 use PHPStan\Reflection\ExtendedParameterReflection;
 use PHPStan\Reflection\PassedByReference;
 use PHPStan\TrinaryLogic;
@@ -15,6 +16,9 @@ final class PhpParameterFromParserNodeReflection implements ExtendedParameterRef
 
 	private ?Type $type = null;
 
+	/**
+	 * @param list<AttributeReflection> $attributes
+	 */
 	public function __construct(
 		private string $name,
 		private bool $optional,
@@ -26,6 +30,7 @@ final class PhpParameterFromParserNodeReflection implements ExtendedParameterRef
 		private ?Type $outType,
 		private TrinaryLogic $immediatelyInvokedCallable,
 		private ?Type $closureThisType,
+		private array $attributes,
 	)
 	{
 	}
@@ -101,6 +106,11 @@ final class PhpParameterFromParserNodeReflection implements ExtendedParameterRef
 	public function getClosureThisType(): ?Type
 	{
 		return $this->closureThisType;
+	}
+
+	public function getAttributes(): array
+	{
+		return $this->attributes;
 	}
 
 }

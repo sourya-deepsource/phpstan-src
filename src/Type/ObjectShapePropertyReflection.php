@@ -139,4 +139,9 @@ final class ObjectShapePropertyReflection implements ExtendedPropertyReflection
 		return false;
 	}
 
+	public function getAttributes(): array
+	{
+		return [];
+	}
+
 }

@@ -75,4 +75,9 @@ final class AnnotationsMethodParameterReflection implements ExtendedParameterRef
 		return $this->defaultValue;
 	}
 
+	public function getAttributes(): array
+	{
+		return [];
+	}
+
 }

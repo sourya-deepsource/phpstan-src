@@ -54,4 +54,9 @@ interface ExtendedPropertyReflection extends PropertyReflection
 
 	public function isPrivateSet(): bool;
 
+	/**
+	 * @return list<AttributeReflection>
+	 */
+	public function getAttributes(): array;
+
 }

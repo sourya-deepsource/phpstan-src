@@ -26,7 +26,10 @@ use PhpParser\Node\Identifier;
 use PhpParser\Node\InterpolatedStringPart;
 use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
+use PhpParser\Node\PropertyHook;
 use PhpParser\Node\Scalar\String_;
+use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Function_;
 use PhpParser\NodeFinder;
 use PHPStan\Node\ExecutionEndNode;
 use PHPStan\Node\Expr\AlwaysRememberedExpr;
@@ -52,6 +55,8 @@ use PHPStan\Php\PhpVersion;
 use PHPStan\Php\PhpVersions;
 use PHPStan\PhpDoc\Tag\TemplateTag;
 use PHPStan\Reflection\Assertions;
+use PHPStan\Reflection\AttributeReflection;
+use PHPStan\Reflection\AttributeReflectionFactory;
 use PHPStan\Reflection\Callables\CallableParametersAcceptor;
 use PHPStan\Reflection\Callables\SimpleImpurePoint;
 use PHPStan\Reflection\Callables\SimpleThrowPoint;
@@ -212,6 +217,7 @@ final class MutatingScope implements Scope
 		private ConstantResolver $constantResolver,
 		private ScopeContext $context,
 		private PhpVersion $phpVersion,
+		private AttributeReflectionFactory $attributeReflectionFactory,
 		private int|array|null $configPhpVersion,
 		private bool $declareStrictTypes = false,
 		private PhpFunctionFromParserNodeReflection|null $function = null,
@@ -2974,6 +2980,7 @@ final class MutatingScope implements Scope
 				$this->getRealParameterTypes($classMethod),
 				array_map(fn (Type $type): Type => $this->transformStaticType(TemplateTypeHelper::toArgument($type)), $phpDocParameterTypes),
 				$this->getRealParameterDefaultValues($classMethod),
+				$this->getParameterAttributes($classMethod),
 				$this->transformStaticType($this->getFunctionType($classMethod->returnType, false, false)),
 				$phpDocReturnType !== null ? $this->transformStaticType(TemplateTypeHelper::toArgument($phpDocReturnType)) : null,
 				$throwType,
@@ -2990,6 +2997,7 @@ final class MutatingScope implements Scope
 				$immediatelyInvokedCallableParameters,
 				array_map(fn (Type $type): Type => $this->transformStaticType(TemplateTypeHelper::toArgument($type)), $phpDocClosureThisTypeParameters),
 				$isConstructor,
+				$this->attributeReflectionFactory->fromAttrGroups($classMethod->attrGroups, InitializerExprContext::fromStubParameter($this->getClassReflection()->getName(), $this->getFile(), $classMethod)),
 			),
 			!$classMethod->isStatic(),
 		);
@@ -3059,6 +3067,7 @@ final class MutatingScope implements Scope
 				$realParameterTypes,
 				$phpDocParameterTypes,
 				[],
+				$this->getParameterAttributes($hook),
 				$realReturnType,
 				$phpDocReturnType,
 				$throwType,
@@ -3075,6 +3084,7 @@ final class MutatingScope implements Scope
 				[],
 				[],
 				false,
+				$this->attributeReflectionFactory->fromAttrGroups($hook->attrGroups, InitializerExprContext::fromStubParameter($this->getClassReflection()->getName(), $this->getFile(), $hook)),
 			),
 			true,
 		);
@@ -3139,6 +3149,27 @@ final class MutatingScope implements Scope
 	}
 
 	/**
+	 * @return array<string, list<AttributeReflection>>
+	 */
+	private function getParameterAttributes(ClassMethod|Function_|PropertyHook $functionLike): array
+	{
+		$parameterAttributes = [];
+		$className = null;
+		if ($this->isInClass()) {
+			$className = $this->getClassReflection()->getName();
+		}
+		foreach ($functionLike->getParams() as $parameter) {
+			if (!$parameter->var instanceof Variable || !is_string($parameter->var->name)) {
+				throw new ShouldNotHappenException();
+			}
+
+			$parameterAttributes[$parameter->var->name] = $this->attributeReflectionFactory->fromAttrGroups($parameter->attrGroups, InitializerExprContext::fromStubParameter($className, $this->getFile(), $functionLike));
+		}
+
+		return $parameterAttributes;
+	}
+
+	/**
 	 * @api
 	 * @param Type[] $phpDocParameterTypes
 	 * @param Type[] $parameterOutTypes
@@ -3171,6 +3202,7 @@ final class MutatingScope implements Scope
 				$this->getRealParameterTypes($function),
 				array_map(static fn (Type $type): Type => TemplateTypeHelper::toArgument($type), $phpDocParameterTypes),
 				$this->getRealParameterDefaultValues($function),
+				$this->getParameterAttributes($function),
 				$this->getFunctionType($function->returnType, $function->returnType === null, false),
 				$phpDocReturnType !== null ? TemplateTypeHelper::toArgument($phpDocReturnType) : null,
 				$throwType,
@@ -3184,6 +3216,7 @@ final class MutatingScope implements Scope
 				array_map(static fn (Type $type): Type => TemplateTypeHelper::toArgument($type), $parameterOutTypes),
 				$immediatelyInvokedCallableParameters,
 				$phpDocClosureThisTypeParameters,
+				$this->attributeReflectionFactory->fromAttrGroups($function->attrGroups, InitializerExprContext::fromStubParameter(null, $this->getFile(), $function)),
 			),
 			false,
 		);

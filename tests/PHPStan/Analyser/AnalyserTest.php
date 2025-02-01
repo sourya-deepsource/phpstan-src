@@ -19,6 +19,7 @@ use PHPStan\Parser\RichParser;
 use PHPStan\Php\PhpVersion;
 use PHPStan\PhpDoc\PhpDocInheritanceResolver;
 use PHPStan\PhpDoc\StubPhpDocProvider;
+use PHPStan\Reflection\AttributeReflectionFactory;
 use PHPStan\Reflection\InitializerExprTypeResolver;
 use PHPStan\Reflection\SignatureMap\SignatureMapProvider;
 use PHPStan\Rules\AlwaysFailRule;
@@ -713,6 +714,7 @@ class AnalyserTest extends PHPStanTestCase
 			self::getContainer()->getByType(StubPhpDocProvider::class),
 			self::getContainer()->getByType(PhpVersion::class),
 			self::getContainer()->getByType(SignatureMapProvider::class),
+			self::getContainer()->getByType(AttributeReflectionFactory::class),
 			$phpDocInheritanceResolver,
 			$fileHelper,
 			$typeSpecifier,

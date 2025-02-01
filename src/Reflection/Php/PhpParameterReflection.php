@@ -3,6 +3,7 @@
 namespace PHPStan\Reflection\Php;
 
 use PHPStan\BetterReflection\Reflection\Adapter\ReflectionParameter;
+use PHPStan\Reflection\AttributeReflection;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ExtendedParameterReflection;
 use PHPStan\Reflection\InitializerExprContext;
@@ -21,6 +22,9 @@ final class PhpParameterReflection implements ExtendedParameterReflection
 
 	private ?Type $nativeType = null;
 
+	/**
+	 * @param list<AttributeReflection> $attributes
+	 */
 	public function __construct(
 		private InitializerExprTypeResolver $initializerExprTypeResolver,
 		private ReflectionParameter $reflection,
@@ -29,6 +33,7 @@ final class PhpParameterReflection implements ExtendedParameterReflection
 		private ?Type $outType,
 		private TrinaryLogic $immediatelyInvokedCallable,
 		private ?Type $closureThisType,
+		private array $attributes,
 	)
 	{
 	}
@@ -136,6 +141,11 @@ final class PhpParameterReflection implements ExtendedParameterReflection
 	public function getClosureThisType(): ?Type
 	{
 		return $this->closureThisType;
+	}
+
+	public function getAttributes(): array
+	{
+		return $this->attributes;
 	}
 
 }

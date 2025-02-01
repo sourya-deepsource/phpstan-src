@@ -14,7 +14,15 @@ use PHPStan\Type\Type;
 final class EnumCaseReflection
 {
 
-	public function __construct(private ClassReflection $declaringEnum, private ReflectionEnumUnitCase|ReflectionEnumBackedCase $reflection, private ?Type $backingValueType)
+	/**
+	 * @param list<AttributeReflection> $attributes
+	 */
+	public function __construct(
+		private ClassReflection $declaringEnum,
+		private ReflectionEnumUnitCase|ReflectionEnumBackedCase $reflection,
+		private ?Type $backingValueType,
+		private array $attributes,
+	)
 	{
 	}
 
@@ -46,6 +54,14 @@ final class EnumCaseReflection
 		}
 
 		return null;
+	}
+
+	/**
+	 * @return list<AttributeReflection>
+	 */
+	public function getAttributes(): array
+	{
+		return $this->attributes;
 	}
 
 }

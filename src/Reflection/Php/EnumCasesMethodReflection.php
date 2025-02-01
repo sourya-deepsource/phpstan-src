@@ -151,4 +151,9 @@ final class EnumCasesMethodReflection implements ExtendedMethodReflection
 		return TrinaryLogic::createYes();
 	}
 
+	public function getAttributes(): array
+	{
+		return [];
+	}
+
 }

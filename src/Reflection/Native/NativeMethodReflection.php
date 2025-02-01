@@ -4,6 +4,7 @@ namespace PHPStan\Reflection\Native;
 
 use PHPStan\BetterReflection\Reflection\Adapter\ReflectionMethod;
 use PHPStan\Reflection\Assertions;
+use PHPStan\Reflection\AttributeReflection;
 use PHPStan\Reflection\ClassMemberReflection;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ExtendedMethodReflection;
@@ -24,6 +25,7 @@ final class NativeMethodReflection implements ExtendedMethodReflection
 	/**
 	 * @param list<ExtendedParametersAcceptor> $variants
 	 * @param list<ExtendedParametersAcceptor>|null $namedArgumentsVariants
+	 * @param list<AttributeReflection> $attributes
 	 */
 	public function __construct(
 		private ReflectionProvider $reflectionProvider,
@@ -37,6 +39,7 @@ final class NativeMethodReflection implements ExtendedMethodReflection
 		private bool $acceptsNamedArguments,
 		private ?Type $selfOutType,
 		private ?string $phpDocComment,
+		private array $attributes,
 	)
 	{
 	}
@@ -213,6 +216,11 @@ final class NativeMethodReflection implements ExtendedMethodReflection
 	public function returnsByReference(): TrinaryLogic
 	{
 		return TrinaryLogic::createFromBoolean($this->reflection->returnsReference());
+	}
+
+	public function getAttributes(): array
+	{
+		return $this->attributes;
 	}
 
 }

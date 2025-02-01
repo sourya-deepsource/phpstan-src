@@ -176,4 +176,9 @@ final class AnnotationMethodReflection implements ExtendedMethodReflection
 		return TrinaryLogic::createMaybe();
 	}
 
+	public function getAttributes(): array
+	{
+		return [];
+	}
+
 }

@@ -96,6 +96,7 @@ final class ClosureCallMethodReflection implements ExtendedMethodReflection
 					null,
 					TrinaryLogic::createMaybe(),
 					null,
+					[],
 				), $parameters),
 				$this->closureType->isVariadic(),
 				$this->closureType->getReturnType(),
@@ -184,6 +185,11 @@ final class ClosureCallMethodReflection implements ExtendedMethodReflection
 	public function isPure(): TrinaryLogic
 	{
 		return $this->nativeMethodReflection->isPure();
+	}
+
+	public function getAttributes(): array
+	{
+		return $this->nativeMethodReflection->getAttributes();
 	}
 
 }

@@ -8,6 +8,7 @@ use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Function_;
 use PHPStan\Reflection\Assertions;
+use PHPStan\Reflection\AttributeReflection;
 use PHPStan\Reflection\ExtendedFunctionVariant;
 use PHPStan\Reflection\ExtendedParameterReflection;
 use PHPStan\Reflection\ExtendedParametersAcceptor;
@@ -41,9 +42,11 @@ class PhpFunctionFromParserNodeReflection implements FunctionReflection, Extende
 	 * @param Type[] $realParameterTypes
 	 * @param Type[] $phpDocParameterTypes
 	 * @param Type[] $realParameterDefaultValues
+	 * @param array<string, list<AttributeReflection>> $parameterAttributes
 	 * @param Type[] $parameterOutTypes
 	 * @param array<string, bool> $immediatelyInvokedCallableParameters
 	 * @param array<string, Type> $phpDocClosureThisTypeParameters
+	 * @param list<AttributeReflection> $attributes
 	 */
 	public function __construct(
 		FunctionLike $functionLike,
@@ -52,6 +55,7 @@ class PhpFunctionFromParserNodeReflection implements FunctionReflection, Extende
 		private array $realParameterTypes,
 		private array $phpDocParameterTypes,
 		private array $realParameterDefaultValues,
+		private array $parameterAttributes,
 		private Type $realReturnType,
 		private ?Type $phpDocReturnType,
 		private ?Type $throwType,
@@ -65,6 +69,7 @@ class PhpFunctionFromParserNodeReflection implements FunctionReflection, Extende
 		private array $parameterOutTypes,
 		private array $immediatelyInvokedCallableParameters,
 		private array $phpDocClosureThisTypeParameters,
+		private array $attributes,
 	)
 	{
 		$this->functionLike = $functionLike;
@@ -180,6 +185,7 @@ class PhpFunctionFromParserNodeReflection implements FunctionReflection, Extende
 				$this->parameterOutTypes[$parameter->var->name] ?? null,
 				$immediatelyInvokedCallable,
 				$closureThisType,
+				$this->parameterAttributes[$parameter->var->name] ?? [],
 			);
 		}
 
@@ -321,6 +327,11 @@ class PhpFunctionFromParserNodeReflection implements FunctionReflection, Extende
 		}
 
 		return TrinaryLogic::createFromBoolean($this->isPure);
+	}
+
+	public function getAttributes(): array
+	{
+		return $this->attributes;
 	}
 
 }

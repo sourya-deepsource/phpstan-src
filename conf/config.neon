@@ -678,6 +678,9 @@ services:
 		class: PHPStan\Process\CpuCoreCounter
 
 	-
+		class: PHPStan\Reflection\AttributeReflectionFactory
+
+	-
 		implement: PHPStan\Reflection\FunctionReflectionFactory
 		arguments:
 			parser: @defaultAnalysisParser

@@ -214,4 +214,9 @@ final class ResolvedMethodReflection implements ExtendedMethodReflection
 		return $abstract;
 	}
 
+	public function getAttributes(): array
+	{
+		return $this->reflection->getAttributes();
+	}
+
 }

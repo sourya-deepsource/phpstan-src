@@ -14,6 +14,9 @@ final class RealClassClassConstantReflection implements ClassConstantReflection
 
 	private ?Type $valueType = null;
 
+	/**
+	 * @param list<AttributeReflection> $attributes
+	 */
 	public function __construct(
 		private InitializerExprTypeResolver $initializerExprTypeResolver,
 		private ClassReflection $declaringClass,
@@ -24,6 +27,7 @@ final class RealClassClassConstantReflection implements ClassConstantReflection
 		private bool $isDeprecated,
 		private bool $isInternal,
 		private bool $isFinal,
+		private array $attributes,
 	)
 	{
 	}
@@ -142,6 +146,11 @@ final class RealClassClassConstantReflection implements ClassConstantReflection
 		}
 
 		return $docComment;
+	}
+
+	public function getAttributes(): array
+	{
+		return $this->attributes;
 	}
 
 }

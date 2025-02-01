@@ -190,4 +190,9 @@ final class IntersectionTypePropertyReflection implements ExtendedPropertyReflec
 		return $this->computeResult(static fn (ExtendedPropertyReflection $property) => $property->isPrivateSet());
 	}
 
+	public function getAttributes(): array
+	{
+		return $this->properties[0]->getAttributes();
+	}
+
 }

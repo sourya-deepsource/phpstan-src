@@ -149,4 +149,9 @@ final class ChangedTypeMethodReflection implements ExtendedMethodReflection
 		return $this->reflection->isPure();
 	}
 
+	public function getAttributes(): array
+	{
+		return $this->reflection->getAttributes();
+	}
+
 }

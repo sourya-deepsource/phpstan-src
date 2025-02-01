@@ -155,6 +155,7 @@ final class ClassReflection
 		private PhpDocInheritanceResolver $phpDocInheritanceResolver,
 		private PhpVersion $phpVersion,
 		private SignatureMapProvider $signatureMapProvider,
+		private AttributeReflectionFactory $attributeReflectionFactory,
 		private array $propertiesClassReflectionExtensions,
 		private array $methodsClassReflectionExtensions,
 		private array $allowedSubTypesClassReflectionExtensions,
@@ -773,7 +774,7 @@ final class ClassReflection
 				$valueType = $this->initializerExprTypeResolver->getType($case->getValueExpression(), $initializerExprContext);
 			}
 			$caseName = $case->getName();
-			$cases[$caseName] = new EnumCaseReflection($this, $case, $valueType);
+			$cases[$caseName] = new EnumCaseReflection($this, $case, $valueType, $this->attributeReflectionFactory->fromNativeReflection($case->getAttributes(), InitializerExprContext::fromClass($this->getName(), $this->getFileName())));
 		}
 
 		return $this->enumCases = $cases;
@@ -799,7 +800,7 @@ final class ClassReflection
 			$valueType = $this->initializerExprTypeResolver->getType($case->getValueExpression(), InitializerExprContext::fromClassReflection($this));
 		}
 
-		return new EnumCaseReflection($this, $case, $valueType);
+		return new EnumCaseReflection($this, $case, $valueType, $this->attributeReflectionFactory->fromNativeReflection($case->getAttributes(), InitializerExprContext::fromClass($this->getName(), $this->getFileName())));
 	}
 
 	public function isClass(): bool
@@ -1092,6 +1093,7 @@ final class ClassReflection
 				$isDeprecated,
 				$isInternal,
 				$isFinal,
+				$this->attributeReflectionFactory->fromNativeReflection($reflectionConstant->getAttributes(), InitializerExprContext::fromClass($declaringClass->getName(), $fileName)),
 			);
 		}
 		return $this->constants[$name];
@@ -1322,6 +1324,14 @@ final class ClassReflection
 		return null;
 	}
 
+	/**
+	 * @return list<AttributeReflection>
+	 */
+	public function getAttributes(): array
+	{
+		return $this->attributeReflectionFactory->fromNativeReflection($this->reflection->getAttributes(), InitializerExprContext::fromClass($this->getName(), $this->getFileName()));
+	}
+
 	public function getAttributeClassFlags(): int
 	{
 		$flags = $this->findAttributeFlags();
@@ -1505,6 +1515,7 @@ final class ClassReflection
 			$this->phpDocInheritanceResolver,
 			$this->phpVersion,
 			$this->signatureMapProvider,
+			$this->attributeReflectionFactory,
 			$this->propertiesClassReflectionExtensions,
 			$this->methodsClassReflectionExtensions,
 			$this->allowedSubTypesClassReflectionExtensions,
@@ -1534,6 +1545,7 @@ final class ClassReflection
 			$this->phpDocInheritanceResolver,
 			$this->phpVersion,
 			$this->signatureMapProvider,
+			$this->attributeReflectionFactory,
 			$this->propertiesClassReflectionExtensions,
 			$this->methodsClassReflectionExtensions,
 			$this->allowedSubTypesClassReflectionExtensions,

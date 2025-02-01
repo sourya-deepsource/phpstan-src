@@ -58,6 +58,7 @@ final class ExitFunctionReflection implements FunctionReflection
 						null,
 						TrinaryLogic::createNo(),
 						null,
+						[],
 					),
 				],
 				false,
@@ -135,6 +136,11 @@ final class ExitFunctionReflection implements FunctionReflection
 	public function isPure(): TrinaryLogic
 	{
 		return TrinaryLogic::createNo();
+	}
+
+	public function getAttributes(): array
+	{
+		return [];
 	}
 
 }

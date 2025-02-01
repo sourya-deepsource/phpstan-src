@@ -9,7 +9,9 @@ use PHPStan\BetterReflection\Reflector\Reflector;
 use PHPStan\PhpDoc\ResolvedPhpDocBlock;
 use PHPStan\PhpDoc\StubPhpDocProvider;
 use PHPStan\Reflection\Assertions;
+use PHPStan\Reflection\AttributeReflectionFactory;
 use PHPStan\Reflection\ExtendedFunctionVariant;
+use PHPStan\Reflection\InitializerExprContext;
 use PHPStan\Reflection\Native\ExtendedNativeParameterReflection;
 use PHPStan\Reflection\Native\NativeFunctionReflection;
 use PHPStan\TrinaryLogic;
@@ -28,7 +30,13 @@ final class NativeFunctionReflectionProvider
 	/** @var NativeFunctionReflection[] */
 	private array $functionMap = [];
 
-	public function __construct(private SignatureMapProvider $signatureMapProvider, private Reflector $reflector, private FileTypeMapper $fileTypeMapper, private StubPhpDocProvider $stubPhpDocProvider)
+	public function __construct(
+		private SignatureMapProvider $signatureMapProvider,
+		private Reflector $reflector,
+		private FileTypeMapper $fileTypeMapper,
+		private StubPhpDocProvider $stubPhpDocProvider,
+		private AttributeReflectionFactory $attributeReflectionFactory,
+	)
 	{
 	}
 
@@ -52,9 +60,12 @@ final class NativeFunctionReflectionProvider
 		$docComment = null;
 		$returnsByReference = TrinaryLogic::createMaybe();
 		$acceptsNamedArguments = true;
+		$fileName = null;
+		$attributes = [];
 		try {
 			$reflectionFunction = $this->reflector->reflectFunction($functionName);
 			$reflectionFunctionAdapter = new ReflectionFunction($reflectionFunction);
+			$attributes = $reflectionFunctionAdapter->getAttributes();
 			$returnsByReference = TrinaryLogic::createFromBoolean($reflectionFunctionAdapter->returnsReference());
 			$realFunctionName = $reflectionFunction->getName();
 			$isDeprecated = $reflectionFunction->isDeprecated();
@@ -124,6 +135,7 @@ final class NativeFunctionReflectionProvider
 							$phpDoc !== null ? NativeFunctionReflectionProvider::getParamOutTypeFromPhpDoc($parameterSignature->getName(), $phpDoc) : null,
 							$immediatelyInvokedCallable,
 							$closureThisType,
+							[],
 						);
 					}, $functionSignature->getParameters()),
 					$functionSignature->isVariadic(),
@@ -151,6 +163,7 @@ final class NativeFunctionReflectionProvider
 			$docComment,
 			$returnsByReference,
 			$acceptsNamedArguments,
+			$this->attributeReflectionFactory->fromNativeReflection($attributes, InitializerExprContext::fromFunction($realFunctionName, $fileName)),
 		);
 		$this->functionMap[$lowerCasedFunctionName] = $functionReflection;
 

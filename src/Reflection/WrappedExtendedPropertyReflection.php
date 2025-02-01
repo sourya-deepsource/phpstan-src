@@ -134,4 +134,9 @@ final class WrappedExtendedPropertyReflection implements ExtendedPropertyReflect
 		return false;
 	}
 
+	public function getAttributes(): array
+	{
+		return [];
+	}
+
 }

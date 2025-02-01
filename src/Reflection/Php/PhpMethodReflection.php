@@ -8,12 +8,15 @@ use PHPStan\Internal\DeprecatedAttributeHelper;
 use PHPStan\Parser\Parser;
 use PHPStan\Parser\VariadicMethodsVisitor;
 use PHPStan\Reflection\Assertions;
+use PHPStan\Reflection\AttributeReflection;
+use PHPStan\Reflection\AttributeReflectionFactory;
 use PHPStan\Reflection\ClassMemberReflection;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ExtendedFunctionVariant;
 use PHPStan\Reflection\ExtendedMethodReflection;
 use PHPStan\Reflection\ExtendedParameterReflection;
 use PHPStan\Reflection\ExtendedParametersAcceptor;
+use PHPStan\Reflection\InitializerExprContext;
 use PHPStan\Reflection\InitializerExprTypeResolver;
 use PHPStan\Reflection\MethodPrototypeReflection;
 use PHPStan\Reflection\ReflectionProvider;
@@ -63,6 +66,7 @@ final class PhpMethodReflection implements ExtendedMethodReflection
 	 * @param Type[] $phpDocParameterOutTypes
 	 * @param array<string, TrinaryLogic> $immediatelyInvokedCallableParameters
 	 * @param array<string, Type> $phpDocClosureThisTypeParameters
+	 * @param list<AttributeReflection> $attributes
 	 */
 	public function __construct(
 		private InitializerExprTypeResolver $initializerExprTypeResolver,
@@ -70,6 +74,7 @@ final class PhpMethodReflection implements ExtendedMethodReflection
 		private ?ClassReflection $declaringTrait,
 		private ReflectionMethod $reflection,
 		private ReflectionProvider $reflectionProvider,
+		private AttributeReflectionFactory $attributeReflectionFactory,
 		private Parser $parser,
 		private TemplateTypeMap $templateTypeMap,
 		private array $phpDocParameterTypes,
@@ -87,6 +92,7 @@ final class PhpMethodReflection implements ExtendedMethodReflection
 		private array $phpDocParameterOutTypes,
 		private array $immediatelyInvokedCallableParameters,
 		private array $phpDocClosureThisTypeParameters,
+		private array $attributes,
 	)
 	{
 	}
@@ -230,6 +236,7 @@ final class PhpMethodReflection implements ExtendedMethodReflection
 				$this->phpDocParameterOutTypes[$reflection->getName()] ?? null,
 				$this->immediatelyInvokedCallableParameters[$reflection->getName()] ?? TrinaryLogic::createMaybe(),
 				$this->phpDocClosureThisTypeParameters[$reflection->getName()] ?? null,
+				$this->attributeReflectionFactory->fromNativeReflection($reflection->getAttributes(), InitializerExprContext::fromReflectionParameter($reflection)),
 			), $this->reflection->getParameters());
 		}
 
@@ -458,6 +465,7 @@ final class PhpMethodReflection implements ExtendedMethodReflection
 			$this->declaringTrait,
 			$this->reflection,
 			$this->reflectionProvider,
+			$this->attributeReflectionFactory,
 			$this->parser,
 			$this->templateTypeMap,
 			$this->phpDocParameterTypes,
@@ -475,6 +483,7 @@ final class PhpMethodReflection implements ExtendedMethodReflection
 			$this->phpDocParameterOutTypes,
 			$this->immediatelyInvokedCallableParameters,
 			$this->phpDocClosureThisTypeParameters,
+			$this->attributes,
 		);
 	}
 
@@ -489,6 +498,7 @@ final class PhpMethodReflection implements ExtendedMethodReflection
 			$this->declaringTrait,
 			$this->reflection,
 			$this->reflectionProvider,
+			$this->attributeReflectionFactory,
 			$this->parser,
 			$this->templateTypeMap,
 			$phpDocParameterTypes,
@@ -506,7 +516,13 @@ final class PhpMethodReflection implements ExtendedMethodReflection
 			$this->phpDocParameterOutTypes,
 			$this->immediatelyInvokedCallableParameters,
 			$this->phpDocClosureThisTypeParameters,
+			$this->attributes,
 		);
+	}
+
+	public function getAttributes(): array
+	{
+		return $this->attributes;
 	}
 
 }

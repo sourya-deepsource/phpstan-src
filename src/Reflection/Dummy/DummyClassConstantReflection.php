@@ -106,4 +106,9 @@ final class DummyClassConstantReflection implements ClassConstantReflection
 		return null;
 	}
 
+	public function getAttributes(): array
+	{
+		return [];
+	}
+
 }

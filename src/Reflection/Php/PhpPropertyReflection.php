@@ -6,6 +6,7 @@ use PHPStan\BetterReflection\Reflection\Adapter\ReflectionIntersectionType;
 use PHPStan\BetterReflection\Reflection\Adapter\ReflectionNamedType;
 use PHPStan\BetterReflection\Reflection\Adapter\ReflectionProperty;
 use PHPStan\BetterReflection\Reflection\Adapter\ReflectionUnionType;
+use PHPStan\Reflection\AttributeReflection;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ExtendedMethodReflection;
 use PHPStan\Reflection\ExtendedPropertyReflection;
@@ -26,6 +27,9 @@ final class PhpPropertyReflection implements ExtendedPropertyReflection
 
 	private ?Type $type = null;
 
+	/**
+	 * @param list<AttributeReflection> $attributes
+	 */
 	public function __construct(
 		private ClassReflection $declaringClass,
 		private ?ClassReflection $declaringTrait,
@@ -39,6 +43,7 @@ final class PhpPropertyReflection implements ExtendedPropertyReflection
 		private bool $isInternal,
 		private bool $isReadOnlyByPhpDoc,
 		private bool $isAllowedPrivateMutation,
+		private array $attributes,
 	)
 	{
 	}
@@ -276,6 +281,11 @@ final class PhpPropertyReflection implements ExtendedPropertyReflection
 	public function isPrivateSet(): bool
 	{
 		return $this->reflection->isPrivateSet();
+	}
+
+	public function getAttributes(): array
+	{
+		return $this->attributes;
 	}
 
 }

@@ -7,6 +7,7 @@ use PHPStan\DependencyInjection\Type\ExpressionTypeResolverExtensionRegistryProv
 use PHPStan\Node\Printer\ExprPrinter;
 use PHPStan\Parser\Parser;
 use PHPStan\Php\PhpVersion;
+use PHPStan\Reflection\AttributeReflectionFactory;
 use PHPStan\Reflection\InitializerExprTypeResolver;
 use PHPStan\Reflection\ParametersAcceptor;
 use PHPStan\Reflection\Php\PhpFunctionFromParserNodeReflection;
@@ -31,6 +32,7 @@ final class DirectInternalScopeFactory implements InternalScopeFactory
 		private NodeScopeResolver $nodeScopeResolver,
 		private RicherScopeGetTypeHelper $richerScopeGetTypeHelper,
 		private PhpVersion $phpVersion,
+		private AttributeReflectionFactory $attributeReflectionFactory,
 		private int|array|null $configPhpVersion,
 		private ConstantResolver $constantResolver,
 	)
@@ -71,6 +73,7 @@ final class DirectInternalScopeFactory implements InternalScopeFactory
 			$this->constantResolver,
 			$context,
 			$this->phpVersion,
+			$this->attributeReflectionFactory,
 			$this->configPhpVersion,
 			$declareStrictTypes,
 			$function,

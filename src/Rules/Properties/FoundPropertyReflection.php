@@ -173,4 +173,9 @@ final class FoundPropertyReflection implements ExtendedPropertyReflection
 		return $this->originalPropertyReflection->isPrivateSet();
 	}
 
+	public function getAttributes(): array
+	{
+		return $this->originalPropertyReflection->getAttributes();
+	}
+
 }

@@ -20,10 +20,12 @@ use PHPStan\PhpDoc\StubPhpDocProvider;
 use PHPStan\Reflection\Annotations\AnnotationsMethodsClassReflectionExtension;
 use PHPStan\Reflection\Annotations\AnnotationsPropertiesClassReflectionExtension;
 use PHPStan\Reflection\Assertions;
+use PHPStan\Reflection\AttributeReflectionFactory;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ExtendedFunctionVariant;
 use PHPStan\Reflection\ExtendedMethodReflection;
 use PHPStan\Reflection\ExtendedPropertyReflection;
+use PHPStan\Reflection\InitializerExprContext;
 use PHPStan\Reflection\MethodReflection;
 use PHPStan\Reflection\MethodsClassReflectionExtension;
 use PHPStan\Reflection\Native\ExtendedNativeParameterReflection;
@@ -96,6 +98,7 @@ final class PhpClassReflectionExtension
 		private StubPhpDocProvider $stubPhpDocProvider,
 		private ReflectionProvider\ReflectionProviderProvider $reflectionProviderProvider,
 		private FileTypeMapper $fileTypeMapper,
+		private AttributeReflectionFactory $attributeReflectionFactory,
 		private bool $inferPrivatePropertyTypeFromConstructor,
 	)
 	{
@@ -213,7 +216,7 @@ final class PhpClassReflectionExtension
 					$types[] = $value;
 				}
 
-				return new PhpPropertyReflection($declaringClassReflection, null, null, TypeCombinator::union(...$types), $classReflection->getNativeReflection()->getProperty($propertyName), null, null, null, false, false, false, false);
+				return new PhpPropertyReflection($declaringClassReflection, null, null, TypeCombinator::union(...$types), $classReflection->getNativeReflection()->getProperty($propertyName), null, null, null, false, false, false, false, []);
 			}
 		}
 
@@ -425,6 +428,7 @@ final class PhpClassReflectionExtension
 			$isInternal,
 			$isReadOnlyByPhpDoc,
 			$isAllowedPrivateMutation,
+			$this->attributeReflectionFactory->fromNativeReflection($propertyReflection->getAttributes(), InitializerExprContext::fromClass($declaringClassReflection->getName(), $declaringClassReflection->getFileName())),
 		);
 	}
 
@@ -681,6 +685,7 @@ final class PhpClassReflectionExtension
 				$acceptsNamedArguments,
 				$selfOutType,
 				$phpDocComment,
+				$this->attributeReflectionFactory->fromNativeReflection($methodReflection->getAttributes(), InitializerExprContext::fromClassMethod($declaringClassName, null, $methodReflection->getName(), null)),
 			);
 		}
 
@@ -849,6 +854,7 @@ final class PhpClassReflectionExtension
 			$immediatelyInvokedCallableParameters,
 			$closureThisParameters,
 			$acceptsNamedArguments,
+			$this->attributeReflectionFactory->fromNativeReflection($methodReflection->getAttributes(), InitializerExprContext::fromClassMethod($actualDeclaringClass->getName(), $declaringTraitName, $methodReflection->getName(), $actualDeclaringClass->getFileName())),
 		);
 	}
 
@@ -931,6 +937,7 @@ final class PhpClassReflectionExtension
 				$parameterOutType ?? $parameterSignature->getOutType(),
 				$immediatelyInvoked,
 				$closureThisType,
+				[],
 			);
 		}
 

@@ -90,6 +90,32 @@ final class InitializerExprContext implements NamespaceAnswerer
 		);
 	}
 
+	public static function fromFunction(string $functionName, ?string $fileName): self
+	{
+		return new self(
+			$fileName,
+			self::parseNamespace($functionName),
+			null,
+			null,
+			$functionName,
+			$functionName,
+			null,
+		);
+	}
+
+	public static function fromClassMethod(string $className, ?string $traitName, string $methodName, ?string $fileName): self
+	{
+		return new self(
+			$fileName,
+			self::parseNamespace($className),
+			$className,
+			$traitName,
+			$methodName,
+			sprintf('%s::%s', $className, $methodName),
+			null,
+		);
+	}
+
 	public static function fromReflectionParameter(ReflectionParameter $parameter): self
 	{
 		$declaringFunction = $parameter->getDeclaringFunction();

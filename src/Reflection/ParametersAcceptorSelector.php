@@ -648,6 +648,7 @@ final class ParametersAcceptorSelector
 						$parameter instanceof ExtendedParameterReflection ? $parameter->getOutType() : null,
 						$parameter instanceof ExtendedParameterReflection ? $parameter->isImmediatelyInvokedCallable() : TrinaryLogic::createMaybe(),
 						$parameter instanceof ExtendedParameterReflection ? $parameter->getClosureThisType() : null,
+						$parameter instanceof ExtendedParameterReflection ? $parameter->getAttributes() : [],
 					);
 					continue;
 				}
@@ -667,6 +668,7 @@ final class ParametersAcceptorSelector
 				$outType = $parameters[$i]->getOutType();
 				$immediatelyInvokedCallable = $parameters[$i]->isImmediatelyInvokedCallable();
 				$closureThisType = $parameters[$i]->getClosureThisType();
+				$attributes = $parameters[$i]->getAttributes();
 				if ($parameter instanceof ExtendedParameterReflection) {
 					$nativeType = TypeCombinator::union($nativeType, $parameter->getNativeType());
 					$phpDocType = TypeCombinator::union($phpDocType, $parameter->getPhpDocType());
@@ -684,6 +686,7 @@ final class ParametersAcceptorSelector
 					}
 
 					$immediatelyInvokedCallable = $parameter->isImmediatelyInvokedCallable()->or($immediatelyInvokedCallable);
+					$attributes = array_merge($attributes, $parameter->getAttributes());
 				} else {
 					$nativeType = new MixedType();
 					$phpDocType = $type;
@@ -704,6 +707,7 @@ final class ParametersAcceptorSelector
 					$outType,
 					$immediatelyInvokedCallable,
 					$closureThisType,
+					$attributes,
 				);
 
 				if ($isVariadic) {
@@ -798,6 +802,7 @@ final class ParametersAcceptorSelector
 			null,
 			TrinaryLogic::createMaybe(),
 			null,
+			[],
 		);
 	}
 

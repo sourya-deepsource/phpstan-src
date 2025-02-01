@@ -2,6 +2,7 @@
 
 namespace PHPStan\Reflection\Php;
 
+use PHPStan\Reflection\AttributeReflection;
 use PHPStan\Reflection\ExtendedParameterReflection;
 use PHPStan\Reflection\PassedByReference;
 use PHPStan\TrinaryLogic;
@@ -11,6 +12,9 @@ use PHPStan\Type\Type;
 final class ExtendedDummyParameter extends DummyParameter implements ExtendedParameterReflection
 {
 
+	/**
+	 * @param list<AttributeReflection> $attributes
+	 */
 	public function __construct(
 		string $name,
 		Type $type,
@@ -23,6 +27,7 @@ final class ExtendedDummyParameter extends DummyParameter implements ExtendedPar
 		private ?Type $outType,
 		private TrinaryLogic $immediatelyInvokedCallable,
 		private ?Type $closureThisType,
+		private array $attributes,
 	)
 	{
 		parent::__construct($name, $type, $optional, $passedByReference, $variadic, $defaultValue);
@@ -56,6 +61,11 @@ final class ExtendedDummyParameter extends DummyParameter implements ExtendedPar
 	public function getClosureThisType(): ?Type
 	{
 		return $this->closureThisType;
+	}
+
+	public function getAttributes(): array
+	{
+		return $this->attributes;
 	}
 
 }

@@ -195,4 +195,9 @@ final class UnionTypeMethodReflection implements ExtendedMethodReflection
 		return TrinaryLogic::lazyExtremeIdentity($this->methods, static fn (ExtendedMethodReflection $method): TrinaryLogic => is_bool($method->isAbstract()) ? TrinaryLogic::createFromBoolean($method->isAbstract()) : $method->isAbstract());
 	}
 
+	public function getAttributes(): array
+	{
+		return $this->methods[0]->getAttributes();
+	}
+
 }

@@ -95,6 +95,7 @@ final class CalledOnTypeUnresolvedMethodPrototypeReflection implements Unresolve
 					$parameter->getOutType() !== null ? $this->transformStaticType($parameter->getOutType()) : null,
 					$parameter->isImmediatelyInvokedCallable(),
 					$parameter->getClosureThisType() !== null ? $this->transformStaticType($parameter->getClosureThisType()) : null,
+					$parameter->getAttributes(),
 				),
 				$acceptor->getParameters(),
 			),

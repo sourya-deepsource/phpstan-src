@@ -5,6 +5,7 @@ namespace PHPStan\Reflection\Php;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Reflection\Assertions;
+use PHPStan\Reflection\AttributeReflection;
 use PHPStan\Reflection\ClassMemberReflection;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ExtendedMethodReflection;
@@ -35,8 +36,10 @@ final class PhpMethodFromParserNodeReflection extends PhpFunctionFromParserNodeR
 	 * @param Type[] $realParameterTypes
 	 * @param Type[] $phpDocParameterTypes
 	 * @param Type[] $realParameterDefaultValues
+	 * @param array<string, list<AttributeReflection>> $parameterAttributes
 	 * @param array<string, bool> $immediatelyInvokedCallableParameters
 	 * @param array<string, Type> $phpDocClosureThisTypeParameters
+	 * @param list<AttributeReflection> $attributes
 	 */
 	public function __construct(
 		private ClassReflection $declaringClass,
@@ -47,6 +50,7 @@ final class PhpMethodFromParserNodeReflection extends PhpFunctionFromParserNodeR
 		array $realParameterTypes,
 		array $phpDocParameterTypes,
 		array $realParameterDefaultValues,
+		array $parameterAttributes,
 		Type $realReturnType,
 		?Type $phpDocReturnType,
 		?Type $throwType,
@@ -63,6 +67,7 @@ final class PhpMethodFromParserNodeReflection extends PhpFunctionFromParserNodeR
 		array $immediatelyInvokedCallableParameters,
 		array $phpDocClosureThisTypeParameters,
 		private bool $isConstructor,
+		array $attributes,
 	)
 	{
 		if ($this->classMethod instanceof Node\PropertyHook) {
@@ -116,6 +121,7 @@ final class PhpMethodFromParserNodeReflection extends PhpFunctionFromParserNodeR
 			$realParameterTypes,
 			$phpDocParameterTypes,
 			$realParameterDefaultValues,
+			$parameterAttributes,
 			$realReturnType,
 			$phpDocReturnType,
 			$throwType,
@@ -129,6 +135,7 @@ final class PhpMethodFromParserNodeReflection extends PhpFunctionFromParserNodeR
 			$parameterOutTypes,
 			$immediatelyInvokedCallableParameters,
 			$phpDocClosureThisTypeParameters,
+			$attributes,
 		);
 	}
 

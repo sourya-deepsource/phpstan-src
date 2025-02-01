@@ -3,6 +3,7 @@
 namespace PHPStan\Reflection\Native;
 
 use PHPStan\Reflection\Assertions;
+use PHPStan\Reflection\AttributeReflection;
 use PHPStan\Reflection\ExtendedParametersAcceptor;
 use PHPStan\Reflection\FunctionReflection;
 use PHPStan\ShouldNotHappenException;
@@ -20,6 +21,7 @@ final class NativeFunctionReflection implements FunctionReflection
 	/**
 	 * @param list<ExtendedParametersAcceptor> $variants
 	 * @param list<ExtendedParametersAcceptor>|null $namedArgumentsVariants
+	 * @param list<AttributeReflection> $attributes
 	 */
 	public function __construct(
 		private string $name,
@@ -32,6 +34,7 @@ final class NativeFunctionReflection implements FunctionReflection
 		private ?string $phpDocComment,
 		?TrinaryLogic $returnsByReference,
 		private bool $acceptsNamedArguments,
+		private array $attributes,
 	)
 	{
 		$this->assertions = $assertions ?? Assertions::createEmpty();
@@ -140,6 +143,11 @@ final class NativeFunctionReflection implements FunctionReflection
 	public function acceptsNamedArguments(): TrinaryLogic
 	{
 		return TrinaryLogic::createFromBoolean($this->acceptsNamedArguments);
+	}
+
+	public function getAttributes(): array
+	{
+		return $this->attributes;
 	}
 
 }

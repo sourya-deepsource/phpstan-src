@@ -75,6 +75,7 @@ final class WrappedExtendedMethodReflection implements ExtendedMethodReflection
 					null,
 					TrinaryLogic::createMaybe(),
 					null,
+					[],
 				), $variant->getParameters()),
 				$variant->isVariadic(),
 				$variant->getReturnType(),
@@ -160,6 +161,11 @@ final class WrappedExtendedMethodReflection implements ExtendedMethodReflection
 	public function isAbstract(): TrinaryLogic
 	{
 		return TrinaryLogic::createNo();
+	}
+
+	public function getAttributes(): array
+	{
+		return [];
 	}
 
 }

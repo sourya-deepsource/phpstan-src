@@ -203,4 +203,9 @@ final class ResolvedPropertyReflection implements WrapperPropertyReflection
 		return $this->reflection->isPrivateSet();
 	}
 
+	public function getAttributes(): array
+	{
+		return $this->reflection->getAttributes();
+	}
+
 }
