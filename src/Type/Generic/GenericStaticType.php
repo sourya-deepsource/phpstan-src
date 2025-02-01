@@ -72,7 +72,7 @@ class GenericStaticType extends StaticType
 		return $this->staticObjectType;
 	}
 
-	public function changeBaseClass(ClassReflection $classReflection): StaticType
+	public function changeBaseClass(ClassReflection $classReflection): self
 	{
 		if ($classReflection->getName() === $this->getClassName()) {
 			return $this;
