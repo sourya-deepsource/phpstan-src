@@ -119,7 +119,7 @@ final class CalledOnTypeUnresolvedMethodPrototypeReflection implements Unresolve
 		return TypeTraverser::map($type, function (Type $type, callable $traverse): Type {
 			if ($type instanceof GenericStaticType) {
 				if ($this->calledOnType instanceof ObjectType) {
-					return new GenericObjectType($this->calledOnType->getClassName(), $type->getTypes());
+					return $traverse(new GenericObjectType($this->calledOnType->getClassName(), $type->getTypes()));
 				}
 
 				return $this->calledOnType;
