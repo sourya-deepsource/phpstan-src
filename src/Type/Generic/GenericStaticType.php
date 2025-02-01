@@ -6,6 +6,7 @@ use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\TypeNode;
 use PHPStan\Reflection\ClassReflection;
+use PHPStan\ShouldNotHappenException;
 use PHPStan\Type\CompoundType;
 use PHPStan\Type\IsSuperTypeOfResult;
 use PHPStan\Type\NeverType;
@@ -36,6 +37,9 @@ class GenericStaticType extends StaticType
 		private array $variances,
 	)
 	{
+		if (count($this->types) === 0) {
+			throw new ShouldNotHappenException('Cannot create GenericStaticType with zero types.');
+		}
 		parent::__construct($classReflection, $subtractedType);
 	}
 
@@ -72,10 +76,14 @@ class GenericStaticType extends StaticType
 		return $this->staticObjectType;
 	}
 
-	public function changeBaseClass(ClassReflection $classReflection): self
+	public function changeBaseClass(ClassReflection $classReflection): StaticType
 	{
 		if ($classReflection->getName() === $this->getClassName()) {
 			return $this;
+		}
+
+		if (!$classReflection->isGeneric()) {
+			return new StaticType($classReflection);
 		}
 
 		// this template type mapping logic is very similar to mapping logic in MutatingScope::exactInstantiation()
