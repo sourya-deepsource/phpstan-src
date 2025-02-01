@@ -11,11 +11,11 @@ use PHPStan\Reflection\ParametersAcceptorWithPhpDocs;
 use PHPStan\Reflection\Php\DummyParameterWithPhpDocs;
 use PHPStan\Reflection\ResolvedMethodReflection;
 use PHPStan\Type\Generic\GenericStaticType;
+use PHPStan\Type\ObjectType;
 use PHPStan\Type\StaticType;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypeTraverser;
 use function array_map;
-use function count;
 
 final class CalledOnTypeUnresolvedMethodPrototypeReflection implements UnresolvedMethodPrototypeReflection
 {
@@ -117,11 +117,11 @@ final class CalledOnTypeUnresolvedMethodPrototypeReflection implements Unresolve
 	{
 		return TypeTraverser::map($type, function (Type $type, callable $traverse): Type {
 			if ($type instanceof GenericStaticType) {
-				$calledOnTypeReflections = $this->calledOnType->getObjectClassReflections();
-				if (count($calledOnTypeReflections) === 1) {
-					$calledOnTypeReflection = $calledOnTypeReflections[0];
-
-					return $traverse($type->changeBaseClass($calledOnTypeReflection)->getStaticObjectType());
+				if ($this->calledOnType instanceof ObjectType) {
+					$calledOnTypeReflection = $this->calledOnType->getClassReflection();
+					if ($calledOnTypeReflection !== null) {
+						return $traverse($type->changeBaseClass($calledOnTypeReflection)->getStaticObjectType());
+					}
 				}
 
 				return $this->calledOnType;
