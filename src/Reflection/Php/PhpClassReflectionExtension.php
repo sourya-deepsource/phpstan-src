@@ -528,16 +528,12 @@ final class PhpClassReflectionExtension
 
 		if ($this->signatureMapProvider->hasMethodSignature($declaringClassName, $methodReflection->getName())) {
 			$variantsByType = ['positional' => []];
-			$reflectionMethod = null;
 			$throwType = null;
 			$asserts = Assertions::createEmpty();
 			$acceptsNamedArguments = true;
 			$selfOutType = null;
 			$phpDocComment = null;
-			if ($classReflection->getNativeReflection()->hasMethod($methodReflection->getName())) {
-				$reflectionMethod = $classReflection->getNativeReflection()->getMethod($methodReflection->getName());
-			}
-			$methodSignaturesResult = $this->signatureMapProvider->getMethodSignatures($declaringClassName, $methodReflection->getName(), $reflectionMethod);
+			$methodSignaturesResult = $this->signatureMapProvider->getMethodSignatures($declaringClassName, $methodReflection->getName(), $methodReflection);
 			foreach ($methodSignaturesResult as $signatureType => $methodSignatures) {
 				if ($methodSignatures === null) {
 					continue;
@@ -615,15 +611,15 @@ final class PhpClassReflectionExtension
 							}
 						}
 					}
-					if ($stubPhpDocPair === null && $reflectionMethod !== null && $reflectionMethod->getDocComment() !== false) {
-						$filename = $reflectionMethod->getFileName();
+					if ($stubPhpDocPair === null && $methodReflection->getDocComment() !== false) {
+						$filename = $methodReflection->getFileName();
 						if ($filename !== false) {
 							$phpDocBlock = $this->fileTypeMapper->getResolvedPhpDoc(
 								$filename,
 								$declaringClassName,
 								null,
-								$reflectionMethod->getName(),
-								$reflectionMethod->getDocComment(),
+								$methodReflection->getName(),
+								$methodReflection->getDocComment(),
 							);
 							$throwsTag = $phpDocBlock->getThrowsTag();
 							if ($throwsTag !== null) {
@@ -655,7 +651,7 @@ final class PhpClassReflectionExtension
 							}
 
 							$signatureParameters = $methodSignature->getParameters();
-							foreach ($reflectionMethod->getParameters() as $paramI => $reflectionParameter) {
+							foreach ($methodReflection->getParameters() as $paramI => $reflectionParameter) {
 								if (!array_key_exists($paramI, $signatureParameters)) {
 									continue;
 								}
