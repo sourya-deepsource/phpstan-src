@@ -51,6 +51,23 @@ class AttributeReflectionFromNodeRuleTest extends RuleTestCase
 					$parts[] = sprintf('#[%s(%s)]', $attribute->getName(), implode(', ', $args));
 				}
 
+				foreach ($reflection->getParameters() as $parameter) {
+					$parameterAttributes = [];
+					foreach ($parameter->getAttributes() as $parameterAttribute) {
+						$parameterArgs = [];
+						foreach ($parameterAttribute->getArgumentTypes() as $argName => $argType) {
+							$parameterArgs[] = sprintf('%s: %s', $argName, $argType->describe(VerbosityLevel::precise()));
+						}
+						$parameterAttributes[] = sprintf('#[%s(%s)]', $parameterAttribute->getName(), implode(', ', $parameterArgs));
+					}
+
+					if (count($parameterAttributes) === 0) {
+						continue;
+					}
+
+					$parts[] = sprintf('$%s: %s', $parameter->getName(), implode(', ', $parameterAttributes));
+				}
+
 				if (count($parts) === 0) {
 					return [];
 				}
@@ -71,7 +88,7 @@ class AttributeReflectionFromNodeRuleTest extends RuleTestCase
 
 		$this->analyse([__DIR__ . '/data/attribute-reflection.php'], [
 			[
-				'#[AttributeReflectionTest\MyAttr(one: 7, two: 8)]',
+				'#[AttributeReflectionTest\MyAttr(one: 7, two: 8)], $test: #[AttributeReflectionTest\MyAttr(one: 9, two: 10)]',
 				28,
 			],
 			[
