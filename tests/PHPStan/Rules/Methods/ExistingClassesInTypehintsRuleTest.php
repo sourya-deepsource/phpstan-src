@@ -548,4 +548,12 @@ class ExistingClassesInTypehintsRuleTest extends RuleTestCase
 		]);
 	}
 
+	public function testBug12501(): void
+	{
+		if (PHP_VERSION_ID < 80400) {
+			self::markTestSkipped('This test needs PHP 8.4.');
+		}
+		$this->analyse([__DIR__ . '/data/bug-12501.php'], []);
+	}
+
 }
