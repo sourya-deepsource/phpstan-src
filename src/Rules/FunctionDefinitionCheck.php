@@ -704,6 +704,13 @@ final class FunctionDefinitionCheck
 			return null;
 		}
 
+		if ($type instanceof Identifier && strtolower($type->name) === 'null') {
+			return null;
+		}
+		if ($type instanceof Name && $type->toLowerString() === 'null') {
+			return null;
+		}
+
 		if ($type instanceof UnionType) {
 			foreach ($type->types as $innerType) {
 				if ($innerType instanceof Identifier && strtolower($innerType->name) === 'null') {
