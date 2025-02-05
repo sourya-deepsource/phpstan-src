@@ -140,4 +140,20 @@ class ElseIfConstantConditionRuleTest extends RuleTestCase
 		]);
 	}
 
+	public function testBug6947(): void
+	{
+		if (PHP_VERSION_ID < 80000) {
+			$this->markTestSkipped('Test requires PHP 8.0');
+		}
+
+		$this->treatPhpDocTypesAsCertain = true;
+		$this->analyse([__DIR__ . '/data/bug-6947.php'], [
+			[
+				'Elseif condition is always false.',
+				11,
+				'Because the type is coming from a PHPDoc, you can turn off this check by setting <fg=cyan>treatPhpDocTypesAsCertain: false</> in your <fg=cyan>%configurationFile%</>.',
+			],
+		]);
+	}
+
 }
