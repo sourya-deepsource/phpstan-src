@@ -195,7 +195,22 @@ final class PhpDocBlock
 		array $newPositionalParameterNames,
 	): self
 	{
-		$parentReflections = self::getParentReflections($classReflection);
+		$docBlocksFromParents = [];
+		foreach (self::getParentReflections($classReflection) as $parentReflection) {
+			$oneResult = self::resolveMethodPhpDocBlockFromClass(
+				$parentReflection,
+				$methodName,
+				$explicit ?? $docComment !== null,
+				$newPositionalParameterNames,
+			);
+
+			if ($oneResult === null) { // Null if it is private or from a wrong trait.
+				continue;
+			}
+
+			$docBlocksFromParents[] = $oneResult;
+		}
+
 		foreach ($classReflection->getTraits(true) as $traitReflection) {
 			if (!$traitReflection->hasNativeMethod($methodName)) {
 				continue;
@@ -210,23 +225,21 @@ final class PhpDocBlock
 				continue;
 			}
 
-			$parentReflections[] = $traitReflection;
-		}
-
-		$docBlocksFromParents = [];
-		foreach ($parentReflections as $parentReflection) {
-			$oneResult = self::resolveMethodPhpDocBlockFromClass(
-				$parentReflection,
-				$methodName,
-				$explicit ?? $docComment !== null,
-				$newPositionalParameterNames,
-			);
-
-			if ($oneResult === null) { // Null if it is private or from a wrong trait.
-				continue;
+			$methodVariant = $traitMethod->getOnlyVariant();
+			$positionalMethodParameterNames = [];
+			foreach ($methodVariant->getParameters() as $methodParameter) {
+				$positionalMethodParameterNames[] = $methodParameter->getName();
 			}
 
-			$docBlocksFromParents[] = $oneResult;
+			$docBlocksFromParents[] = new self(
+				$traitMethod->getDocComment() ?? ResolvedPhpDocBlock::EMPTY_DOC_STRING,
+				$classReflection->getFileName(),
+				$classReflection,
+				$traitReflection->getName(),
+				$explicit ?? $traitMethod->getDocComment() !== null,
+				self::remapParameterNames($newPositionalParameterNames, $positionalMethodParameterNames),
+				[],
+			);
 		}
 
 		return new self(
