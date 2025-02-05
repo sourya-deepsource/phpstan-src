@@ -175,18 +175,6 @@ parameters:
 			path: src/Diagnose/PHPStanDiagnoseExtension.php
 
 		-
-			message: '#^Variable method call on PHPStan\\Reflection\\ClassReflection\.$#'
-			identifier: method.dynamicName
-			count: 2
-			path: src/PhpDoc/PhpDocBlock.php
-
-		-
-			message: '#^Variable static method call on PHPStan\\PhpDoc\\PhpDocBlock\.$#'
-			identifier: staticMethod.dynamicName
-			count: 1
-			path: src/PhpDoc/PhpDocBlock.php
-
-		-
 			message: '#^Call to function method_exists\(\) with PHPStan\\PhpDocParser\\Ast\\PhpDoc\\PhpDocNode and ''getParamOutTypeTagV…'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
