@@ -235,8 +235,10 @@ final class TypeNodeResolver
 			case 'class-string':
 			case 'interface-string':
 			case 'trait-string':
-			case 'enum-string':
 				return new ClassStringType();
+
+			case 'enum-string':
+				return new GenericClassStringType(new ObjectType('UnitEnum'));
 
 			case 'callable-string':
 				return new IntersectionType([new StringType(), new CallableType()]);
@@ -702,6 +704,13 @@ final class TypeNodeResolver
 				if ($genericType->isObject()->yes() || $genericType instanceof MixedType) {
 					return new GenericClassStringType($genericType);
 				}
+			}
+
+			return new ErrorType();
+		} elseif ($mainTypeName === 'enum-string') {
+			if (count($genericTypes) === 1) {
+				$genericType = $genericTypes[0];
+				return new GenericClassStringType(TypeCombinator::intersect($genericType, new ObjectType('UnitEnum')));
 			}
 
 			return new ErrorType();
