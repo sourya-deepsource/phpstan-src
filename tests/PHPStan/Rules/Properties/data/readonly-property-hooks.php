@@ -18,3 +18,11 @@ abstract class HiWorld
 {
 	public abstract readonly string $firstName { get { return 'jake'; } set; }
 }
+
+readonly class GoodMorningWorld
+{
+	public string $firstName {
+		get => $this->firstName;
+		set => $this->firstName;
+	}
+}

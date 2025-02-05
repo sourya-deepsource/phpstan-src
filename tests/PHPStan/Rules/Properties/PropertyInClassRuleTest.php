@@ -174,6 +174,10 @@ class PropertyInClassRuleTest extends RuleTestCase
 				'Hooked properties cannot be readonly.',
 				19,
 			],
+			[
+				'Hooked properties cannot be readonly.',
+				24,
+			],
 		]);
 	}
 
