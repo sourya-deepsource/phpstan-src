@@ -3,9 +3,7 @@
 namespace PHPStan\PhpDoc;
 
 use PHPStan\PhpDoc\Tag\AssertTagParameter;
-use PHPStan\Reflection\ClassConstantReflection;
 use PHPStan\Reflection\ClassReflection;
-use PHPStan\Reflection\MethodReflection;
 use PHPStan\Reflection\Php\PhpMethodReflection;
 use PHPStan\Reflection\ResolvedMethodReflection;
 use PHPStan\Type\ConditionalTypeForParameter;
