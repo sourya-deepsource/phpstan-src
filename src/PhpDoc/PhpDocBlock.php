@@ -4,13 +4,8 @@ namespace PHPStan\PhpDoc;
 
 use PHPStan\PhpDoc\Tag\AssertTagParameter;
 use PHPStan\Reflection\ClassReflection;
-use PHPStan\Reflection\ConstantReflection;
-use PHPStan\Reflection\MethodReflection;
 use PHPStan\Reflection\Php\PhpMethodReflection;
-use PHPStan\Reflection\Php\PhpPropertyReflection;
-use PHPStan\Reflection\PropertyReflection;
 use PHPStan\Reflection\ResolvedMethodReflection;
-use PHPStan\Reflection\ResolvedPropertyReflection;
 use PHPStan\Type\ConditionalTypeForParameter;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypeTraverser;
@@ -114,10 +109,6 @@ final class PhpDocBlock
 		return $parameter;
 	}
 
-	/**
-	 * @param array<int, string> $originalPositionalParameterNames
-	 * @param array<int, string> $newPositionalParameterNames
-	 */
 	public static function resolvePhpDocBlockForProperty(
 		?string $docComment,
 		ClassReflection $classReflection,
@@ -125,19 +116,22 @@ final class PhpDocBlock
 		string $propertyName,
 		?string $file,
 		?bool $explicit,
-		array $originalPositionalParameterNames, // unused
-		array $newPositionalParameterNames, // unused
 	): self
 	{
-		$docBlocksFromParents = self::resolveParentPhpDocBlocks(
-			self::getParentReflections($classReflection),
-			$propertyName,
-			'hasNativeProperty',
-			'getNativeProperty',
-			__FUNCTION__,
-			$explicit ?? $docComment !== null,
-			$newPositionalParameterNames,
-		);
+		$docBlocksFromParents = [];
+		foreach (self::getParentReflections($classReflection) as $parentReflection) {
+			$oneResult = self::resolvePropertyPhpDocBlockFromClass(
+				$parentReflection,
+				$propertyName,
+				$explicit ?? $docComment !== null,
+			);
+
+			if ($oneResult === null) { // Null if it is private or from a wrong trait.
+				continue;
+			}
+
+			$docBlocksFromParents[] = $oneResult;
+		}
 
 		return new self(
 			$docComment ?? ResolvedPhpDocBlock::EMPTY_DOC_STRING,
@@ -145,43 +139,41 @@ final class PhpDocBlock
 			$classReflection,
 			$trait,
 			$explicit ?? true,
-			self::remapParameterNames($originalPositionalParameterNames, $newPositionalParameterNames),
+			[],
 			$docBlocksFromParents,
 		);
 	}
 
-	/**
-	 * @param array<int, string> $originalPositionalParameterNames
-	 * @param array<int, string> $newPositionalParameterNames
-	 */
 	public static function resolvePhpDocBlockForConstant(
 		?string $docComment,
 		ClassReflection $classReflection,
-		?string $trait, // unused
 		string $constantName,
 		?string $file,
 		?bool $explicit,
-		array $originalPositionalParameterNames, // unused
-		array $newPositionalParameterNames, // unused
 	): self
 	{
-		$docBlocksFromParents = self::resolveParentPhpDocBlocks(
-			self::getParentReflections($classReflection),
-			$constantName,
-			'hasConstant',
-			'getConstant',
-			__FUNCTION__,
-			$explicit ?? $docComment !== null,
-			$newPositionalParameterNames,
-		);
+		$docBlocksFromParents = [];
+		foreach (self::getParentReflections($classReflection) as $parentReflection) {
+			$oneResult = self::resolveConstantPhpDocBlockFromClass(
+				$parentReflection,
+				$constantName,
+				$explicit ?? $docComment !== null,
+			);
+
+			if ($oneResult === null) { // Null if it is private or from a wrong trait.
+				continue;
+			}
+
+			$docBlocksFromParents[] = $oneResult;
+		}
 
 		return new self(
 			$docComment ?? ResolvedPhpDocBlock::EMPTY_DOC_STRING,
 			$file,
 			$classReflection,
-			$trait,
+			null,
 			$explicit ?? true,
-			self::remapParameterNames($originalPositionalParameterNames, $newPositionalParameterNames),
+			[],
 			$docBlocksFromParents,
 		);
 	}
@@ -219,15 +211,21 @@ final class PhpDocBlock
 			$parentReflections[] = $traitReflection;
 		}
 
-		$docBlocksFromParents = self::resolveParentPhpDocBlocks(
-			$parentReflections,
-			$methodName,
-			'hasNativeMethod',
-			'getNativeMethod',
-			__FUNCTION__,
-			$explicit ?? $docComment !== null,
-			$newPositionalParameterNames,
-		);
+		$docBlocksFromParents = [];
+		foreach ($parentReflections as $parentReflection) {
+			$oneResult = self::resolveMethodPhpDocBlockFromClass(
+				$parentReflection,
+				$methodName,
+				$explicit ?? $docComment !== null,
+				$newPositionalParameterNames,
+			);
+
+			if ($oneResult === null) { // Null if it is private or from a wrong trait.
+				continue;
+			}
+
+			$docBlocksFromParents[] = $oneResult;
+		}
 
 		return new self(
 			$docComment ?? ResolvedPhpDocBlock::EMPTY_DOC_STRING,
@@ -262,44 +260,6 @@ final class PhpDocBlock
 	}
 
 	/**
-	 * @param array<int, ClassReflection> $parentReflections
-	 * @param array<int, string> $positionalParameterNames
-	 * @return array<int, self>
-	 */
-	private static function resolveParentPhpDocBlocks(
-		array $parentReflections,
-		string $name,
-		string $hasMethodName,
-		string $getMethodName,
-		string $resolveMethodName,
-		bool $explicit,
-		array $positionalParameterNames,
-	): array
-	{
-		$result = [];
-
-		foreach ($parentReflections as $parentReflection) {
-			$oneResult = self::resolvePhpDocBlockFromClass(
-				$parentReflection,
-				$name,
-				$hasMethodName,
-				$getMethodName,
-				$resolveMethodName,
-				$explicit,
-				$positionalParameterNames,
-			);
-
-			if ($oneResult === null) { // Null if it is private or from a wrong trait.
-				continue;
-			}
-
-			$result[] = $oneResult;
-		}
-
-		return $result;
-	}
-
-	/**
 	 * @return array<int, ClassReflection>
 	 */
 	private static function getParentReflections(ClassReflection $classReflection): array
@@ -318,61 +278,106 @@ final class PhpDocBlock
 		return $result;
 	}
 
-	/**
-	 * @param array<int, string> $positionalParameterNames
-	 */
-	private static function resolvePhpDocBlockFromClass(
+	private static function resolveConstantPhpDocBlockFromClass(
 		ClassReflection $classReflection,
 		string $name,
-		string $hasMethodName,
-		string $getMethodName,
-		string $resolveMethodName,
 		bool $explicit,
-		array $positionalParameterNames,
 	): ?self
 	{
-		if ($classReflection->$hasMethodName($name)) {
-			/** @var PropertyReflection|MethodReflection|ConstantReflection $parentReflection */
-			$parentReflection = $classReflection->$getMethodName($name);
+		if ($classReflection->hasConstant($name)) {
+			$parentReflection = $classReflection->getConstant($name);
 			if ($parentReflection->isPrivate()) {
 				return null;
 			}
 
 			$classReflection = $parentReflection->getDeclaringClass();
 
-			if ($parentReflection instanceof PhpPropertyReflection || $parentReflection instanceof ResolvedPropertyReflection) {
+			return self::resolvePhpDocBlockForConstant(
+				$parentReflection->getDocComment() ?? ResolvedPhpDocBlock::EMPTY_DOC_STRING,
+				$classReflection,
+				$name,
+				$classReflection->getFileName(),
+				$explicit,
+			);
+		}
+
+		return null;
+	}
+
+	private static function resolvePropertyPhpDocBlockFromClass(
+		ClassReflection $classReflection,
+		string $name,
+		bool $explicit,
+	): ?self
+	{
+		if ($classReflection->hasNativeProperty($name)) {
+			$parentReflection = $classReflection->getNativeProperty($name);
+			if ($parentReflection->isPrivate()) {
+				return null;
+			}
+
+			$classReflection = $parentReflection->getDeclaringClass();
+			$traitReflection = $parentReflection->getDeclaringTrait();
+
+			$trait = $traitReflection !== null
+				? $traitReflection->getName()
+				: null;
+
+			return self::resolvePhpDocBlockForProperty(
+				$parentReflection->getDocComment() ?? ResolvedPhpDocBlock::EMPTY_DOC_STRING,
+				$classReflection,
+				$trait,
+				$name,
+				$classReflection->getFileName(),
+				$explicit,
+			);
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param array<int, string> $positionalParameterNames
+	 */
+	private static function resolveMethodPhpDocBlockFromClass(
+		ClassReflection $classReflection,
+		string $name,
+		bool $explicit,
+		array $positionalParameterNames,
+	): ?self
+	{
+		if ($classReflection->hasNativeMethod($name)) {
+			$parentReflection = $classReflection->getNativeMethod($name);
+			if ($parentReflection->isPrivate()) {
+				return null;
+			}
+
+			$classReflection = $parentReflection->getDeclaringClass();
+			$traitReflection = null;
+			if ($parentReflection instanceof PhpMethodReflection || $parentReflection instanceof ResolvedMethodReflection) {
 				$traitReflection = $parentReflection->getDeclaringTrait();
-				$positionalMethodParameterNames = [];
-			} elseif ($parentReflection instanceof MethodReflection) {
-				$traitReflection = null;
-				if ($parentReflection instanceof PhpMethodReflection || $parentReflection instanceof ResolvedMethodReflection) {
-					$traitReflection = $parentReflection->getDeclaringTrait();
-				}
-				$methodVariants = $parentReflection->getVariants();
-				$positionalMethodParameterNames = [];
-				$lowercaseMethodName = strtolower($parentReflection->getName());
-				if (
-					count($methodVariants) === 1
-					&& $lowercaseMethodName !== '__construct'
-					&& $lowercaseMethodName !== strtolower($parentReflection->getDeclaringClass()->getName())
-				) {
-					$methodParameters = $methodVariants[0]->getParameters();
-					foreach ($methodParameters as $methodParameter) {
-						$positionalMethodParameterNames[] = $methodParameter->getName();
-					}
-				} else {
-					$positionalMethodParameterNames = $positionalParameterNames;
+			}
+			$methodVariants = $parentReflection->getVariants();
+			$positionalMethodParameterNames = [];
+			$lowercaseMethodName = strtolower($parentReflection->getName());
+			if (
+				count($methodVariants) === 1
+				&& $lowercaseMethodName !== '__construct'
+				&& $lowercaseMethodName !== strtolower($parentReflection->getDeclaringClass()->getName())
+			) {
+				$methodParameters = $methodVariants[0]->getParameters();
+				foreach ($methodParameters as $methodParameter) {
+					$positionalMethodParameterNames[] = $methodParameter->getName();
 				}
 			} else {
-				$traitReflection = null;
-				$positionalMethodParameterNames = [];
+				$positionalMethodParameterNames = $positionalParameterNames;
 			}
 
 			$trait = $traitReflection !== null
 				? $traitReflection->getName()
 				: null;
 
-			return self::$resolveMethodName(
+			return self::resolvePhpDocBlockForMethod(
 				$parentReflection->getDocComment() ?? ResolvedPhpDocBlock::EMPTY_DOC_STRING,
 				$classReflection,
 				$trait,

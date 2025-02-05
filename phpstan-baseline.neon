@@ -172,16 +172,6 @@ parameters:
 			path: src/Internal/ContainerDynamicReturnTypeExtension.php
 
 		-
-			message: "#^Variable method call on PHPStan\\\\Reflection\\\\ClassReflection\\.$#"
-			count: 2
-			path: src/PhpDoc/PhpDocBlock.php
-
-		-
-			message: "#^Variable static method call on PHPStan\\\\PhpDoc\\\\PhpDocBlock\\.$#"
-			count: 1
-			path: src/PhpDoc/PhpDocBlock.php
-
-		-
 			message: "#^Call to function method_exists\\(\\) with PHPStan\\\\PhpDocParser\\\\Ast\\\\PhpDoc\\\\PhpDocNode and 'getParamOutTypeTagV…' will always evaluate to true\\.$#"
 			count: 1
 			path: src/PhpDoc/PhpDocNodeResolver.php
