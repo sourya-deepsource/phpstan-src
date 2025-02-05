@@ -5,6 +5,7 @@ namespace PHPStan\Rules\Methods;
 use PHPStan\Rules\MissingTypehintCheck;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
+use const PHP_VERSION_ID;
 
 /**
  * @extends RuleTestCase<MissingMethodReturnTypehintRule>
@@ -109,6 +110,15 @@ class MissingMethodReturnTypehintRuleTest extends RuleTestCase
 				MissingTypehintCheck::MISSING_ITERABLE_VALUE_TYPE_TIP,
 			],
 		]);
+	}
+
+	public function testBug9657(): void
+	{
+		if (PHP_VERSION_ID < 80000) {
+			$this->markTestSkipped('Test requires PHP 8.0');
+		}
+
+		$this->analyse([__DIR__ . '/data/bug-9657.php'], []);
 	}
 
 }
