@@ -801,6 +801,15 @@ class AnalyserIntegrationTest extends PHPStanTestCase
 		$this->assertSame(6, $errors[0]->getLine());
 	}
 
+	public function testBug12327(): void
+	{
+		$errors = $this->runAnalyse(__DIR__ . '/data/bug-12327.php');
+		$this->assertCount(1, $errors);
+
+		$this->assertSame('Class Bug12327\DoesNotMatter uses unknown trait Bug12327\ThisTriggersTheIssue.', $errors[0]->getMessage());
+		$this->assertSame(15, $errors[0]->getLine());
+	}
+
 	public function testBug7215(): void
 	{
 		$errors = $this->runAnalyse(__DIR__ . '/data/bug-7215.php');
