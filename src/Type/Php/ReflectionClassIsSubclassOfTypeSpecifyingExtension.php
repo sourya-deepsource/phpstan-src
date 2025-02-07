@@ -9,10 +9,9 @@ use PHPStan\Analyser\TypeSpecifier;
 use PHPStan\Analyser\TypeSpecifierAwareExtension;
 use PHPStan\Analyser\TypeSpecifierContext;
 use PHPStan\Reflection\MethodReflection;
-use PHPStan\Type\Constant\ConstantStringType;
 use PHPStan\Type\Generic\GenericObjectType;
 use PHPStan\Type\MethodTypeSpecifyingExtension;
-use PHPStan\Type\ObjectType;
+use PHPStan\Type\ObjectWithoutClassType;
 use ReflectionClass;
 
 final class ReflectionClassIsSubclassOfTypeSpecifyingExtension implements MethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
@@ -34,24 +33,47 @@ final class ReflectionClassIsSubclassOfTypeSpecifyingExtension implements Method
 	{
 		return $methodReflection->getName() === 'isSubclassOf'
 			&& isset($node->getArgs()[0])
-			&& $context->true();
+			&& !$context->null();
 	}
 
 	public function specifyTypes(MethodReflection $methodReflection, MethodCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
 	{
+		$calledOnType = $scope->getType($node->var);
+		$reflectionType = $calledOnType->getTemplateType(ReflectionClass::class, 'T');
+		if (!(new ObjectWithoutClassType())->isSuperTypeOf($reflectionType)->yes()) {
+			return new SpecifiedTypes();
+		}
+
 		$valueType = $scope->getType($node->getArgs()[0]->value);
-		if (!$valueType instanceof ConstantStringType) {
-			return new SpecifiedTypes([], []);
+		$objectType = $valueType->getClassStringObjectType();
+		$narrowingType = new GenericObjectType(ReflectionClass::class, [$objectType]);
+
+		if (!$reflectionType->isSuperTypeOf($objectType)->yes()) {
+			// cause "always false" error
+			return $this->typeSpecifier->create(
+				$node->var,
+				$narrowingType,
+				$context,
+				$scope,
+			);
+		}
+
+		if ($objectType->isSuperTypeOf($reflectionType)->yes()) {
+			// cause "always true" error
+			return $this->typeSpecifier->create(
+				$node->var,
+				$narrowingType,
+				$context,
+				$scope,
+			);
 		}
 
 		return $this->typeSpecifier->create(
 			$node->var,
-			new GenericObjectType(ReflectionClass::class, [
-				new ObjectType($valueType->getValue()),
-			]),
+			$narrowingType,
 			$context,
 			$scope,
-		);
+		)->setAlwaysOverwriteTypes();
 	}
 
 }
