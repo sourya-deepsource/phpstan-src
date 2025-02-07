@@ -12,6 +12,7 @@ use PHPStan\Reflection\MethodReflection;
 use PHPStan\Type\Generic\GenericObjectType;
 use PHPStan\Type\MethodTypeSpecifyingExtension;
 use PHPStan\Type\ObjectWithoutClassType;
+use PHPStan\Type\TypeCombinator;
 use ReflectionClass;
 
 final class ReflectionClassIsSubclassOfTypeSpecifyingExtension implements MethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
@@ -46,20 +47,11 @@ final class ReflectionClassIsSubclassOfTypeSpecifyingExtension implements Method
 
 		$valueType = $scope->getType($node->getArgs()[0]->value);
 		$objectType = $valueType->getClassStringObjectType();
-		$narrowingType = new GenericObjectType(ReflectionClass::class, [$objectType]);
 
-		if (!$reflectionType->isSuperTypeOf($objectType)->yes()) {
-			// cause "always false" error
-			return $this->typeSpecifier->create(
-				$node->var,
-				$narrowingType,
-				$context,
-				$scope,
-			);
-		}
+		$intersected = TypeCombinator::intersect($reflectionType, $objectType);
+		$narrowingType = new GenericObjectType(ReflectionClass::class, [$intersected]);
 
-		if ($objectType->isSuperTypeOf($reflectionType)->yes()) {
-			// cause "always true" error
+		if ($reflectionType->isSuperTypeOf($objectType)->no()) {
 			return $this->typeSpecifier->create(
 				$node->var,
 				$narrowingType,

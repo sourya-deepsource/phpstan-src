@@ -60,3 +60,14 @@ function doFoo3(string $a): void {
 
 	}
 }
+
+/**
+ * @param ReflectionClass<object> $a
+ * @param class-string<object> $b
+ * @return void
+ */
+function doFoo4(ReflectionClass $a, string $b): void {
+	if ($a->isSubclassOf($b)) {
+
+	}
+};

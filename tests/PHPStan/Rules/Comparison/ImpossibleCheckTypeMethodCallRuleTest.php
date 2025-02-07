@@ -259,21 +259,21 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 		$this->treatPhpDocTypesAsCertain = true;
 		$tip = 'Because the type is coming from a PHPDoc, you can turn off this check by setting <fg=cyan>treatPhpDocTypesAsCertain: false</> in your <fg=cyan>%configurationFile%</>.';
 		$this->analyse([__DIR__ . '/data/bug-12473.php'], [
-			[
+			/*[
 				'Call to method ReflectionClass<Bug12473\\Picture>::isSubclassOf() with \'Bug12473\\\\Picture\' will always evaluate to true.',
 				39,
 				$tip,
-			],
+			],*/
 			[
 				'Call to method ReflectionClass<Bug12473\\PictureUser>::isSubclassOf() with \'Bug12473\\\\PictureProduct\' will always evaluate to false.',
 				49,
 				$tip,
 			],
-			[
+			/*[
 				'Call to method ReflectionClass<Bug12473\\PictureUser>::isSubclassOf() with \'Bug12473\\\\PictureUser\' will always evaluate to true.',
 				59,
 				$tip,
-			],
+			],*/
 		]);
 	}
 
