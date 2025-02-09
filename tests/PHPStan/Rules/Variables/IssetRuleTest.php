@@ -449,4 +449,19 @@ class IssetRuleTest extends RuleTestCase
 		$this->analyse([__DIR__ . '/data/bug-10064.php'], []);
 	}
 
+	public function testVirtualProperty(): void
+	{
+		if (PHP_VERSION_ID < 80400) {
+			$this->markTestSkipped('Test requires PHP 8.4.');
+		}
+
+		$this->treatPhpDocTypesAsCertain = true;
+		$this->analyse([__DIR__ . '/data/isset-virtual-property.php'], [
+			[
+				'Property IssetVirtualProperty\Example::$noon (DateTimeImmutable) in isset() is not nullable.',
+				16,
+			],
+		]);
+	}
+
 }

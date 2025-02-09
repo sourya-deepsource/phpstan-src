@@ -226,4 +226,13 @@ class UninitializedPropertyRuleTest extends RuleTestCase
 		$this->analyse([__DIR__ . '/data/bug-12336.php'], []);
 	}
 
+	public function testBug12547(): void
+	{
+		if (PHP_VERSION_ID < 80400) {
+			$this->markTestSkipped('Test requires PHP 8.4.');
+		}
+
+		$this->analyse([__DIR__ . '/data/bug-12547.php'], []);
+	}
+
 }

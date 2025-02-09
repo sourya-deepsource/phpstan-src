@@ -2633,7 +2633,7 @@ final class MutatingScope implements Scope
 			return false;
 		}
 
-		return !$propertyReflection->getNativeType() instanceof MixedType;
+		return $propertyReflection->hasNativeType();
 	}
 
 	private function getTypeFromArrayDimFetch(

@@ -7,7 +7,6 @@ use PhpParser\Node\Expr;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Properties\PropertyDescriptor;
 use PHPStan\Rules\Properties\PropertyReflectionFinder;
-use PHPStan\Type\MixedType;
 use PHPStan\Type\NeverType;
 use PHPStan\Type\Type;
 use PHPStan\Type\VerbosityLevel;
@@ -143,8 +142,7 @@ final class IssetCheck
 				return null;
 			}
 
-			$nativeType = $propertyReflection->getNativeType();
-			if (!$nativeType instanceof MixedType) {
+			if ($propertyReflection->hasNativeType() && !$propertyReflection->isVirtual()->yes()) {
 				if (!$scope->hasExpressionType($expr)->yes()) {
 					if ($expr instanceof Node\Expr\PropertyFetch) {
 						return $this->checkUndefined($expr->var, $scope, $operatorDescription, $identifier);

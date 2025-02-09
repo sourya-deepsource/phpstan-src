@@ -8,7 +8,6 @@ use PHPStan\Node\ClassPropertyNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Rules\RuleLevelHelper;
-use PHPStan\Type\MixedType;
 use PHPStan\Type\VerbosityLevel;
 use function sprintf;
 
@@ -38,7 +37,7 @@ final class DefaultValueTypesAssignedToPropertiesRule implements Rule
 
 		$propertyReflection = $classReflection->getNativeProperty($node->getName());
 		$propertyType = $propertyReflection->getWritableType();
-		if ($propertyReflection->getNativeType() instanceof MixedType) {
+		if (!$propertyReflection->hasNativeType()) {
 			if ($default instanceof Node\Expr\ConstFetch && $default->name->toLowerString() === 'null') {
 				return [];
 			}
