@@ -3500,4 +3500,18 @@ class CallMethodsRuleTest extends RuleTestCase
 		$this->analyse([__DIR__ . '/data/bug-4801.php'], []);
 	}
 
+	public function testBug12544(): void
+	{
+		$this->checkThisOnly = false;
+		$this->checkNullables = true;
+		$this->checkUnionTypes = true;
+		$this->checkExplicitMixed = true;
+		$this->analyse([__DIR__ . '/data/bug-12544.php'], [
+			[
+				'Call to private method somethingElse() of class Bug12544\Bar.',
+				20,
+			],
+		]);
+	}
+
 }
