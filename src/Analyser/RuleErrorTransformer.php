@@ -18,6 +18,7 @@ final class RuleErrorTransformer
 	 * @param class-string<Node> $nodeType
 	 */
 	public function transform(
+		string $ruleName,
 		RuleError $ruleError,
 		Scope $scope,
 		string $nodeType,
@@ -70,8 +71,10 @@ final class RuleErrorTransformer
 			$canBeIgnored = false;
 		}
 
+		$message = sprintf('%s:::%s', $ruleName, $ruleError->getMessage());
+
 		return new Error(
-			$ruleError->getMessage(),
+			$message,
 			$fileName,
 			$line,
 			$canBeIgnored,
